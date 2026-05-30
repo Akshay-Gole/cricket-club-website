@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import { ROUTES } from '../../constants/routes'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import logo from '../../assets/images/logo.png'
 
 const NAV_LINKS = [
@@ -15,6 +15,29 @@ const NAV_LINKS = [
 
 function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
+
+  useEffect(() => {
+    // Prevent background scroll when mobile menu is open
+    document.body.style.overflow = isOpen ? 'hidden' : ''
+
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [isOpen])
+
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === 'Escape') {
+        setIsOpen(false)
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [])
 
   return (
     <header>
