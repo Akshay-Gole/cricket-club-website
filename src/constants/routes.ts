@@ -1,3 +1,20 @@
 export const ROUTES = {
   HOME: '/',
+  SQUAD: '/squad',
+  FIXTURES: '/fixtures',
+  HONOURS: '/honours',
+  NEWS: '/news',
+  GALLERY: '/gallery',
+  CONTACT: '/contact',
+  JOIN: '/join',
+  ABOUT: '/about',
+  SPONSORS: '/sponsors',
+  NOT_FOUND: '*',
+  // Admin
+  ADMIN_LOGIN: '/admin/login',
+  ADMIN_DASHBOARD: '/admin/dashboard',
+  ADMIN_PLAYERS: '/admin/players',
+  ADMIN_FIXTURES: '/admin/fixtures',
+  ADMIN_NEWS: '/admin/news',
+  ADMIN_SPONSORS: '/admin/sponsors',
 } as const
