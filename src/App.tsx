@@ -1,15 +1,14 @@
-const apiUrl = import.meta.env.VITE_API_URL
-const mode = import.meta.env.MODE
+import { BrowserRouter } from 'react-router-dom'
+import Navbar from './components/shared/Navbar'
 
 const App = () => {
   return (
-    <div className="p-8">
-      <h1 className="text-4xl font-bold text-green-600">
-        🏏 Cricket Club Website
-      </h1>
-      <p>API URL: {apiUrl}</p>
-      <p>MODE: {mode}</p>
-    </div>
+    <BrowserRouter>
+      <div className="p-8">
+        <Navbar />
+      </div>
+    </BrowserRouter>
   )
 }
+
 export default App
