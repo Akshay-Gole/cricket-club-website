@@ -37,8 +37,8 @@ const CONTACT_ITEMS = [
   {
     icon: '✉️',
     label: 'Email',
-    value: 'hello@topgscc.com.au',
-    href: 'mailto:hello@topgscc.com.au',
+    value: 'hello@topgscc.com',
+    href: 'mailto:hello@topgscc.com',
   },
   {
     icon: '📞',
@@ -201,7 +201,7 @@ function Footer() {
         <div className="font-['Barlow'] text-[13px] font-light ">
           Designed & built by{' '}
           <a
-            href="https://www.linkedin.com/in/YOUR-LINKEDIN-HANDLE"
+            href="https://www.linkedin.com/in/akshaygole/"
             target="_blank"
             rel="noopener noreferrer"
             className="
