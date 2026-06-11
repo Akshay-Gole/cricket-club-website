@@ -3,6 +3,9 @@ import { createRoot } from 'react-dom/client'
 import * as Sentry from '@sentry/react'
 import './styles/global.css'
 import App from './App.tsx'
+import { Provider } from 'react-redux'
+import { PersistGate } from 'redux-persist/integration/react'
+import { store, persistor } from './store'
 
 if (import.meta.env.PROD && import.meta.env.VITE_SENTRY_DSN) {
   Sentry.init({
@@ -14,6 +17,10 @@ if (import.meta.env.PROD && import.meta.env.VITE_SENTRY_DSN) {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        <App />
+      </PersistGate>
+    </Provider>
   </StrictMode>
 )
