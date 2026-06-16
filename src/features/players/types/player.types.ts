@@ -9,3 +9,12 @@ export interface Player {
   bestBowling: string
   imageUrl?: string
 }
+
+export interface CreatePlayerDto {
+  name: string
+  role: PlayerRole
+  jerseyNumber: number
+  battingAverage: number
+  bestBowling: string
+  imageUrl?: string
+}
