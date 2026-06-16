@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { lazy, Suspense } from 'react'
 import Layout from './components/shared/Layout'
 import { ROUTES } from './constants/routes'
+import PageLoader from './components/shared/PageLoader'
 
 // Lazy load pages — each page's code only downloads when navigated to
 const Home = lazy(() => import('./pages/Home'))
@@ -15,16 +16,6 @@ const JoinClub = lazy(() => import('./pages/JoinClub'))
 const About = lazy(() => import('./pages/About'))
 const Sponsors = lazy(() => import('./pages/Sponsors'))
 const NotFound = lazy(() => import('./pages/NotFound'))
-
-function PageLoader() {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a]">
-      <div className="font-['Bebas_Neue'] text-[#c9a84c] text-2xl tracking-[3px]">
-        Loading...
-      </div>
-    </div>
-  )
-}
 
 const App = () => {
   return (
