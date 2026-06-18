@@ -41,7 +41,7 @@ function Navbar() {
 
   return (
     <header>
-      <nav className="fixed top-0 left-0 right-0 h-18 z-50 bg-[rgba(10,10,10,0.85)] backdrop-blur-md border-b border-[rgba(201,168,76,0.2)] flex items-center justify-between px-5 min-[641px]:px-7 min-[1025px]:px-12">
+      <nav className="fixed top-0 left-0 right-0 h-18 z-50 bg-black/85 backdrop-blur-md border-b border-gold/20 flex items-center justify-between px-5 min-[641px]:px-7 min-[1025px]:px-12">
         {/* Logo */}
         <NavLink
           to={ROUTES.HOME}
@@ -55,8 +55,8 @@ function Navbar() {
           />
 
           {/* Club name */}
-          <span className="font-['Bebas_Neue'] text-[22px] tracking-[2px] text-[#f5f5f0]">
-            TOP G's <span className="text-[#c9a84c]">CC</span>
+          <span className="font-['Bebas_Neue'] text-[22px] tracking-[2px] text-cream">
+            TOP G's <span className="text-gold">CC</span>
           </span>
         </NavLink>
 
@@ -70,7 +70,7 @@ function Navbar() {
                   font-['Barlow_Condensed'] text-[13px] font-semibold
                   tracking-[2px] uppercase no-underline
                   transition-colors duration-200
-                  ${isActive ? 'text-[#f5f5f0]' : 'text-[#646459] hover:text-[#c9a84c]'}
+                  ${isActive ? 'text-cream' : 'text-[#9b9b93] hover:text-gold'}
                 `}
               >
                 {link.label}
@@ -82,7 +82,7 @@ function Navbar() {
         {/* Join the Club CTA button - hidden below 900px */}
         <NavLink
           to={ROUTES.JOIN}
-          className="hidden min-[900px]:inline-flex items-center font-['Barlow_Condensed'] text-[12px] font-bold tracking-[2.5px] uppercase no-underline text-[#0a0a0a] bg-[#c9a84c] px-[22px] py-[10px] rounded-[2px] transition-colors duration-200 hover:bg-[#f0c96a]"
+          className="hidden min-[900px]:inline-flex items-center font-['Barlow_Condensed'] text-[12px] font-bold tracking-[2.5px] uppercase no-underline text-black bg-gold px-[22px] py-[10px] rounded-[2px] transition-colors duration-200 hover:bg-gold-light"
         >
           Join the Club
         </NavLink>
@@ -93,9 +93,9 @@ function Navbar() {
           aria-label="Open menu"
           onClick={() => setIsOpen(true)}
         >
-          <span className="block w-[26px] h-[2px] bg-[#c9a84c]"></span>
-          <span className="block w-[26px] h-[2px] bg-[#c9a84c]"></span>
-          <span className="block w-[26px] h-[2px] bg-[#c9a84c]"></span>
+          <span className="block w-[26px] h-[2px] bg-gold"></span>
+          <span className="block w-[26px] h-[2px] bg-gold"></span>
+          <span className="block w-[26px] h-[2px] bg-gold"></span>
         </button>
       </nav>
 
@@ -103,7 +103,7 @@ function Navbar() {
       <div
         className={`
           fixed inset-0 z-[200]
-          bg-[rgba(10,10,10,0.98)] backdrop-blur-[20px]
+          bg-black/98 backdrop-blur-[20px]
           flex flex-col items-center justify-center gap-2
           transition-all duration-300
           ${
@@ -115,7 +115,7 @@ function Navbar() {
       >
         {/* Close button */}
         <button
-          className="absolute top-6 right-8 bg-transparent border-none text-[#c9a84c] text-[42px] leading-none cursor-pointer"
+          className="absolute top-6 right-8 bg-transparent border-none text-gold text-[42px] leading-none cursor-pointer"
           aria-label="Close menu"
           onClick={() => setIsOpen(false)}
         >
@@ -132,7 +132,7 @@ function Navbar() {
                 className={({ isActive }) => `
             font-['Bebas_Neue'] text-[34px] tracking-[2px] uppercase
             no-underline transition-colors duration-200
-            ${isActive ? 'text-[#c9a84c]' : 'text-[#f5f5f0] hover:text-[#c9a84c]'}
+            ${isActive ? 'text-gold' : 'text-cream hover:text-gold'}
           `}
               >
                 {link.label}
@@ -145,7 +145,7 @@ function Navbar() {
         <NavLink
           to={ROUTES.JOIN}
           onClick={() => setIsOpen(false)}
-          className="mt-6 inline-flex items-center font-['Barlow_Condensed'] text-[12px] font-bold tracking-[2.5px] uppercase no-underline text-[#0a0a0a] bg-[#c9a84c] px-[22px] py-[10px] rounded-[2px] transition-colors duration-200 hover:bg-[#f0c96a]"
+          className="mt-6 inline-flex items-center font-['Barlow_Condensed'] text-[12px] font-bold tracking-[2.5px] uppercase no-underline text-black bg-gold px-[22px] py-[10px] rounded-[2px] transition-colors duration-200 hover:bg-gold-light"
         >
           Join the Club
         </NavLink>

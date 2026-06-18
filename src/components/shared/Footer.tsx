@@ -59,7 +59,7 @@ function Footer() {
   const currentYear = new Date().getFullYear()
 
   return (
-    <footer className="bg-[#111111] border-t border-[rgba(201,168,76,0.2)] text-[#8a8a7e]">
+    <footer className="bg-dark border-t border-gold/20 text-[#8a8a7e]">
       {/* MAIN BODY */}
       <div
         className="
@@ -85,8 +85,8 @@ function Footer() {
               alt="Top G's CC logo"
               className="h-12 w-auto shrink-0"
             />
-            <div className="font-['Bebas_Neue'] text-[20px] tracking-[2px] text-[#f5f5f0]">
-              TOP G's <span className="text-[#c9a84c]">CC</span>
+            <div className="font-['Bebas_Neue'] text-[20px] tracking-[2px] text-cream">
+              TOP G's <span className="text-gold">CC</span>
             </div>
           </div>
 
@@ -104,7 +104,7 @@ function Footer() {
                 href={social.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-['Barlow_Condensed'] text-[10px] font-bold tracking-[1.5px] uppercase text-[#8a8a7e] border-[0.5px] border-[rgba(255,255,255,0.4)] px-3 py-[7px] rounded-[2px] no-underline transition-all duration-200 hover:text-[#f5f5f0] hover:border-[rgba(255,255,255,0.2)]"
+                className="font-['Barlow_Condensed'] text-[10px] font-bold tracking-[1.5px] uppercase text-[#8a8a7e] border-[0.5px] border-[rgba(255,255,255,0.4)] px-3 py-[7px] rounded-[2px] no-underline transition-all duration-200 hover:text-cream hover:border-[rgba(255,255,255,0.2)]"
               >
                 {social.label}
               </a>
@@ -116,7 +116,7 @@ function Footer() {
         {NAV_COLUMNS.map(column => (
           <div key={column.title}>
             {/* Column title */}
-            <div className="font-['Barlow_Condensed'] text-[9px] min-[641px]:text-[10px] font-bold tracking-[3px] min-[641px]:tracking-[3.5px] uppercase text-[#c9a84c] mb-4 min-[641px]:mb-5 pb-[10px] min-[641px]:pb-3 border-b border-[rgba(255,255,255,0.4)]">
+            <div className="font-['Barlow_Condensed'] text-[9px] min-[641px]:text-[10px] font-bold tracking-[3px] min-[641px]:tracking-[3.5px] uppercase text-gold mb-4 min-[641px]:mb-5 pb-[10px] min-[641px]:pb-3 border-b border-[rgba(255,255,255,0.4)]">
               {column.title}
             </div>
 
@@ -130,8 +130,8 @@ function Footer() {
                       flex items-center gap-[6px]
                       font-['Barlow'] text-[13px] font-light text-[#8a8a7e]
                       no-underline transition-colors duration-200
-                      hover:text-[#f5f5f0]
-                      before:content-[''] before:w-0 before:h-px before:bg-[#c9a84c]
+                      hover:text-cream
+                      before:content-[''] before:w-0 before:h-px before:bg-gold
                       before:transition-all before:duration-200
                       hover:before:w-3
                     "
@@ -146,7 +146,7 @@ function Footer() {
 
         {/* CONTACT COLUMN */}
         <div>
-          <div className="font-['Barlow_Condensed'] text-[9px] min-[641px]:text-[10px] font-bold tracking-[3px] min-[641px]:tracking-[3.5px] uppercase text-[#c9a84c] mb-4 min-[641px]:mb-5 pb-[10px] min-[641px]:pb-3 border-b border-[rgba(255,255,255,0.4)]">
+          <div className="font-['Barlow_Condensed'] text-[9px] min-[641px]:text-[10px] font-bold tracking-[3px] min-[641px]:tracking-[3.5px] uppercase text-gold mb-4 min-[641px]:mb-5 pb-[10px] min-[641px]:pb-3 border-b border-[rgba(255,255,255,0.4)]">
             Contact
           </div>
 
@@ -156,7 +156,7 @@ function Footer() {
               className="flex items-start gap-[10px] mb-[14px]"
             >
               {/* Icon box */}
-              <div className="text-[14px] shrink-0 mt-px w-7 h-7 bg-[#161616] border-[0.5px] border-[rgba(255,255,255,0.1)] rounded-[2px] flex items-center justify-center">
+              <div className="text-[14px] shrink-0 mt-px w-7 h-7 bg-card border-[0.5px] border-[rgba(255,255,255,0.1)] rounded-[2px] flex items-center justify-center">
                 {item.icon}
               </div>
 
@@ -168,7 +168,7 @@ function Footer() {
                 {item.href ? (
                   <a
                     href={item.href}
-                    className="font-['Barlow'] text-[12px] font-light text-[#8a8a7e] no-underline transition-colors duration-200 hover:text-[#f5f5f0]"
+                    className="font-['Barlow'] text-[12px] font-light text-[#8a8a7e] no-underline transition-colors duration-200 hover:text-cream"
                   >
                     {item.value}
                   </a>
@@ -206,13 +206,13 @@ function Footer() {
             rel="noopener noreferrer"
             className="
               relative ml-1 inline-block
-              text-[#c9a84c] no-underline
+              text-gold no-underline
               transition-colors duration-200
               after:absolute after:left-0 after:-bottom-[2px]
               after:h-px after:w-full after:origin-left after:scale-x-0
-              after:bg-[#f0c96a]
+              after:bg-gold-light
               after:transition-transform after:duration-300 after:ease-out
-              hover:text-[#f0c96a]
+              hover:text-gold-light
               hover:after:scale-x-100
             "
           >
