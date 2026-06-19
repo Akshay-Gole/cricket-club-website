@@ -52,7 +52,8 @@ function LatestNews() {
       </div>
 
       {/* News grid — 1px gaps create thin divider lines via the border-colored background */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-gold/15">
+      <div className="grid grid-cols-1 min-[641px]:grid-cols-2 min-[1025px]:grid-cols-3 gap-6">
+        {' '}
         {articles.map(article => (
           <article
             key={article.title}
