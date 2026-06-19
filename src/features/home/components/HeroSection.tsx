@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { ROUTES } from '../constants/routes'
-import logger from '../services/logger'
+import { ROUTES } from '../../../constants/routes'
+import logger from '../../../services/logger'
 
 function HeroSection() {
   useEffect(() => {
