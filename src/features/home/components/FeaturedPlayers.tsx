@@ -6,7 +6,7 @@ function FeaturedPlayers() {
   // TODO: extract each card into a reusable <PlayerCard /> component (own ticket)
   const players = [
     {
-      num: '03',
+      num: '01',
       initials: 'AKS',
       avatarBg: 'var(--color-green)',
       name: 'Akshay Gole',
@@ -73,14 +73,14 @@ function FeaturedPlayers() {
       </div>
 
       {/* Player strip — 1px gap divider trick */}
-      <div className="grid grid-cols-1 min-[641px]:grid-cols-2 min-[901px]:grid-cols-3 min-[1025px]:grid-cols-5 gap-px bg-gold/15">
+      <div className="grid grid-cols-1 min-[641px]:grid-cols-2 min-[901px]:grid-cols-3 min-[1025px]:grid-cols-5 gap-6">
         {players.map(player => (
           <div
             key={player.name}
-            className="relative bg-card px-5 py-7 text-center cursor-pointer overflow-hidden group"
+            className="relative bg-card px-5 py-7 text-center cursor-pointer overflow-hidden group transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_12px_40px_-12px_rgba(201,168,76,0.35)]"
           >
             {/* Jersey number — faint, top-right */}
-            <div className="absolute top-4 right-4 font-display text-[28px] text-gold/[0.12]">
+            <div className="absolute top-4 right-4 font-display text-[28px] text-gold/[0.52]">
               {player.num}
             </div>
 
