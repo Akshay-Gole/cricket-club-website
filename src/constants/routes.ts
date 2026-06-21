@@ -17,4 +17,5 @@ export const ROUTES = {
   ADMIN_FIXTURES: '/admin/fixtures',
   ADMIN_NEWS: '/admin/news',
   ADMIN_SPONSORS: '/admin/sponsors',
+  PLAYER_PROFILE: '/players/:id',
 } as const

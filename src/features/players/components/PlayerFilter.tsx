@@ -33,7 +33,7 @@ function PlayerFilter({ players, active, onChange }: PlayerFilterProps) {
             key={filter.value}
             onClick={() => onChange(filter.value)}
             aria-pressed={isActive}
-            className={`shrink-0 px-5 py-2.5 font-heading text-xs font-bold tracking-[2.5px] uppercase whitespace-nowrap border-[0.5px] transition-all min-[640px]:flex-1 min-[1080px]:flex-none
+            className={`shrink-0 cursor-pointer px-5 py-2.5 font-heading text-xs font-bold tracking-[2.5px] uppercase whitespace-nowrap border-[0.5px] transition-all min-[640px]:flex-1 min-[1080px]:flex-none
               ${i === 0 ? 'rounded-l-sm' : ''}
               ${i === FILTERS.length - 1 ? 'rounded-r-sm' : ''}
               ${

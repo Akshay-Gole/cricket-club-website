@@ -16,6 +16,7 @@ const JoinClub = lazy(() => import('./pages/JoinClub'))
 const About = lazy(() => import('./pages/About'))
 const Sponsors = lazy(() => import('./pages/Sponsors'))
 const NotFound = lazy(() => import('./pages/NotFound'))
+const PlayerProfile = lazy(() => import('./pages/PlayerProfile'))
 
 const App = () => {
   return (
@@ -26,6 +27,7 @@ const App = () => {
           <Route element={<Layout />}>
             <Route path={ROUTES.HOME} element={<Home />} />
             <Route path={ROUTES.SQUAD} element={<Squad />} />
+            <Route path={ROUTES.PLAYER_PROFILE} element={<PlayerProfile />} />
             <Route path={ROUTES.FIXTURES} element={<Fixtures />} />
             <Route path={ROUTES.HONOURS} element={<Honours />} />
             <Route path={ROUTES.NEWS} element={<News />} />
