@@ -2,6 +2,8 @@ import { useState } from 'react'
 import type { PlayerProfile } from '../../types/playerProfile.types'
 import logger from '../../../../services/logger'
 import StatsTab from './StatsTab'
+import BioTab from './BioTab'
+import AchievementsTab from './AchievementsTab'
 
 type TabId = 'stats' | 'bio' | 'achievements'
 
@@ -48,12 +50,8 @@ function ProfileTabs({ player }: { player: PlayerProfile }) {
       {/* TAB PANELS */}
       <div className="px-5 sm:px-7 lg:px-12 pt-7 sm:pt-8 lg:pt-10">
         {activeTab === 'stats' && <StatsTab player={player} />}
-        {activeTab === 'bio' && (
-          <div className="text-muted">Biography panel — coming next</div>
-        )}
-        {activeTab === 'achievements' && (
-          <div className="text-muted">Achievements panel — coming next</div>
-        )}
+        {activeTab === 'bio' && <BioTab player={player} />}
+        {activeTab === 'achievements' && <AchievementsTab />}
       </div>
     </div>
   )
