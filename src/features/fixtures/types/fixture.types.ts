@@ -10,6 +10,12 @@ export interface Fixture {
   result: FixtureResult
   ourScore?: string
   oppScore?: string
+  month?: string
+  day?: string
+  monthShort?: string
+  isHome?: boolean
+  badge?: string
+  playHqUrl?: string
 }
 
 export interface CreateFixtureDto {
