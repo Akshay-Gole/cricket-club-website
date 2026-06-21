@@ -99,7 +99,7 @@ function Squad() {
             <button
               onClick={() => setSearchInput('')}
               aria-label="Clear search"
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center rounded-full text-muted hover:text-white hover:bg-white/10 transition-colors"
+              className="absolute cursor-pointer right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center rounded-full text-muted hover:text-white hover:bg-white/10 transition-colors"
             >
               <svg
                 width="12"
