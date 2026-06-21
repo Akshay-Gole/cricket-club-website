@@ -1,0 +1,88 @@
+import type { Player } from '../types/player.types'
+
+// STATIC placeholder squad — swap for usePlayers() fetch later (enhancement pass)
+// Shaped to match the Player type so the swap is seamless
+export const SQUAD: Player[] = [
+  {
+    id: '1',
+    name: 'Akshay',
+    role: 'all-rounder',
+    jerseyNumber: 3,
+    battingAverage: 42.3,
+    bestBowling: '4/18',
+    imageUrl: '',
+    isCaptain: true,
+  },
+  {
+    id: '2',
+    name: 'Jones',
+    role: 'batsman',
+    jerseyNumber: 7,
+    battingAverage: 48.5,
+    bestBowling: '0/0',
+    imageUrl: '',
+    isCaptain: false,
+  },
+  {
+    id: '3',
+    name: 'Ryan',
+    role: 'bowler',
+    jerseyNumber: 11,
+    battingAverage: 12.1,
+    bestBowling: '5/22',
+    imageUrl: '',
+    isCaptain: false,
+  },
+  {
+    id: '4',
+    name: 'Mitchell',
+    role: 'wicket-keeper',
+    jerseyNumber: 2,
+    battingAverage: 31.8,
+    bestBowling: '0/0',
+    imageUrl: '',
+    isCaptain: false,
+  },
+  {
+    id: '5',
+    name: 'Parsons',
+    role: 'bowler',
+    jerseyNumber: 5,
+    battingAverage: 9.4,
+    bestBowling: '4/31',
+    imageUrl: '',
+    isCaptain: false,
+  },
+  {
+    id: '6',
+    name: 'Davies',
+    role: 'batsman',
+    jerseyNumber: 14,
+    battingAverage: 38.2,
+    bestBowling: '0/0',
+    imageUrl: '',
+    isCaptain: false,
+  },
+  {
+    id: '7',
+    name: 'Khan',
+    role: 'all-rounder',
+    jerseyNumber: 21,
+    battingAverage: 29.6,
+    bestBowling: '3/24',
+    imageUrl: '',
+    isCaptain: false,
+  },
+  {
+    id: '8',
+    name: 'Foster',
+    role: 'bowler',
+    jerseyNumber: 9,
+    battingAverage: 7.8,
+    bestBowling: '6/40',
+    imageUrl: '',
+    isCaptain: false,
+  },
+]
+
+export default SQUAD

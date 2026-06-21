@@ -8,6 +8,7 @@ export interface Player {
   battingAverage: number
   bestBowling: string
   imageUrl?: string
+  isCaptain?: boolean
 }
 
 export interface CreatePlayerDto {
@@ -17,4 +18,5 @@ export interface CreatePlayerDto {
   battingAverage: number
   bestBowling: string
   imageUrl?: string
+  isCaptain?: boolean
 }

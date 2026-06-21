@@ -1,0 +1,112 @@
+import { Link } from 'react-router-dom'
+import type { Player } from '../types/player.types'
+
+// Map each role to its badge text, badge color classes, and avatar gradient classes
+const roleConfig: Record<
+  Player['role'],
+  { label: string; badge: string; avatar: string }
+> = {
+  batsman: {
+    label: 'Batsman',
+    badge: 'bg-gold/[0.12] text-gold border-gold/25',
+    avatar:
+      'text-gold [background:radial-gradient(circle_at_30%_30%,#3a2a00,#1a1200)]',
+  },
+  bowler: {
+    label: 'Bowler',
+    badge: 'bg-[#e74c3c]/10 text-[#e07060] border-[#e74c3c]/20',
+    avatar:
+      'text-[#e07060] [background:radial-gradient(circle_at_30%_30%,#2a0d0a,#160604)]',
+  },
+  'all-rounder': {
+    label: 'All-Rounder',
+    badge: 'bg-green-light/[0.12] text-green-light border-green-light/30',
+    avatar:
+      'text-green-light [background:radial-gradient(circle_at_30%_30%,#0d2a18,#04160b)]',
+  },
+  'wicket-keeper': {
+    label: 'Keeper',
+    badge: 'bg-[#6482c8]/10 text-[#8ab0e8] border-[#6482c8]/20',
+    avatar:
+      'text-[#8ab0e8] [background:radial-gradient(circle_at_30%_30%,#0d1830,#04091a)]',
+  },
+}
+
+function PlayerCard({ player }: { player: Player }) {
+  const config = roleConfig[player.role]
+  const initials = player.name.slice(0, 3).toUpperCase()
+
+  return (
+    <Link
+      to={`/players/${player.id}`}
+      className="group relative block bg-dark overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_12px_40px_-12px_rgba(201,168,76,0.35)]"
+    >
+      {/* Big ghost jersey number */}
+      <div className="absolute top-3 right-4 font-display text-[72px] text-white/[0.04] leading-none pointer-events-none">
+        {player.jerseyNumber}
+      </div>
+
+      <div className="p-7 pt-8">
+        {/* Role badge */}
+        <div
+          className={`inline-flex items-center font-heading text-[10px] font-bold tracking-[2.5px] uppercase px-2.5 py-1 rounded-sm border-[0.5px] mb-5 ${config.badge}`}
+        >
+          {config.label}
+        </div>
+
+        {/* Avatar (initials now; photo later) + captain marker */}
+        <div
+          className={`relative w-20 h-20 rounded-full border-[1.5px] border-gold/20 flex items-center justify-center font-display text-2xl tracking-[1px] mb-[18px] ${config.avatar}`}
+        >
+          {initials}
+          {player.isCaptain && (
+            <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-gold border-2 border-dark flex items-center justify-center font-heading text-[9px] font-bold text-black">
+              C
+            </div>
+          )}
+        </div>
+
+        {/* Name + meta */}
+        <div className="font-heading text-[26px] font-bold tracking-[0.5px] text-white leading-[1.1] mb-0.5">
+          {player.name}
+        </div>
+        <div className="font-body text-xs font-light text-muted mb-6">
+          #{player.jerseyNumber} · {config.label}
+        </div>
+
+        {/* Stats row — 3 stats with dividers */}
+        <div className="flex border-t-[0.5px] border-white/5 pt-4">
+          <div className="flex-1 text-center">
+            <div className="font-display text-[26px] text-white leading-none mb-1">
+              {player.battingAverage}
+            </div>
+            <div className="font-heading text-[9px] font-semibold tracking-[1.5px] uppercase text-muted">
+              Bat Avg
+            </div>
+          </div>
+          <div className="flex-1 text-center border-l-[0.5px] border-white/5">
+            <div className="font-display text-[26px] text-white leading-none mb-1">
+              {player.bestBowling}
+            </div>
+            <div className="font-heading text-[9px] font-semibold tracking-[1.5px] uppercase text-muted">
+              Best Bowl
+            </div>
+          </div>
+          <div className="flex-1 text-center border-l-[0.5px] border-white/5">
+            <div className="font-display text-[26px] text-white leading-none mb-1">
+              {player.jerseyNumber}
+            </div>
+            <div className="font-heading text-[9px] font-semibold tracking-[1.5px] uppercase text-muted">
+              Jersey
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Gold underline that grows from center on hover (homepage style) */}
+      <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gold scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-center" />
+    </Link>
+  )
+}
+
+export default PlayerCard
