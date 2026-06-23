@@ -121,7 +121,7 @@ function Squad() {
 
       {/* SQUAD GRID */}
       <div
-        className={`grid grid-cols-1 min-[641px]:grid-cols-2 min-[901px]:grid-cols-3 min-[1025px]:grid-cols-4 gap-px bg-white/5 pt-20 px-5 sm:px-7 lg:px-12 pb-20 lg:pb-24 transition-opacity ${
+        className={`grid grid-cols-1 min-[641px]:grid-cols-2 min-[901px]:grid-cols-3 min-[1025px]:grid-cols-4 gap-5 sm:gap-6 bg-card/40 pt-20 px-5 sm:px-7 lg:px-12 pb-20 lg:pb-24 transition-opacity ${
           isPending ? 'opacity-60' : 'opacity-100'
         }`}
       >
