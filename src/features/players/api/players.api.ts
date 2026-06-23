@@ -13,7 +13,7 @@ export const playersApi = {
   },
 
   create: async (data: CreatePlayerDto): Promise<Player> => {
-    const response = await api.post<Player>('/platers', data)
+    const response = await api.post<Player>('/players', data)
     return response.data
   },
 

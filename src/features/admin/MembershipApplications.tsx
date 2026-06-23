@@ -1,5 +1,5 @@
 function MembershipApplications() {
-  return <div>MembershipApplications Page</div>
+  return <div></div>
 }
 
 export default MembershipApplications

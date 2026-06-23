@@ -18,7 +18,7 @@ const initialState: PlayersState = {
 }
 
 export const fetchAllPlayers = createAsyncThunk(
-  'platers/fetchAll',
+  'players/fetchAll',
   async (_, { rejectWithValue }) => {
     try {
       const response = await api.get('/players')

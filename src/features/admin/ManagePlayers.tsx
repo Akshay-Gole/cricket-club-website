@@ -1,5 +1,5 @@
 function ManagePlayers() {
-  return <div>ManagePlayers Page</div>
+  return <div></div>
 }
 
 export default ManagePlayers

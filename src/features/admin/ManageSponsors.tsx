@@ -1,5 +1,5 @@
 function ManageSponsors() {
-  return <div>ManageSponsors Page</div>
+  return <div></div>
 }
 
 export default ManageSponsors

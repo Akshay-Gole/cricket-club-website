@@ -1,5 +1,5 @@
 function ManageFixtures() {
-  return <div>ManageFixtures Page</div>
+  return <div></div>
 }
 
 export default ManageFixtures

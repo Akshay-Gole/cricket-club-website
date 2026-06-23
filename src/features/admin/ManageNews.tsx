@@ -1,5 +1,5 @@
 function ManageNews() {
-  return <div>ManageNews Page</div>
+  return <div></div>
 }
 
 export default ManageNews

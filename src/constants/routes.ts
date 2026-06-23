@@ -9,13 +9,18 @@ export const ROUTES = {
   JOIN: '/join',
   ABOUT: '/about',
   SPONSORS: '/sponsors',
-  NOT_FOUND: '*',
+  PLAYER_PROFILE: '/players/:id',
+
   // Admin
+  ADMIN_ROOT: '/admin',
   ADMIN_LOGIN: '/admin/login',
   ADMIN_DASHBOARD: '/admin/dashboard',
   ADMIN_PLAYERS: '/admin/players',
   ADMIN_FIXTURES: '/admin/fixtures',
   ADMIN_NEWS: '/admin/news',
   ADMIN_SPONSORS: '/admin/sponsors',
-  PLAYER_PROFILE: '/players/:id',
+  ADMIN_MESSAGES: '/admin/messages',
+  ADMIN_APPLICATIONS: '/admin/applications',
+
+  NOT_FOUND: '*',
 } as const
