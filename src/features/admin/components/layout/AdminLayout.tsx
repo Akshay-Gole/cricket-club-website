@@ -44,7 +44,7 @@ function AdminLayout() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-[#090c0a] text-cream">
+    <div className="min-h-screen bg-[#070a07] text-cream">
       <AdminSidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
 
       <div className="min-h-screen min-[901px]:ml-[272px]">
@@ -52,7 +52,7 @@ function AdminLayout() {
         <main className="relative min-h-[calc(100vh-76px)] overflow-hidden">
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-0 opacity-[0.025] [background-image:linear-gradient(rgba(201,168,76,1)_1px,transparent_1px),linear-gradient(90deg,rgba(201,168,76,1)_1px,transparent_1px)] [background-size:64px_64px]"
+            className="pointer-events-none absolute inset-0 opacity-[0.055] [background-image:linear-gradient(rgba(201,168,76,1)_1px,transparent_1px),linear-gradient(90deg,rgba(201,168,76,1)_1px,transparent_1px)] [background-size:64px_64px]"
           />
 
           <div className="relative mx-auto w-full max-w-[1600px] px-5 py-6 sm:px-7 sm:py-8 lg:px-9 lg:py-9">

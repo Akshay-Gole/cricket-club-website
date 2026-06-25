@@ -11,7 +11,6 @@ const Honours = lazy(() => import('./pages/Honours'))
 const News = lazy(() => import('./pages/News'))
 const Gallery = lazy(() => import('./pages/Gallery'))
 const Contact = lazy(() => import('./pages/Contact'))
-const JoinClub = lazy(() => import('./pages/JoinClub'))
 const About = lazy(() => import('./pages/About'))
 const Sponsors = lazy(() => import('./pages/Sponsors'))
 const NotFound = lazy(() => import('./pages/NotFound'))
@@ -25,9 +24,6 @@ const ManageNews = lazy(() => import('./features/admin/ManageNews'))
 const ManageSponsors = lazy(() => import('./features/admin/ManageSponsors'))
 const ContactSubmissions = lazy(
   () => import('./features/admin/ContactSubmissions')
-)
-const MembershipApplications = lazy(
-  () => import('./features/admin/MembershipApplications')
 )
 
 const AdminLayout = lazy(
@@ -53,7 +49,6 @@ function App() {
             <Route path={ROUTES.NEWS} element={<News />} />
             <Route path={ROUTES.GALLERY} element={<Gallery />} />
             <Route path={ROUTES.CONTACT} element={<Contact />} />
-            <Route path={ROUTES.JOIN} element={<JoinClub />} />
             <Route path={ROUTES.ABOUT} element={<About />} />
             <Route path={ROUTES.SPONSORS} element={<Sponsors />} />
           </Route>
@@ -75,7 +70,6 @@ function App() {
               <Route path="news" element={<ManageNews />} />
               <Route path="sponsors" element={<ManageSponsors />} />
               <Route path="messages" element={<ContactSubmissions />} />
-              <Route path="applications" element={<MembershipApplications />} />
             </Route>
           </Route>
 

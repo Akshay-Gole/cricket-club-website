@@ -20,7 +20,6 @@ export const ROUTES = {
   ADMIN_NEWS: '/admin/news',
   ADMIN_SPONSORS: '/admin/sponsors',
   ADMIN_MESSAGES: '/admin/messages',
-  ADMIN_APPLICATIONS: '/admin/applications',
 
   NOT_FOUND: '*',
 } as const

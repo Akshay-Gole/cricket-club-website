@@ -4,8 +4,8 @@ import { recentMessages } from '../../constants/dashboardData'
 
 function RecentMessages() {
   return (
-    <section className="rounded border border-white/[0.07] bg-[#121412]">
-      <div className="flex items-center justify-between gap-4 border-b border-white/[0.06] px-5 py-4">
+    <section className="rounded border border-white/[0.12] bg-[#182119]">
+      <div className="flex items-center justify-between gap-4 border-b border-white/[0.10] px-5 py-4">
         <div>
           <p className="font-heading text-[10px] font-bold uppercase tracking-[3px] text-gold">
             Inbox
@@ -23,11 +23,11 @@ function RecentMessages() {
         </Link>
       </div>
 
-      <div className="divide-y divide-white/[0.06]">
+      <div className="divide-y divide-white/[0.10]">
         {recentMessages.map(message => (
           <article
             key={message.id}
-            className="group flex gap-4 px-5 py-4 transition-colors hover:bg-white/[0.025]"
+            className="group flex gap-4 px-5 py-4 transition-colors hover:bg-white/[0.055]"
           >
             <div className="pt-1">
               <span

@@ -11,8 +11,8 @@ const dotClasses: Record<AdminTone, string> = {
 
 function RecentActivity() {
   return (
-    <section className="rounded border border-white/[0.07] bg-[#121412]">
-      <div className="border-b border-white/[0.06] px-5 py-4">
+    <section className="rounded border border-white/[0.12] bg-[#182119]">
+      <div className="border-b border-white/[0.10] px-5 py-4">
         <p className="font-heading text-[10px] font-bold uppercase tracking-[3px] text-gold">
           Audit Trail
         </p>

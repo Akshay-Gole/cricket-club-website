@@ -36,11 +36,11 @@ function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
       />
 
       <aside
-        className={`fixed inset-y-0 left-0 z-[80] flex w-[272px] flex-col border-r border-white/[0.07] bg-[#0d100e] transition-transform duration-300 min-[901px]:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-[80] flex w-[272px] flex-col border-r border-white/[0.12] bg-[#101811] transition-transform duration-300 min-[901px]:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="relative flex h-[88px] items-center border-b border-white/[0.07] px-6">
+        <div className="relative flex h-[88px] items-center border-b border-white/[0.12] px-6">
           <NavLink
             to={ROUTES.ADMIN_DASHBOARD}
             onClick={onClose}
@@ -112,7 +112,7 @@ function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
           ))}
         </nav>
 
-        <div className="border-t border-white/[0.07] p-4">
+        <div className="border-t border-white/[0.12] p-4">
           <div className="mb-3 flex items-center gap-3 rounded-sm bg-white/[0.025] p-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gold/25 bg-gold/10 font-display text-lg text-gold">
               {user?.name?.charAt(0).toUpperCase() ?? 'A'}
@@ -183,12 +183,6 @@ function AdminIcon({ name }: { name: AdminIconName | 'logout' }) {
       <>
         <path d="M3 5h18v13H8l-5 3z" />
         <path d="M7 9h10M7 13h7" />
-      </>
-    ),
-    applications: (
-      <>
-        <rect x="5" y="3" width="14" height="18" rx="2" />
-        <path d="M9 3h6v4H9zM8 11h8M8 15h6" />
       </>
     ),
     logout: (

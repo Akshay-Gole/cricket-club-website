@@ -2,7 +2,7 @@ import { nextFixture } from '../../constants/dashboardData'
 
 function NextFixture() {
   return (
-    <section className="relative overflow-hidden rounded border border-white/[0.07] bg-[#121412] p-5 sm:p-6">
+    <section className="relative overflow-hidden rounded border border-white/[0.12] bg-[#182119] p-5 sm:p-6">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_15%,rgba(201,168,76,0.13),transparent_34%)]"
@@ -26,7 +26,7 @@ function NextFixture() {
         </div>
 
         <div className="grid grid-cols-1 gap-5 min-[641px]:grid-cols-[150px_1fr]">
-          <div className="rounded border border-white/[0.06] bg-black/20 p-5">
+          <div className="rounded border border-white/[0.10] bg-white/[0.035] p-5">
             <div className="font-display text-[44px] leading-none text-white">
               14
             </div>

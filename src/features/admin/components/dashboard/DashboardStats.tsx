@@ -15,11 +15,11 @@ function DashboardStats() {
       {dashboardStats.map(stat => (
         <article
           key={stat.label}
-          className="group relative overflow-hidden rounded border border-white/[0.07] bg-[#121412] p-5 transition-all duration-300 hover:-translate-y-1 hover:border-gold/20 hover:shadow-[0_18px_50px_-24px_rgba(201,168,76,0.45)]"
+          className="group relative overflow-hidden rounded border border-white/[0.12] bg-[#182119] p-5 transition-all duration-300 hover:-translate-y-1 hover:border-gold/20 hover:shadow-[0_18px_50px_-24px_rgba(201,168,76,0.45)]"
         >
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-gold/[0.04] blur-2xl transition-opacity group-hover:opacity-100"
+            className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-gold/[0.09] blur-2xl transition-opacity group-hover:opacity-100"
           />
 
           <div className="relative">

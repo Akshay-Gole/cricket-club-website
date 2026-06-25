@@ -39,14 +39,19 @@ function PlayerCard({ player }: { player: Player }) {
   return (
     <Link
       to={`/players/${player.id}`}
-      className="group relative block bg-dark overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_12px_40px_-12px_rgba(201,168,76,0.35)]"
+      className="group relative block overflow-hidden rounded-sm border border-white/[0.08] bg-card shadow-[0_10px_30px_rgba(0,0,0,0.22)] transition-all duration-300 hover:-translate-y-1.5 hover:border-gold/25 hover:shadow-[0_16px_44px_-16px_rgba(201,168,76,0.42)]"
     >
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_12%,rgba(201,168,76,0.075),transparent_30%),linear-gradient(180deg,rgba(255,255,255,0.018),transparent_45%)]"
+      />
+
       {/* Big ghost jersey number */}
       <div className="absolute top-3 right-4 font-display text-[72px] text-white/[0.04] leading-none pointer-events-none">
         {player.jerseyNumber}
       </div>
 
-      <div className="p-7 pt-8">
+      <div className="relative p-7 pt-8">
         {/* Role badge */}
         <div
           className={`inline-flex items-center font-heading text-[10px] font-bold tracking-[2.5px] uppercase px-2.5 py-1 rounded-sm border-[0.5px] mb-5 ${config.badge}`}
@@ -75,7 +80,7 @@ function PlayerCard({ player }: { player: Player }) {
         </div>
 
         {/* Stats row — 3 stats with dividers */}
-        <div className="flex border-t-[0.5px] border-white/5 pt-4">
+        <div className="flex border-t-[0.5px] border-white/[0.08] pt-4">
           <div className="flex-1 text-center">
             <div className="font-display text-[26px] text-white leading-none mb-1">
               {player.battingAverage}
@@ -84,7 +89,7 @@ function PlayerCard({ player }: { player: Player }) {
               Bat Avg
             </div>
           </div>
-          <div className="flex-1 text-center border-l-[0.5px] border-white/5">
+          <div className="flex-1 text-center border-l-[0.5px] border-white/[0.08]">
             <div className="font-display text-[26px] text-white leading-none mb-1">
               {player.bestBowling}
             </div>
@@ -92,7 +97,7 @@ function PlayerCard({ player }: { player: Player }) {
               Best Bowl
             </div>
           </div>
-          <div className="flex-1 text-center border-l-[0.5px] border-white/5">
+          <div className="flex-1 text-center border-l-[0.5px] border-white/[0.08]">
             <div className="font-display text-[26px] text-white leading-none mb-1">
               {player.jerseyNumber}
             </div>

@@ -7,7 +7,6 @@ export type AdminIconName =
   | 'news'
   | 'sponsors'
   | 'messages'
-  | 'applications'
 
 export interface AdminNavigationItem {
   label: string
@@ -48,11 +47,6 @@ export const ADMIN_NAVIGATION: AdminNavigationItem[] = [
     icon: 'messages',
     badge: '4',
   },
-  {
-    label: 'Applications',
-    to: ROUTES.ADMIN_APPLICATIONS,
-    icon: 'applications',
-  },
 ]
 
 export const ADMIN_PAGE_META = [
@@ -68,7 +62,7 @@ export const ADMIN_PAGE_META = [
     eyebrow: 'Squad Operations',
     title: 'Players',
     actionLabel: '+ Add Player',
-    actionTo: ROUTES.ADMIN_PLAYERS,
+    actionTo: `${ROUTES.ADMIN_PLAYERS}?action=create`,
   },
   {
     path: ROUTES.ADMIN_FIXTURES,
@@ -82,23 +76,18 @@ export const ADMIN_PAGE_META = [
     eyebrow: 'Club Publishing',
     title: 'News & Articles',
     actionLabel: '+ New Article',
-    actionTo: ROUTES.ADMIN_NEWS,
+    actionTo: `${ROUTES.ADMIN_NEWS}?action=create`,
   },
   {
     path: ROUTES.ADMIN_SPONSORS,
     eyebrow: 'Club Partners',
     title: 'Sponsors',
     actionLabel: '+ Add Sponsor',
-    actionTo: ROUTES.ADMIN_SPONSORS,
+    actionTo: `${ROUTES.ADMIN_SPONSORS}?action=create`,
   },
   {
     path: ROUTES.ADMIN_MESSAGES,
     eyebrow: 'Club Inbox',
     title: 'Messages',
-  },
-  {
-    path: ROUTES.ADMIN_APPLICATIONS,
-    eyebrow: 'Membership',
-    title: 'Applications',
   },
 ]

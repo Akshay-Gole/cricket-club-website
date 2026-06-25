@@ -54,8 +54,8 @@ function Login() {
   }
 
   return (
-    <main className="grid min-h-screen bg-[#090c0a] min-[901px]:grid-cols-[1.05fr_0.95fr]">
-      <section className="relative hidden overflow-hidden border-r border-white/[0.07] min-[901px]:flex min-[901px]:flex-col min-[901px]:justify-between min-[901px]:p-12">
+    <main className="grid min-h-screen bg-[#070a07] min-[901px]:grid-cols-[1.05fr_0.95fr]">
+      <section className="relative hidden overflow-hidden border-r border-white/[0.12] min-[901px]:flex min-[901px]:flex-col min-[901px]:justify-between min-[901px]:p-12">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(45,138,71,0.22),transparent_38%),linear-gradient(145deg,#102117_0%,#090c0a_65%)]"
@@ -149,7 +149,7 @@ function Login() {
           <form
             onSubmit={handleSubmit}
             noValidate
-            className="overflow-hidden rounded border border-white/[0.07] bg-[#121513] shadow-[0_24px_80px_rgba(0,0,0,0.35)]"
+            className="overflow-hidden rounded border border-white/[0.12] bg-[#1b241d] shadow-[0_24px_80px_rgba(0,0,0,0.35)]"
           >
             <div className="space-y-5 p-5 sm:p-7">
               <div className="flex flex-col gap-1.5">

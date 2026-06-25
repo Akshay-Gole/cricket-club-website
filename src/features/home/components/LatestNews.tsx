@@ -57,7 +57,7 @@ function LatestNews() {
         {articles.map(article => (
           <article
             key={article.title}
-            className="bg-dark p-8 cursor-pointer group transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_12px_40px_-12px_rgba(201,168,76,0.35)]"
+            className="group cursor-pointer rounded-sm border border-white/[0.08] bg-card p-8 shadow-[0_10px_30px_rgba(0,0,0,0.22)] transition-all duration-300 hover:-translate-y-1.5 hover:border-gold/25 hover:shadow-[0_16px_44px_-16px_rgba(201,168,76,0.42)]"
           >
             {/* Thumbnail */}
             <div className="h-40 rounded-sm mb-5 overflow-hidden">

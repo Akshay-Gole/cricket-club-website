@@ -7,7 +7,7 @@ import RecentMessages from './components/dashboard/RecentMessages'
 function Dashboard() {
   return (
     <div className="space-y-5 sm:space-y-6">
-      <section className="relative overflow-hidden rounded border border-white/[0.07] bg-[#121513] px-5 py-8 sm:px-8 sm:py-10 lg:px-10">
+      <section className="relative overflow-hidden rounded border border-white/[0.12] bg-[#1b241d] px-5 py-8 sm:px-8 sm:py-10 lg:px-10">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_20%,rgba(45,138,71,0.14),transparent_30%)]"
@@ -33,14 +33,14 @@ function Dashboard() {
             </h2>
 
             <p className="mt-4 max-w-[620px] font-body text-sm font-light leading-[1.8] text-muted">
-              Manage players, fixtures, messages, applications and club content
-              from one place. This is using mock data for now until your backend
-              is ready.
+              Manage players, fixtures, messages, sponsors and club content from
+              one place. This is using mock data for now until your backend is
+              ready.
             </p>
           </div>
 
           <div className="grid grid-cols-2 gap-3 min-[420px]:grid-cols-3 min-[901px]:w-[330px]">
-            <div className="rounded border border-white/[0.07] bg-black/20 p-4">
+            <div className="rounded border border-white/[0.12] bg-white/[0.035] p-4">
               <div className="font-display text-3xl leading-none text-gold">
                 2026
               </div>
@@ -49,7 +49,7 @@ function Dashboard() {
               </div>
             </div>
 
-            <div className="rounded border border-white/[0.07] bg-black/20 p-4">
+            <div className="rounded border border-white/[0.12] bg-white/[0.035] p-4">
               <div className="font-display text-3xl leading-none text-white">
                 4
               </div>
@@ -58,7 +58,7 @@ function Dashboard() {
               </div>
             </div>
 
-            <div className="rounded border border-white/[0.07] bg-black/20 p-4">
+            <div className="rounded border border-white/[0.12] bg-white/[0.035] p-4">
               <div className="font-display text-3xl leading-none text-green-light">
                 6
               </div>
