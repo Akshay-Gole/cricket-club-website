@@ -17,8 +17,8 @@ const QUICK_ITEMS = [
     icon: '📍',
     iconClass: 'bg-[#6482c8]/[0.08] border-[#6482c8]/[0.18]',
     label: 'Home Ground',
-    value: 'Norwood Oval, Adelaide SA',
-    href: 'https://maps.google.com/?q=Norwood+Oval+Adelaide+SA',
+    value: 'Lundie Gardens, Adelaide SA',
+    href: 'https://www.google.com/maps?q=Lundie+Gardens+Adelaide+SA',
   },
 ]
 

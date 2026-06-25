@@ -17,10 +17,10 @@ function CtaSection() {
         Ready to Play?
       </h2>
       <p className="relative font-body text-white/60 text-base font-light mb-10">
-        Join Top G's CC today. Trials open for all skill levels.
+        Join Top G's CC today.
       </p>
       <Link
-        to={ROUTES.JOIN}
+        to={ROUTES.CONTACT}
         className="relative inline-block font-heading text-sm font-bold tracking-[3px] uppercase text-black bg-gold px-12 py-[18px] rounded-sm hover:bg-gold-light transition-colors"
       >
         Join Our Club

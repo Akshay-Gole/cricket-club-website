@@ -25,7 +25,6 @@ const NAV_COLUMNS = [
     links: [
       { label: 'About Us', to: ROUTES.ABOUT },
       { label: 'Coaching Staff', to: ROUTES.SQUAD },
-      { label: 'Join the Club', to: ROUTES.JOIN },
       { label: 'Sponsors', to: ROUTES.SPONSORS },
       { label: 'Contact', to: ROUTES.CONTACT },
       { label: 'Media', to: ROUTES.NEWS },

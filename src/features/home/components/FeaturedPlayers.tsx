@@ -53,7 +53,7 @@ function FeaturedPlayers() {
   ]
 
   return (
-    <section className="bg-dark px-7 sm:px-12 py-16 sm:py-24">
+    <section className="border-y border-gold/10 bg-dark/80 px-7 py-16 sm:px-12 sm:py-24">
       {/* Section header */}
       <div className="flex flex-wrap items-end justify-between gap-4 mb-12">
         <div>
@@ -77,7 +77,7 @@ function FeaturedPlayers() {
         {players.map(player => (
           <div
             key={player.name}
-            className="relative bg-card px-5 py-7 text-center cursor-pointer overflow-hidden group transition-all duration-300 hover:-translate-y-1.5 hover:shadow-[0_12px_40px_-12px_rgba(201,168,76,0.35)]"
+            className="group relative cursor-pointer overflow-hidden rounded-sm border border-white/[0.08] bg-card px-5 py-7 text-center shadow-[0_10px_30px_rgba(0,0,0,0.22)] transition-all duration-300 hover:-translate-y-1.5 hover:border-gold/25 hover:shadow-[0_16px_44px_-16px_rgba(201,168,76,0.42)]"
           >
             {/* Jersey number — faint, top-right */}
             <div className="absolute top-4 right-4 font-display text-[28px] text-gold/[0.52]">
