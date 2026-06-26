@@ -19,6 +19,10 @@ function shouldPreventSmoothScroll(node: HTMLElement) {
   )
 }
 
+interface LenisScrollEvent {
+  velocity: number
+}
+
 export function useLenisSmoothScroll() {
   const { pathname } = useLocation()
   const lenisRef = useRef<Lenis | null>(null)
@@ -46,6 +50,13 @@ export function useLenisSmoothScroll() {
     lenisRef.current = lenis
 
     lenis.on('scroll', ScrollTrigger.update)
+    lenis.on('scroll', ({ velocity }: LenisScrollEvent) => {
+      window.dispatchEvent(
+        new CustomEvent('topgs:lenis-scroll', {
+          detail: { velocity },
+        })
+      )
+    })
 
     const updateLenis = (time: number) => {
       lenis.raf(time * 1000)

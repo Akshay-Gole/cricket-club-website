@@ -1,10 +1,11 @@
 import { Link } from 'react-router-dom'
 import { ROUTES } from '../../../constants/routes'
+import FeaturedPlayerCard, { type FeaturedPlayer } from './FeaturedPlayerCard'
 
 function FeaturedPlayers() {
   // STATIC placeholder data — swap for real players from API later (playersApi.getAll)
   // TODO: extract each card into a reusable <PlayerCard /> component (own ticket)
-  const players = [
+  const players: FeaturedPlayer[] = [
     {
       num: '01',
       initials: 'AKS',
@@ -80,40 +81,7 @@ function FeaturedPlayers() {
       {/* Player strip — 1px gap divider trick */}
       <div className="relative z-[1] grid grid-cols-1 min-[641px]:grid-cols-2 min-[901px]:grid-cols-3 min-[1025px]:grid-cols-5 gap-6">
         {players.map(player => (
-          <div
-            key={player.name}
-            data-animate="card"
-            className="group relative cursor-pointer overflow-hidden rounded-sm border border-white/[0.09] bg-[#171918] px-5 py-7 text-center shadow-[0_14px_36px_rgba(0,0,0,0.3)] transition-all duration-300 hover:-translate-y-1.5 hover:border-gold/30 hover:bg-[#1b1d1b] hover:shadow-[0_18px_48px_-18px_rgba(201,168,76,0.42)]"
-          >
-            {/* Jersey number — faint, top-right */}
-            <div className="absolute top-4 right-4 font-display text-[28px] text-gold/[0.52]">
-              {player.num}
-            </div>
-
-            {/* Avatar */}
-            <div
-              className="w-[72px] h-[72px] rounded-full border-[1.5px] border-gold/30 mx-auto mb-3.5 flex items-center justify-center font-display text-[22px] text-gold tracking-[1px]"
-              style={{ background: player.avatarBg }}
-            >
-              {player.initials}
-            </div>
-
-            <div className="font-heading text-[#e7e0d1] text-base font-bold tracking-[0.5px] mb-1">
-              {player.name}
-            </div>
-            <div className="font-heading text-gold text-[10px] font-semibold tracking-[2.5px] uppercase mb-3.5">
-              {player.role}
-            </div>
-            <div className="font-display text-[#eee7d8] text-[28px]">
-              {player.stat}
-            </div>
-            <div className="font-body text-muted text-[11px] mt-0.5">
-              {player.statLabel}
-            </div>
-
-            {/* Gold underline that grows on hover */}
-            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gold scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-center" />
-          </div>
+          <FeaturedPlayerCard key={player.name} player={player} />
         ))}
       </div>
     </section>

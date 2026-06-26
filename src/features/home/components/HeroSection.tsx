@@ -1,21 +1,63 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
+import gsap from 'gsap'
 import { ROUTES } from '../../../constants/routes'
 import logger from '../../../services/logger'
 
 function HeroSection() {
+  const sectionRef = useRef<HTMLElement | null>(null)
+
   useEffect(() => {
     logger.info('Home page visited')
+
+    const section = sectionRef.current
+    const prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches
+
+    if (!section || prefersReducedMotion) return
+
+    const context = gsap.context(() => {
+      const heroLights = gsap.utils.toArray<HTMLElement>('[data-hero-light]')
+
+      heroLights.forEach((light, index) => {
+        const finalOpacity = Number(light.dataset.heroLightOpacity ?? 1)
+
+        gsap
+          .timeline({ delay: 0.2 + index * 0.06 })
+          .fromTo(
+            light,
+            { opacity: 0 },
+            {
+              opacity: 1,
+              duration: 0.08,
+              repeat: 7,
+              yoyo: true,
+              ease: 'none',
+            }
+          )
+          .to(light, {
+            opacity: finalOpacity,
+            duration: 0.6,
+            ease: 'power2.out',
+          })
+      })
+    }, section)
+
+    return () => context.revert()
   }, [])
 
   return (
     <section
+      ref={sectionRef}
       data-animate="hero"
       className="relative h-screen min-h-[700px] flex flex-col justify-end overflow-hidden px-12 pb-20 -mt-[72px]"
     >
       {/* Decorative layer 1: faint cricket-field grid */}
       <div
-        className="absolute inset-0 z-0 opacity-[0.4]"
+        data-hero-light
+        data-hero-light-opacity="0.4"
+        className="absolute inset-0 z-0 opacity-0"
         style={{
           backgroundImage:
             'repeating-linear-gradient(0deg, transparent, transparent 60px, #1a5c2e 60px, #1a5c2e 61px), repeating-linear-gradient(90deg, transparent, transparent 80px, #1a5c2e 80px, #1a5c2e 81px)',
@@ -30,7 +72,11 @@ function HeroSection() {
         }}
       />
       {/* Decorative layer 3: gold circle accent (hidden on smaller screens) */}
-      <div className="absolute -top-[20%] -right-[8%] w-[700px] h-[700px] rounded-full border border-gold/10 z-[1] hidden min-[901px]:block" />
+      <div
+        data-hero-light
+        data-hero-light-opacity="1"
+        className="absolute -top-[20%] -right-[8%] w-[700px] h-[700px] rounded-full border border-gold/10 z-[1] hidden opacity-0 min-[901px]:block"
+      />
       {/* Hero content */}
       <div className="relative z-[2] max-w-[900px]">
         {/* Eyebrow */}

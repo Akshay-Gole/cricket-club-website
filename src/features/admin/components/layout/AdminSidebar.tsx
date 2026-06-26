@@ -173,6 +173,20 @@ function AdminIcon({ name }: { name: AdminIconName | 'logout' }) {
         <path d="M8 8h8M8 12h8M8 16h5" />
       </>
     ),
+    honours: (
+      <>
+        <path d="M8 4h8v3a4 4 0 0 1-8 0z" />
+        <path d="M8 5H4v2a4 4 0 0 0 4 4M16 5h4v2a4 4 0 0 1-4 4" />
+        <path d="M12 11v5M9 20h6M8 16h8" />
+      </>
+    ),
+    gallery: (
+      <>
+        <rect x="3" y="5" width="18" height="14" rx="2" />
+        <circle cx="8" cy="10" r="1.5" />
+        <path d="M21 15l-5-5-4 4-2-2-5 5" />
+      </>
+    ),
     sponsors: (
       <>
         <path d="M8 12l3 3 5-6" />

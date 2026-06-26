@@ -23,6 +23,8 @@ const AdminDashboard = lazy(() => import('./features/admin/Dashboard'))
 const ManagePlayers = lazy(() => import('./features/admin/ManagePlayers'))
 const ManageFixtures = lazy(() => import('./features/admin/ManageFixtures'))
 const ManageNews = lazy(() => import('./features/admin/ManageNews'))
+const ManageHonours = lazy(() => import('./features/admin/ManageHonours'))
+const ManageGallery = lazy(() => import('./features/admin/ManageGallery'))
 const ManageSponsors = lazy(() => import('./features/admin/ManageSponsors'))
 const ContactSubmissions = lazy(
   () => import('./features/admin/ContactSubmissions')
@@ -72,6 +74,8 @@ function App() {
               <Route path="players" element={<ManagePlayers />} />
               <Route path="fixtures" element={<ManageFixtures />} />
               <Route path="news" element={<ManageNews />} />
+              <Route path="honours" element={<ManageHonours />} />
+              <Route path="gallery" element={<ManageGallery />} />
               <Route path="sponsors" element={<ManageSponsors />} />
               <Route path="messages" element={<ContactSubmissions />} />
             </Route>
