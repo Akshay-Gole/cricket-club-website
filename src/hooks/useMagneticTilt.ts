@@ -30,6 +30,11 @@ export function useMagneticTilt<T extends HTMLElement>() {
       const pctX = mouseX / (rect.width / 2)
       const pctY = mouseY / (rect.height / 2)
 
+      el.style.setProperty(
+        '--tilt-underline-origin',
+        pctX < 0 ? 'left center' : 'right center'
+      )
+
       const rotateX = Math.max(
         -MAX_ROTATE,
         Math.min(MAX_ROTATE, -pctY * MAX_ROTATE)
@@ -61,6 +66,8 @@ export function useMagneticTilt<T extends HTMLElement>() {
     }
 
     const handleMouseLeave = () => {
+      el.style.setProperty('--tilt-underline-origin', 'center')
+
       gsap.to(el, {
         rotateX: 0,
         rotateY: 0,
@@ -77,6 +84,7 @@ export function useMagneticTilt<T extends HTMLElement>() {
 
     // Ensure the element has 3D transform style and perspective
     gsap.set(el, { transformStyle: 'preserve-3d', transformPerspective: 1000 })
+    el.style.setProperty('--tilt-underline-origin', 'center')
 
     return () => {
       el.removeEventListener('mousemove', handleMouseMove)

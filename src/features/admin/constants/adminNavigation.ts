@@ -5,6 +5,8 @@ export type AdminIconName =
   | 'players'
   | 'fixtures'
   | 'news'
+  | 'honours'
+  | 'gallery'
   | 'sponsors'
   | 'messages'
 
@@ -35,6 +37,16 @@ export const ADMIN_NAVIGATION: AdminNavigationItem[] = [
     label: 'News',
     to: ROUTES.ADMIN_NEWS,
     icon: 'news',
+  },
+  {
+    label: 'Honours',
+    to: ROUTES.ADMIN_HONOURS,
+    icon: 'honours',
+  },
+  {
+    label: 'Gallery',
+    to: ROUTES.ADMIN_GALLERY,
+    icon: 'gallery',
   },
   {
     label: 'Sponsors',
@@ -77,6 +89,20 @@ export const ADMIN_PAGE_META = [
     title: 'News & Articles',
     actionLabel: '+ New Article',
     actionTo: `${ROUTES.ADMIN_NEWS}?action=create`,
+  },
+  {
+    path: ROUTES.ADMIN_HONOURS,
+    eyebrow: 'Club Legacy',
+    title: 'Honours',
+    actionLabel: '+ Add Honour',
+    actionTo: `${ROUTES.ADMIN_HONOURS}?action=create`,
+  },
+  {
+    path: ROUTES.ADMIN_GALLERY,
+    eyebrow: 'Club Media',
+    title: 'Gallery',
+    actionLabel: '+ Add Media',
+    actionTo: `${ROUTES.ADMIN_GALLERY}?action=create`,
   },
   {
     path: ROUTES.ADMIN_SPONSORS,

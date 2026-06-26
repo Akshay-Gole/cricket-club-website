@@ -112,8 +112,8 @@ function PlayerCard({ player }: { player: Player }) {
         </div>
       </div>
 
-      {/* Gold underline that grows from center on hover (homepage style) */}
-      <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-gold scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-center" />
+      {/* Gold underline follows mouse side via useMagneticTilt */}
+      <span className="absolute bottom-0 left-0 right-0 h-0.5 scale-x-0 bg-gold transition-transform duration-300 [transform-origin:var(--tilt-underline-origin,center)] group-hover:scale-x-100" />
     </Link>
   )
 }

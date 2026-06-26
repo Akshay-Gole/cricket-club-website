@@ -19,6 +19,8 @@ export const ROUTES = {
   ADMIN_PLAYERS: '/admin/players',
   ADMIN_FIXTURES: '/admin/fixtures',
   ADMIN_NEWS: '/admin/news',
+  ADMIN_HONOURS: '/admin/honours',
+  ADMIN_GALLERY: '/admin/gallery',
   ADMIN_SPONSORS: '/admin/sponsors',
   ADMIN_MESSAGES: '/admin/messages',
 
