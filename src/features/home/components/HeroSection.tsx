@@ -9,7 +9,10 @@ function HeroSection() {
   }, [])
 
   return (
-    <section className="relative h-screen min-h-[700px] flex flex-col justify-end overflow-hidden px-12 pb-20 -mt-[72px]">
+    <section
+      data-animate="hero"
+      className="relative h-screen min-h-[700px] flex flex-col justify-end overflow-hidden px-12 pb-20 -mt-[72px]"
+    >
       {/* Decorative layer 1: faint cricket-field grid */}
       <div
         className="absolute inset-0 z-0 opacity-[0.4]"

@@ -1,12 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import { clearError, loginUser } from '../auth/store/authSlice'
 import { ROUTES } from '../../constants/routes'
 import logo from '../../assets/images/logo.png'
+import { useGsapPageAnimations } from '../../hooks/useGsapPageAnimations'
+import { useLenisSmoothScroll } from '../../hooks/useLenisSmoothScroll'
 
 function Login() {
+  const mainRef = useRef<HTMLElement | null>(null)
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const location = useLocation()
@@ -22,6 +25,9 @@ function Login() {
 
   const destination =
     (location.state as { from?: string } | null)?.from ?? ROUTES.ADMIN_DASHBOARD
+
+  useLenisSmoothScroll()
+  useGsapPageAnimations(mainRef)
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -54,11 +60,18 @@ function Login() {
   }
 
   return (
-    <main className="grid min-h-screen bg-[#070a07] min-[901px]:grid-cols-[1.05fr_0.95fr]">
-      <section className="relative hidden overflow-hidden border-r border-white/[0.12] min-[901px]:flex min-[901px]:flex-col min-[901px]:justify-between min-[901px]:p-12">
+    <main
+      ref={mainRef}
+      data-animate-auto
+      className="grid min-h-screen bg-[#070707] min-[901px]:grid-cols-[1.05fr_0.95fr]"
+    >
+      <section
+        data-animate="hero"
+        className="relative hidden overflow-hidden border-r border-white/[0.12] min-[901px]:flex min-[901px]:flex-col min-[901px]:justify-between min-[901px]:p-12"
+      >
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(45,138,71,0.22),transparent_38%),linear-gradient(145deg,#102117_0%,#090c0a_65%)]"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(201,168,76,0.14),transparent_38%),linear-gradient(145deg,#171717_0%,#090909_65%)]"
         />
 
         <div
@@ -107,7 +120,10 @@ function Login() {
         </p>
       </section>
 
-      <section className="relative flex min-h-screen items-center justify-center px-5 py-10 sm:px-7 min-[901px]:px-12">
+      <section
+        data-animate="reveal"
+        className="relative flex min-h-screen items-center justify-center px-5 py-10 sm:px-7 min-[901px]:px-12"
+      >
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-x-0 top-0 h-48 bg-[radial-gradient(circle_at_top,rgba(201,168,76,0.08),transparent_65%)] min-[901px]:hidden"
@@ -149,7 +165,7 @@ function Login() {
           <form
             onSubmit={handleSubmit}
             noValidate
-            className="overflow-hidden rounded border border-white/[0.12] bg-[#1b241d] shadow-[0_24px_80px_rgba(0,0,0,0.35)]"
+            className="overflow-hidden rounded border border-white/[0.1] bg-[#161616] shadow-[0_24px_80px_rgba(0,0,0,0.38)]"
           >
             <div className="space-y-5 p-5 sm:p-7">
               <div className="flex flex-col gap-1.5">
@@ -169,7 +185,7 @@ function Login() {
                   value={form.email}
                   placeholder="admin@topgscc.com"
                   onChange={event => updateField('email', event.target.value)}
-                  className="w-full rounded-sm border border-white/[0.08] bg-[#191d1a] px-4 py-3.5 font-heading text-[15px] font-semibold tracking-[0.4px] text-white outline-none transition-colors placeholder:font-normal placeholder:text-muted/60 focus:border-gold/45 focus:bg-[#1b201c]"
+                  className="w-full rounded-sm border border-white/[0.1] bg-[#202020] px-4 py-3.5 font-heading text-[15px] font-semibold tracking-[0.4px] text-[#e7e0d1] outline-none transition-colors placeholder:font-normal placeholder:text-muted/60 focus:border-gold/45 focus:bg-[#25231c]"
                 />
               </div>
 
@@ -193,7 +209,7 @@ function Login() {
                     onChange={event =>
                       updateField('password', event.target.value)
                     }
-                    className="w-full rounded-sm border border-white/[0.08] bg-[#191d1a] px-4 py-3.5 pr-16 font-heading text-[15px] font-semibold tracking-[0.4px] text-white outline-none transition-colors placeholder:font-normal placeholder:text-muted/60 focus:border-gold/45 focus:bg-[#1b201c]"
+                    className="w-full rounded-sm border border-white/[0.1] bg-[#202020] px-4 py-3.5 pr-16 font-heading text-[15px] font-semibold tracking-[0.4px] text-[#e7e0d1] outline-none transition-colors placeholder:font-normal placeholder:text-muted/60 focus:border-gold/45 focus:bg-[#25231c]"
                   />
 
                   <button

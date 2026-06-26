@@ -115,7 +115,7 @@ function ContactSubmissions() {
 
   return (
     <div className="space-y-5 sm:space-y-6">
-      <section className="relative overflow-hidden rounded border border-white/[0.12] bg-[#1b241d] px-5 py-7 sm:px-7 lg:px-8">
+      <section className="relative overflow-hidden rounded border border-white/[0.1] bg-[#181818] px-5 py-7 shadow-[0_20px_70px_rgba(0,0,0,0.24)] sm:px-7 lg:px-8">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_20%,rgba(111,140,255,0.12),transparent_34%)]"
@@ -147,7 +147,7 @@ function ContactSubmissions() {
       </section>
 
       <div className="grid grid-cols-1 gap-5 sm:gap-6 min-[1180px]:grid-cols-[minmax(0,1fr)_430px]">
-        <section className="overflow-hidden rounded border border-white/[0.12] bg-[#182119]">
+        <section className="overflow-hidden rounded border border-white/[0.1] bg-[#161616]">
           <div className="border-b border-white/[0.10] p-5 sm:p-6">
             <div className="flex flex-col gap-4 min-[901px]:flex-row min-[901px]:items-center min-[901px]:justify-between">
               <div>
@@ -256,7 +256,7 @@ function ContactSubmissions() {
 
         <aside
           ref={detailPanelRef}
-          className="scroll-mt-24 rounded border border-white/[0.12] bg-[#182119] p-5 sm:p-6"
+          className="scroll-mt-24 rounded border border-white/[0.1] bg-[#161616] p-5 shadow-[0_14px_44px_rgba(0,0,0,0.22)] sm:p-6"
         >
           {selectedMessage ? (
             <MessageDetails

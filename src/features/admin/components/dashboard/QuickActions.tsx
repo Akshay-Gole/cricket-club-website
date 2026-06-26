@@ -12,7 +12,7 @@ const toneClasses: Record<AdminTone, string> = {
 
 function QuickActions() {
   return (
-    <section className="rounded border border-white/[0.12] bg-[#182119] p-5">
+    <section className="rounded border border-white/[0.1] bg-[#161616] p-5 shadow-[0_14px_44px_rgba(0,0,0,0.22)]">
       <div className="mb-4">
         <p className="font-heading text-[10px] font-bold uppercase tracking-[3px] text-gold">
           Shortcuts
@@ -27,7 +27,7 @@ function QuickActions() {
           <Link
             key={action.label}
             to={action.to}
-            className={`group rounded border border-white/[0.12] bg-white/[0.035] p-4 transition-all duration-300 ${toneClasses[action.tone]}`}
+            className={`group rounded border border-white/[0.1] bg-[#202020]/70 p-4 transition-all duration-300 hover:bg-[#252525] ${toneClasses[action.tone]}`}
           >
             <div className="flex items-center justify-between gap-4">
               <div>

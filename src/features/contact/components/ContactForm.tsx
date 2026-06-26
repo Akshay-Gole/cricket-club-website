@@ -90,12 +90,13 @@ function ContactForm({ intent }: ContactFormProps) {
   return (
     <section className="px-5 py-8 pb-14 sm:px-7 sm:py-10 sm:pb-16 lg:px-12 lg:py-12 lg:pb-20">
       <form
+        data-animate="reveal"
         onSubmit={handleSubmit}
         noValidate
-        className="w-full overflow-hidden rounded border-[0.5px] border-white/[0.06] bg-card"
+        className="w-full overflow-hidden rounded border-[0.5px] border-white/[0.1] bg-[#0d0f0e] shadow-[0_18px_52px_rgba(0,0,0,0.38)]"
       >
-        <div className="flex flex-col items-start gap-2.5 border-b-[0.5px] border-white/[0.06] bg-[linear-gradient(135deg,#0d2018_0%,#161616_100%)] px-[22px] py-5 min-[641px]:flex-row min-[641px]:items-center min-[641px]:justify-between min-[641px]:px-8 min-[641px]:py-6">
-          <h2 className="font-display text-[26px] tracking-[1px] text-white min-[641px]:text-[32px]">
+        <div className="flex flex-col items-start gap-2.5 border-b-[0.5px] border-white/[0.1] bg-[radial-gradient(circle_at_8%_0%,rgba(201,168,76,0.11),transparent_35%),linear-gradient(135deg,#15130d_0%,#101210_62%,#0b0d0c_100%)] px-[22px] py-5 min-[641px]:flex-row min-[641px]:items-center min-[641px]:justify-between min-[641px]:px-8 min-[641px]:py-6">
+          <h2 className="font-display text-[26px] tracking-[1px] text-[#efe9dc] min-[641px]:text-[32px]">
             Send a Message
           </h2>
 

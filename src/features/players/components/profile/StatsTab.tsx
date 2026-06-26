@@ -5,10 +5,16 @@ function StatsTab({ player }: { player: PlayerProfile }) {
   return (
     <div className="pb-14 sm:pb-16">
       {/* BATTING TABLE */}
-      <div className="font-heading text-[11px] font-semibold tracking-[3px] uppercase text-gold mb-4">
+      <div
+        data-animate="reveal"
+        className="font-heading text-[11px] font-semibold tracking-[3px] uppercase text-gold mb-4"
+      >
         Batting — Career Summary
       </div>
-      <div className="overflow-x-auto rounded border-[0.5px] border-white/[0.06]">
+      <div
+        data-animate="card"
+        className="overflow-x-auto rounded border-[0.5px] border-white/[0.06]"
+      >
         <table className="w-full border-collapse min-w-[560px]">
           <thead>
             <tr className="bg-[#1a1a1a]">
@@ -67,10 +73,16 @@ function StatsTab({ player }: { player: PlayerProfile }) {
       </div>
 
       {/* BOWLING TABLE */}
-      <div className="font-heading text-[11px] font-semibold tracking-[3px] uppercase text-gold mb-4 mt-7">
+      <div
+        data-animate="reveal"
+        className="font-heading text-[11px] font-semibold tracking-[3px] uppercase text-gold mb-4 mt-7"
+      >
         Bowling — Career Summary
       </div>
-      <div className="overflow-x-auto rounded border-[0.5px] border-white/[0.06]">
+      <div
+        data-animate="card"
+        className="overflow-x-auto rounded border-[0.5px] border-white/[0.06]"
+      >
         <table className="w-full border-collapse min-w-[560px]">
           <thead>
             <tr className="bg-[#1a1a1a]">

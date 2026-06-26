@@ -11,7 +11,10 @@ function PlayerProfile() {
   return (
     <div className="pb-20">
       {/* BREADCRUMB */}
-      <div className="flex flex-wrap items-center gap-2.5 px-5 sm:px-7 lg:px-12 py-4 sm:py-[18px] lg:py-5 font-heading text-[10px] sm:text-[11px] font-semibold tracking-[2px] uppercase">
+      <div
+        data-animate="hero"
+        className="flex flex-wrap items-center gap-2.5 px-5 sm:px-7 lg:px-12 py-4 sm:py-[18px] lg:py-5 font-heading text-[10px] sm:text-[11px] font-semibold tracking-[2px] uppercase"
+      >
         <Link
           to={ROUTES.HOME}
           className="text-muted hover:text-gold transition-colors"

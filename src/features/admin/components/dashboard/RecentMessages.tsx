@@ -4,7 +4,7 @@ import { recentMessages } from '../../constants/dashboardData'
 
 function RecentMessages() {
   return (
-    <section className="rounded border border-white/[0.12] bg-[#182119]">
+    <section className="rounded border border-white/[0.1] bg-[#161616] shadow-[0_14px_44px_rgba(0,0,0,0.22)]">
       <div className="flex items-center justify-between gap-4 border-b border-white/[0.10] px-5 py-4">
         <div>
           <p className="font-heading text-[10px] font-bold uppercase tracking-[3px] text-gold">

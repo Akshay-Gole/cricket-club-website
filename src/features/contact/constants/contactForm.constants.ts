@@ -26,15 +26,15 @@ export type UpdateContactField = (
 export function inputClass(hasError: boolean): string {
   return `
     w-full appearance-none rounded-sm border-[0.5px]
-    bg-[#1b1b1b] px-3.5 py-[11px]
-    font-heading text-[15px] font-semibold tracking-[0.5px] text-white
+    bg-[#1c1f1d] px-3.5 py-[11px]
+    font-heading text-[15px] font-semibold tracking-[0.5px] text-[#e7e0d1]
     outline-none transition-colors
     placeholder:font-normal placeholder:text-muted
-    focus:bg-[#181810]
+    focus:bg-[#22251f]
     ${
       hasError
         ? 'border-[#c94c4c] bg-[#c94c4c]/[0.08] focus:border-[#c94c4c]'
-        : 'border-white/[0.06] focus:border-gold/45'
+        : 'border-white/[0.14] focus:border-gold/45'
     }
   `
 }

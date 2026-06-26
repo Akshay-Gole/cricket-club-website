@@ -4,7 +4,10 @@ function ProfileHero({ player }: { player: PlayerProfile }) {
   const initials = player.name.slice(0, 3)
 
   return (
-    <div className="grid grid-cols-1 min-[901px]:grid-cols-[400px_1fr] mx-5 sm:mx-7 lg:mx-12 bg-card border-[0.5px] border-white/[0.06] rounded overflow-hidden relative min-[901px]:min-h-[480px]">
+    <div
+      data-animate="hero"
+      className="grid grid-cols-1 min-[901px]:grid-cols-[400px_1fr] mx-5 sm:mx-7 lg:mx-12 bg-card border-[0.5px] border-white/[0.06] rounded overflow-hidden relative min-[901px]:min-h-[480px]"
+    >
       {/* LEFT — visual panel */}
       <div className="relative flex flex-col justify-end p-7 min-[901px]:p-9 overflow-hidden min-h-[240px] sm:min-h-[280px] [background:linear-gradient(160deg,#0d2a18_0%,#061510_60%,#0a0a0a_100%)]">
         <div className="absolute -top-3 sm:-top-5 -right-1.5 sm:-right-2.5 font-display text-[140px] sm:text-[200px] text-gold/40 leading-none pointer-events-none">
@@ -46,7 +49,11 @@ function ProfileHero({ player }: { player: PlayerProfile }) {
             { val: player.bowlingAverage, lbl: 'Bowl Avg' },
             { val: player.matches, lbl: 'Matches' },
           ].map(stat => (
-            <div key={stat.lbl} className="bg-card px-4 py-5 sm:px-5 sm:py-6">
+            <div
+              key={stat.lbl}
+              data-animate="card"
+              className="bg-card px-4 py-5 sm:px-5 sm:py-6"
+            >
               <div className="font-display text-4xl sm:text-5xl text-gold leading-none mb-1.5">
                 {stat.val}
               </div>

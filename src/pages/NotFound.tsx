@@ -17,7 +17,7 @@ function NotFound() {
         404
       </div>
       {/* ANIMATION SCENE */}
-      <div key={replayKey} className={styles.scene}>
+      <div key={replayKey} data-animate="hero" className={styles.scene}>
         {/* Logo shield — floats at top */}
         <div className={styles.logoWrap}>
           <img src={logo} alt="Top G's CC logo" className={styles.logoShield} />
@@ -53,7 +53,7 @@ function NotFound() {
       </div>
 
       {/* TEXT CONTENT */}
-      <div className="relative z-[2]">
+      <div data-animate="reveal" className="relative z-[2]">
         {/* Error code line — bigger + clearer than mockup, as you wanted */}
         <div className="flex items-center justify-center gap-3 font-['Barlow_Condensed'] text-[14px] min-[641px]:text-[16px] font-bold tracking-[4px] uppercase text-gold mb-[10px] before:content-[''] before:w-6 before:h-px before:bg-gold after:content-[''] after:w-6 after:h-px after:bg-gold">
           Error 404 : Page Not Found

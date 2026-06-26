@@ -1,11 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@300;400;500&family=Playfair+Display:ital,wght@0,700;1,400;1,700&display=swap');
 @import 'tailwindcss';
 
 @theme {
   /* Colors — these become bg-*, text-*, border-* utilities */
   --color-black: #070907;
-  --color-dark: #0d130f;
-  --color-card: #151c17;
+  --color-dark: #0d0f0e;
+  --color-card: #171918;
   --color-green: #194f2b;
   --color-green-light: #34a058;
   --color-gold: #c9a84c;
@@ -17,6 +17,7 @@
   --font-display: 'Bebas Neue', sans-serif;
   --font-heading: 'Barlow Condensed', sans-serif;
   --font-body: 'Barlow', sans-serif;
+  --font-serif: 'Playfair Display', serif;
 
   --animate-scroll-line: scroll-line 2s ease-in-out infinite;
   --animate-scroll-ticker: scroll-ticker 20s linear infinite;
@@ -43,11 +44,35 @@
   }
 }
 
+@keyframes tab-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+    filter: blur(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+.animate-tab-panel {
+  animation: tab-panel-in 0.45s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-tab-panel {
+    animation: none;
+  }
+}
+
 body {
   background:
     radial-gradient(
       circle at 12% 8%,
-      color-mix(in srgb, var(--color-green) 18%, transparent),
+      color-mix(in srgb, var(--color-green) 10%, transparent),
       transparent 34%
     ),
     radial-gradient(
@@ -55,7 +80,7 @@ body {
       color-mix(in srgb, var(--color-gold) 8%, transparent),
       transparent 30%
     ),
-    linear-gradient(180deg, #070907 0%, #090d0a 48%, #070907 100%);
+    linear-gradient(180deg, #070907 0%, #080908 48%, #070907 100%);
   color: var(--color-cream);
   font-family: var(--font-body);
 }

@@ -25,8 +25,9 @@ function FixtureRow({ fixture }: { fixture: Fixture }) {
 
   return (
     <div
+      data-animate="card"
       onClick={handleClick}
-      className={`group grid items-center gap-x-3 gap-y-3 px-3.5 py-4 min-[401px]:grid-cols-[auto_1fr_auto] min-[401px]:[grid-template-areas:'date_match_badge''score_score_cta'] min-[641px]:gap-x-4 min-[641px]:gap-y-3.5 min-[641px]:px-[18px] min-[641px]:py-[18px] min-[901px]:grid-cols-[80px_1fr_auto_auto_100px] min-[901px]:gap-4 min-[901px]:px-5 min-[901px]:py-[18px] min-[901px]:[grid-template-areas:'date_match_score_badge_cta'] min-[1025px]:grid-cols-[90px_1fr_auto_auto_120px] min-[1025px]:gap-5 min-[1025px]:px-6 min-[1025px]:py-5 bg-dark border-[0.5px] border-white/[0.055] rounded-sm mb-px transition-colors hover:bg-card hover:border-gold/15 ${leftBorder} ${
+      className={`group grid items-center gap-x-3 gap-y-3 px-3.5 py-4 min-[401px]:grid-cols-[auto_1fr_auto] min-[401px]:[grid-template-areas:'date_match_badge''score_score_cta'] min-[641px]:gap-x-4 min-[641px]:gap-y-3.5 min-[641px]:px-[18px] min-[641px]:py-[18px] min-[901px]:grid-cols-[80px_1fr_auto_auto_100px] min-[901px]:gap-4 min-[901px]:px-5 min-[901px]:py-[18px] min-[901px]:[grid-template-areas:'date_match_score_badge_cta'] min-[1025px]:grid-cols-[90px_1fr_auto_auto_120px] min-[1025px]:gap-5 min-[1025px]:px-6 min-[1025px]:py-5 rounded-sm mb-2 border-[0.5px] border-white/[0.1] bg-[linear-gradient(135deg,#171a18_0%,#101210_58%,#18160f_100%)] shadow-[0_18px_55px_rgba(0,0,0,0.28)] transition-all hover:-translate-y-0.5 hover:border-gold/25 hover:bg-[linear-gradient(135deg,#1b1e1b_0%,#121512_58%,#1c190f_100%)] hover:shadow-[0_22px_70px_rgba(0,0,0,0.38)] ${leftBorder} ${
         isResult ? 'cursor-pointer' : 'cursor-not-allowed'
       }
       grid-cols-[auto_1fr]
@@ -34,7 +35,7 @@ function FixtureRow({ fixture }: { fixture: Fixture }) {
     >
       {/* Date block */}
       <div className="text-center [grid-area:date]">
-        <div className="font-display text-2xl text-white leading-none min-[641px]:text-[28px] min-[901px]:text-[32px]">
+        <div className="font-display text-2xl text-[#eee7d8] leading-none min-[641px]:text-[28px] min-[901px]:text-[32px]">
           {fixture.day}
         </div>
         <div className="font-heading text-[9px] font-bold tracking-[2px] uppercase text-muted min-[641px]:text-[10px]">
@@ -44,7 +45,7 @@ function FixtureRow({ fixture }: { fixture: Fixture }) {
 
       {/* Match teams + meta */}
       <div className="min-w-0 [grid-area:match]">
-        <div className="mb-1 font-heading text-[15px] font-bold leading-[1.25] tracking-[0.5px] text-white min-[641px]:text-[17px] min-[641px]:leading-[1.2] min-[901px]:text-[19px]">
+        <div className="mb-1 font-heading text-[15px] font-bold leading-[1.25] tracking-[0.5px] text-[#e7e0d1] min-[641px]:text-[17px] min-[641px]:leading-[1.2] min-[901px]:text-[19px]">
           {fixture.isHome ? (
             <>
               <span className="text-gold">{fixture.homeTeam}</span> vs{' '}

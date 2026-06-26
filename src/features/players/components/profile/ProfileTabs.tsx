@@ -22,7 +22,7 @@ function ProfileTabs({ player }: { player: PlayerProfile }) {
   }
 
   return (
-    <div>
+    <div data-animate="reveal">
       {/* TAB STRIP */}
       <div className="flex mx-5 sm:mx-7 lg:mx-12 mt-6 sm:mt-7 lg:mt-8 border-b-[0.5px] border-white/[0.06] overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {TABS.map(tab => {
@@ -48,7 +48,10 @@ function ProfileTabs({ player }: { player: PlayerProfile }) {
       </div>
 
       {/* TAB PANELS */}
-      <div className="px-5 sm:px-7 lg:px-12 pt-7 sm:pt-8 lg:pt-10">
+      <div
+        key={activeTab}
+        className="animate-tab-panel px-5 sm:px-7 lg:px-12 pt-7 sm:pt-8 lg:pt-10"
+      >
         {activeTab === 'stats' && <StatsTab player={player} />}
         {activeTab === 'bio' && <BioTab player={player} />}
         {activeTab === 'achievements' && <AchievementsTab />}

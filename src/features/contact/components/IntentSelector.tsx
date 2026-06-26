@@ -7,7 +7,7 @@ interface Props {
 
 function IntentSelector({ selected, onSelect }: Props) {
   return (
-    <div className="px-5 sm:px-7 lg:px-12 pt-12 sm:pt-14">
+    <div data-animate="reveal" className="px-5 sm:px-7 lg:px-12 pt-12 sm:pt-14">
       {/* Eyebrow */}
       <div className="flex items-center gap-3.5 mb-6 font-heading text-[11px] font-semibold tracking-[4px] uppercase text-gold">
         <span className="block w-7 h-px bg-gold" />
@@ -15,23 +15,24 @@ function IntentSelector({ selected, onSelect }: Props) {
       </div>
 
       {/* Question */}
-      <div className="font-display text-3xl sm:text-[42px] tracking-[1px] text-white leading-[1.05] mb-7">
+      <div className="font-display text-3xl sm:text-[42px] tracking-[1px] text-[#efe9dc] leading-[1.05] mb-7">
         Pick your reason —<br />
         we'll tailor the form.
       </div>
 
       {/* Intent grid */}
-      <div className="grid grid-cols-1 min-[641px]:grid-cols-2 min-[1025px]:grid-cols-4 gap-px bg-white/[0.06]">
+      <div className="grid grid-cols-1 min-[641px]:grid-cols-2 min-[1025px]:grid-cols-4 gap-px rounded-sm bg-white/[0.1]">
         {INTENTS.map(intent => {
           const isActive = selected === intent.id
           return (
             <button
               key={intent.id}
+              data-animate="card"
               onClick={() => onSelect(intent.id)}
               className={`group relative text-left p-7 overflow-hidden cursor-pointer transition-colors border-2 ${
                 isActive
-                  ? 'border-gold bg-[#0e1a0a]'
-                  : 'border-transparent bg-card hover:bg-[#1b1b1b]'
+                  ? 'border-gold bg-[#1a1710]'
+                  : 'border-transparent bg-[#151715] hover:bg-[#1b1d1b]'
               }`}
             >
               {/* Check badge (top-right) */}
@@ -53,7 +54,7 @@ function IntentSelector({ selected, onSelect }: Props) {
               </div>
 
               {/* Ghost number */}
-              <div className="absolute -bottom-3 -right-1.5 font-display text-[72px] text-white/[0.025] leading-none pointer-events-none">
+              <div className="absolute -bottom-3 -right-1.5 font-display text-[72px] text-gold/[0.08] leading-none pointer-events-none">
                 {intent.ghost}
               </div>
 
@@ -61,7 +62,7 @@ function IntentSelector({ selected, onSelect }: Props) {
                 <span className="block text-[28px] mb-3.5">{intent.emoji}</span>
                 <div
                   className={`font-display text-[22px] tracking-[1px] mb-1.5 transition-colors ${
-                    isActive ? 'text-gold' : 'text-white'
+                    isActive ? 'text-gold' : 'text-[#e7e0d1]'
                   }`}
                 >
                   {intent.name}

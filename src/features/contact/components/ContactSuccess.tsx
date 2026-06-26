@@ -6,7 +6,7 @@ interface ContactSuccessProps {
 function ContactSuccess({ name, onReset }: ContactSuccessProps) {
   return (
     <section className="px-5 py-8 pb-14 sm:px-7 sm:py-10 sm:pb-16 lg:px-12 lg:py-12 lg:pb-20">
-      <div className="flex min-h-[300px] w-full flex-col items-center justify-center rounded border-[0.5px] border-white/[0.06] bg-card px-6 py-10 text-center sm:min-h-[380px] sm:px-10 sm:py-14">
+      <div className="flex min-h-[300px] w-full flex-col items-center justify-center rounded border-[0.5px] border-white/[0.1] bg-[#0d0f0e] px-6 py-10 text-center shadow-[0_18px_52px_rgba(0,0,0,0.38)] sm:min-h-[380px] sm:px-10 sm:py-14">
         <div className="mb-5 flex h-[68px] w-[68px] items-center justify-center rounded-full border border-green-light/35 bg-green-light/15">
           <svg
             width="28"
@@ -21,7 +21,7 @@ function ContactSuccess({ name, onReset }: ContactSuccessProps) {
           </svg>
         </div>
 
-        <h2 className="mb-2.5 font-display text-[38px] tracking-[2px] text-white sm:text-5xl">
+        <h2 className="mb-2.5 font-display text-[38px] tracking-[2px] text-[#efe9dc] sm:text-5xl">
           Message Sent.
         </h2>
 

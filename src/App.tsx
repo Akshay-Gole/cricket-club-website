@@ -9,8 +9,10 @@ const Squad = lazy(() => import('./pages/Squad'))
 const Fixtures = lazy(() => import('./pages/Fixtures'))
 const Honours = lazy(() => import('./pages/Honours'))
 const News = lazy(() => import('./pages/News'))
+const NewsArticle = lazy(() => import('./pages/NewsArticle'))
 const Gallery = lazy(() => import('./pages/Gallery'))
 const Contact = lazy(() => import('./pages/Contact'))
+const JoinClub = lazy(() => import('./pages/JoinClub'))
 const About = lazy(() => import('./pages/About'))
 const Sponsors = lazy(() => import('./pages/Sponsors'))
 const NotFound = lazy(() => import('./pages/NotFound'))
@@ -47,8 +49,10 @@ function App() {
             <Route path={ROUTES.FIXTURES} element={<Fixtures />} />
             <Route path={ROUTES.HONOURS} element={<Honours />} />
             <Route path={ROUTES.NEWS} element={<News />} />
+            <Route path={ROUTES.NEWS_ARTICLE} element={<NewsArticle />} />
             <Route path={ROUTES.GALLERY} element={<Gallery />} />
             <Route path={ROUTES.CONTACT} element={<Contact />} />
+            <Route path={ROUTES.JOIN} element={<JoinClub />} />
             <Route path={ROUTES.ABOUT} element={<About />} />
             <Route path={ROUTES.SPONSORS} element={<Sponsors />} />
           </Route>

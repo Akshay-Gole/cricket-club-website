@@ -2,7 +2,7 @@ import { nextFixture } from '../../constants/dashboardData'
 
 function NextFixture() {
   return (
-    <section className="relative overflow-hidden rounded border border-white/[0.12] bg-[#182119] p-5 sm:p-6">
+    <section className="relative overflow-hidden rounded border border-white/[0.1] bg-[#161616] p-5 shadow-[0_14px_44px_rgba(0,0,0,0.24)] sm:p-6">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_15%,rgba(201,168,76,0.13),transparent_34%)]"
@@ -26,8 +26,8 @@ function NextFixture() {
         </div>
 
         <div className="grid grid-cols-1 gap-5 min-[641px]:grid-cols-[150px_1fr]">
-          <div className="rounded border border-white/[0.10] bg-white/[0.035] p-5">
-            <div className="font-display text-[44px] leading-none text-white">
+          <div className="rounded border border-white/[0.1] bg-[#202020]/80 p-5">
+            <div className="font-display text-[44px] leading-none text-[#efe9dc]">
               14
             </div>
             <div className="mt-1 font-heading text-[11px] font-bold uppercase tracking-[3px] text-muted">
@@ -49,7 +49,7 @@ function NextFixture() {
                 <p className="font-heading text-[10px] font-bold uppercase tracking-[2.5px] text-muted">
                   Time
                 </p>
-                <p className="mt-1 font-body text-sm text-white">
+                <p className="mt-1 font-body text-sm text-[#e7e0d1]">
                   {nextFixture.time}
                 </p>
               </div>
@@ -58,7 +58,7 @@ function NextFixture() {
                 <p className="font-heading text-[10px] font-bold uppercase tracking-[2.5px] text-muted">
                   Ground
                 </p>
-                <p className="mt-1 font-body text-sm text-white">
+                <p className="mt-1 font-body text-sm text-[#e7e0d1]">
                   {nextFixture.ground}
                 </p>
               </div>
@@ -67,7 +67,7 @@ function NextFixture() {
                 <p className="font-heading text-[10px] font-bold uppercase tracking-[2.5px] text-muted">
                   Competition
                 </p>
-                <p className="mt-1 font-body text-sm text-white">
+                <p className="mt-1 font-body text-sm text-[#e7e0d1]">
                   {nextFixture.competition}
                 </p>
               </div>

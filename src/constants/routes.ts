@@ -4,6 +4,7 @@ export const ROUTES = {
   FIXTURES: '/fixtures',
   HONOURS: '/honours',
   NEWS: '/news',
+  NEWS_ARTICLE: '/news/:slug',
   GALLERY: '/gallery',
   CONTACT: '/contact',
   JOIN: '/join',

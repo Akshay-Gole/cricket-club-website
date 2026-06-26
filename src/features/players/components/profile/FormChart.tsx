@@ -29,7 +29,10 @@ function FormChart({ player }: { player: PlayerProfile }) {
   }
 
   return (
-    <div className="mt-10 bg-card border-[0.5px] border-white/[0.06] rounded p-5 sm:p-7">
+    <div
+      data-animate="card"
+      className="mt-10 bg-card border-[0.5px] border-white/[0.06] rounded p-5 sm:p-7"
+    >
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2.5 mb-6">
         <div className="font-heading text-sm sm:text-base font-bold tracking-[1px] uppercase text-white">
@@ -102,7 +105,7 @@ function FormChart({ player }: { player: PlayerProfile }) {
             textAnchor="end"
             className="fill-muted"
             fontSize="9"
-            fontFamily="Barlow Condensed"
+            fontFamily="Space Grotesk"
           >
             {t.label}
           </text>
@@ -131,7 +134,7 @@ function FormChart({ player }: { player: PlayerProfile }) {
                 y={y - 5}
                 textAnchor="middle"
                 fontSize="9"
-                fontFamily="Barlow Condensed"
+                fontFamily="Space Grotesk"
                 fill={inn.notOut ? '#c9a84c' : 'rgba(201,168,76,0.75)'}
                 fontWeight={inn.notOut ? '700' : '400'}
               >
@@ -144,7 +147,7 @@ function FormChart({ player }: { player: PlayerProfile }) {
                 y="178"
                 textAnchor="middle"
                 fontSize="9"
-                fontFamily="Barlow Condensed"
+                fontFamily="Space Grotesk"
                 className="fill-muted"
               >
                 {inn.match}
@@ -155,7 +158,7 @@ function FormChart({ player }: { player: PlayerProfile }) {
                 y="192"
                 textAnchor="middle"
                 fontSize="9"
-                fontFamily="Barlow Condensed"
+                fontFamily="Space Grotesk"
                 className="fill-muted"
                 opacity="0.5"
               >
