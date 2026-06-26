@@ -24,12 +24,15 @@ const QUICK_ITEMS = [
 
 function ContactHero() {
   return (
-    <section className="relative grid grid-cols-1 overflow-hidden min-[901px]:min-h-[340px] min-[901px]:grid-cols-2">
+    <section
+      data-animate="hero"
+      className="relative grid grid-cols-1 overflow-hidden min-[901px]:min-h-[340px] min-[901px]:grid-cols-2"
+    >
       {/* Left hero */}
       <div
         className="
           relative min-h-[220px] px-5 pb-10 pt-12
-          [background:linear-gradient(135deg,#0d2018_0%,#0a0a0a_100%)]
+          bg-[#101310]/80
           min-[641px]:min-h-[280px] min-[641px]:px-7 min-[641px]:pb-12 min-[641px]:pt-16
           min-[901px]:min-h-0 min-[901px]:pt-[60px]
           min-[901px]:after:absolute min-[901px]:after:inset-y-0
@@ -77,7 +80,7 @@ function ContactHero() {
           <h1
             className="
               relative z-[1] font-display text-[42px] leading-[0.9]
-              tracking-[2px] text-white
+              tracking-[2px] text-[#efe9dc]
               min-[641px]:text-[56px]
               min-[901px]:text-[64px]
               min-[1025px]:text-[80px]
@@ -92,8 +95,9 @@ function ContactHero() {
             aria-hidden="true"
             className="
               -mt-1 block font-display text-[42px] leading-[0.9]
-              tracking-[2px] text-transparent
-              [-webkit-text-stroke:0.5px_rgba(201,168,76,0.08)]
+              tracking-[2px] text-gold/[0.035]
+              [-webkit-text-stroke:0.75px_rgba(201,168,76,0.2)]
+              [text-shadow:0_0_28px_rgba(201,168,76,0.08)]
               min-[641px]:text-[56px]
               min-[901px]:text-[64px]
               min-[1025px]:text-[80px]
@@ -107,7 +111,7 @@ function ContactHero() {
       </div>
 
       {/* Quick contact links */}
-      <div className="grid grid-rows-[auto_auto_auto] border-t-[0.5px] border-white/[0.06] bg-dark min-[901px]:grid-rows-3 min-[901px]:border-t-0">
+      <div className="grid grid-rows-[auto_auto_auto] border-t-[0.5px] border-white/[0.1] bg-[#121512]/90 min-[901px]:grid-rows-3 min-[901px]:border-t-0">
         {QUICK_ITEMS.map((item, index) => (
           <a
             key={item.label}
@@ -116,13 +120,13 @@ function ContactHero() {
             rel={item.label === 'Home Ground' ? 'noreferrer' : undefined}
             className={`
               group relative flex min-w-0 items-center gap-3.5 overflow-hidden
-              px-5 py-4 pr-14 transition-colors hover:bg-card
+              px-5 py-4 pr-14 transition-colors hover:bg-white/[0.035]
               min-[641px]:gap-5 min-[641px]:px-7 min-[641px]:py-[18px] min-[641px]:pr-16
               min-[901px]:gap-3.5 min-[901px]:px-7 min-[901px]:py-0
               min-[1025px]:gap-5 min-[1025px]:px-10
               ${
                 index !== QUICK_ITEMS.length - 1
-                  ? 'border-b-[0.5px] border-white/[0.06]'
+                  ? 'border-b-[0.5px] border-white/[0.1]'
                   : ''
               }
             `}
@@ -151,7 +155,7 @@ function ContactHero() {
               <span
                 className="
                   block font-heading text-[13px] font-bold tracking-[0.5px]
-                  text-white min-[641px]:text-sm min-[1025px]:text-base
+                  text-[#e7e0d1] min-[641px]:text-sm min-[1025px]:text-base
                 "
               >
                 {item.value}

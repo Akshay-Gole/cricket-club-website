@@ -1,4 +1,5 @@
 export type NewsCategory = 'news' | 'match-report' | 'event' | 'announcement'
+export type ArticleLayout = 'match-report' | 'standard'
 
 export interface NewsArticle {
   id: string
@@ -8,6 +9,7 @@ export interface NewsArticle {
   excerpt: string
   featuredImage?: string
   category: NewsCategory
+  layout?: ArticleLayout
   author: string
   publishedAt: string
   updatedAt: string
@@ -19,4 +21,5 @@ export interface CreateNewsDto {
   excerpt: string
   featuredImage?: string
   category: NewsCategory
+  layout?: ArticleLayout
 }

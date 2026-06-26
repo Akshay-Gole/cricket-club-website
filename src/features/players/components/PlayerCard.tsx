@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useMagneticTilt } from '../../../hooks/useMagneticTilt'
 import type { Player } from '../types/player.types'
 
 // Map each role to its badge text, badge color classes, and avatar gradient classes
@@ -35,11 +36,14 @@ const roleConfig: Record<
 function PlayerCard({ player }: { player: Player }) {
   const config = roleConfig[player.role]
   const initials = player.name.slice(0, 3).toUpperCase()
+  const tiltRef = useMagneticTilt<HTMLAnchorElement>()
 
   return (
     <Link
+      ref={tiltRef}
       to={`/players/${player.id}`}
-      className="group relative block overflow-hidden rounded-sm border border-white/[0.08] bg-card shadow-[0_10px_30px_rgba(0,0,0,0.22)] transition-all duration-300 hover:-translate-y-1.5 hover:border-gold/25 hover:shadow-[0_16px_44px_-16px_rgba(201,168,76,0.42)]"
+      data-animate="card"
+      className="group relative block overflow-hidden rounded-sm border border-white/[0.09] bg-[#171918] shadow-[0_14px_36px_rgba(0,0,0,0.3)] transition-colors duration-300 hover:border-gold/30 hover:bg-[#1b1d1b] will-change-transform"
     >
       <div
         aria-hidden="true"
@@ -47,7 +51,7 @@ function PlayerCard({ player }: { player: Player }) {
       />
 
       {/* Big ghost jersey number */}
-      <div className="absolute top-3 right-4 font-display text-[72px] text-white/[0.04] leading-none pointer-events-none">
+      <div className="absolute top-3 right-4 font-display text-[72px] text-gold/[0.16] leading-none pointer-events-none [text-shadow:0_0_24px_rgba(201,168,76,0.08)]">
         {player.jerseyNumber}
       </div>
 
@@ -72,7 +76,7 @@ function PlayerCard({ player }: { player: Player }) {
         </div>
 
         {/* Name + meta */}
-        <div className="font-heading text-[26px] font-bold tracking-[0.5px] text-white leading-[1.1] mb-0.5">
+        <div className="font-heading text-[26px] font-bold tracking-[0.5px] text-[#e7e0d1] leading-[1.1] mb-0.5">
           {player.name}
         </div>
         <div className="font-body text-xs font-light text-muted mb-6">
@@ -82,7 +86,7 @@ function PlayerCard({ player }: { player: Player }) {
         {/* Stats row — 3 stats with dividers */}
         <div className="flex border-t-[0.5px] border-white/[0.08] pt-4">
           <div className="flex-1 text-center">
-            <div className="font-display text-[26px] text-white leading-none mb-1">
+            <div className="font-display text-[26px] text-[#eee7d8] leading-none mb-1">
               {player.battingAverage}
             </div>
             <div className="font-heading text-[9px] font-semibold tracking-[1.5px] uppercase text-muted">
@@ -90,7 +94,7 @@ function PlayerCard({ player }: { player: Player }) {
             </div>
           </div>
           <div className="flex-1 text-center border-l-[0.5px] border-white/[0.08]">
-            <div className="font-display text-[26px] text-white leading-none mb-1">
+            <div className="font-display text-[26px] text-[#eee7d8] leading-none mb-1">
               {player.bestBowling}
             </div>
             <div className="font-heading text-[9px] font-semibold tracking-[1.5px] uppercase text-muted">
@@ -98,7 +102,7 @@ function PlayerCard({ player }: { player: Player }) {
             </div>
           </div>
           <div className="flex-1 text-center border-l-[0.5px] border-white/[0.08]">
-            <div className="font-display text-[26px] text-white leading-none mb-1">
+            <div className="font-display text-[26px] text-[#eee7d8] leading-none mb-1">
               {player.jerseyNumber}
             </div>
             <div className="font-heading text-[9px] font-semibold tracking-[1.5px] uppercase text-muted">

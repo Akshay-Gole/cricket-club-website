@@ -53,14 +53,19 @@ function FeaturedPlayers() {
   ]
 
   return (
-    <section className="border-y border-gold/10 bg-dark/80 px-7 py-16 sm:px-12 sm:py-24">
+    <section
+      data-animate="reveal"
+      className="relative overflow-hidden border-y border-green-light/10 bg-[#090d0a] px-7 py-16 sm:px-12 sm:py-24"
+    >
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_78%_20%,rgba(52,160,88,0.12),transparent_32%),radial-gradient(circle_at_12%_90%,rgba(201,168,76,0.07),transparent_30%)]" />
+
       {/* Section header */}
-      <div className="flex flex-wrap items-end justify-between gap-4 mb-12">
+      <div className="relative z-[1] flex flex-wrap items-end justify-between gap-4 mb-12">
         <div>
           <div className="font-heading text-gold text-[11px] font-semibold tracking-[4px] uppercase mb-2">
             The Lineup
           </div>
-          <h2 className="font-display text-white text-[clamp(40px,7vw,56px)] tracking-[1px] leading-none">
+          <h2 className="font-display text-[#efe9dc] text-[clamp(40px,7vw,56px)] tracking-[1px] leading-none">
             Featured Players
           </h2>
         </div>
@@ -73,11 +78,12 @@ function FeaturedPlayers() {
       </div>
 
       {/* Player strip — 1px gap divider trick */}
-      <div className="grid grid-cols-1 min-[641px]:grid-cols-2 min-[901px]:grid-cols-3 min-[1025px]:grid-cols-5 gap-6">
+      <div className="relative z-[1] grid grid-cols-1 min-[641px]:grid-cols-2 min-[901px]:grid-cols-3 min-[1025px]:grid-cols-5 gap-6">
         {players.map(player => (
           <div
             key={player.name}
-            className="group relative cursor-pointer overflow-hidden rounded-sm border border-white/[0.08] bg-card px-5 py-7 text-center shadow-[0_10px_30px_rgba(0,0,0,0.22)] transition-all duration-300 hover:-translate-y-1.5 hover:border-gold/25 hover:shadow-[0_16px_44px_-16px_rgba(201,168,76,0.42)]"
+            data-animate="card"
+            className="group relative cursor-pointer overflow-hidden rounded-sm border border-white/[0.09] bg-[#171918] px-5 py-7 text-center shadow-[0_14px_36px_rgba(0,0,0,0.3)] transition-all duration-300 hover:-translate-y-1.5 hover:border-gold/30 hover:bg-[#1b1d1b] hover:shadow-[0_18px_48px_-18px_rgba(201,168,76,0.42)]"
           >
             {/* Jersey number — faint, top-right */}
             <div className="absolute top-4 right-4 font-display text-[28px] text-gold/[0.52]">
@@ -92,13 +98,13 @@ function FeaturedPlayers() {
               {player.initials}
             </div>
 
-            <div className="font-heading text-white text-base font-bold tracking-[0.5px] mb-1">
+            <div className="font-heading text-[#e7e0d1] text-base font-bold tracking-[0.5px] mb-1">
               {player.name}
             </div>
             <div className="font-heading text-gold text-[10px] font-semibold tracking-[2.5px] uppercase mb-3.5">
               {player.role}
             </div>
-            <div className="font-display text-white text-[28px]">
+            <div className="font-display text-[#eee7d8] text-[28px]">
               {player.stat}
             </div>
             <div className="font-body text-muted text-[11px] mt-0.5">

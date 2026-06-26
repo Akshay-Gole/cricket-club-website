@@ -36,11 +36,11 @@ function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
       />
 
       <aside
-        className={`fixed inset-y-0 left-0 z-[80] flex w-[272px] flex-col border-r border-white/[0.12] bg-[#101811] transition-transform duration-300 min-[901px]:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-[80] flex w-[272px] flex-col border-r border-white/[0.1] bg-[#0f1010] transition-transform duration-300 min-[901px]:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="relative flex h-[88px] items-center border-b border-white/[0.12] px-6">
+        <div className="relative flex h-[88px] items-center border-b border-white/[0.1] px-6">
           <NavLink
             to={ROUTES.ADMIN_DASHBOARD}
             onClick={onClose}
@@ -86,8 +86,8 @@ function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
               className={({ isActive }) =>
                 `group relative mb-1 flex min-h-12 items-center gap-3 rounded-sm px-4 font-heading text-[13px] font-semibold uppercase tracking-[1.5px] transition-colors ${
                   isActive
-                    ? 'bg-gold/10 text-gold'
-                    : 'text-muted hover:bg-white/[0.04] hover:text-white'
+                    ? 'bg-[#1f1b10] text-gold'
+                    : 'text-muted hover:bg-white/[0.045] hover:text-[#efe9dc]'
                 }`
               }
             >
@@ -112,8 +112,8 @@ function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
           ))}
         </nav>
 
-        <div className="border-t border-white/[0.12] p-4">
-          <div className="mb-3 flex items-center gap-3 rounded-sm bg-white/[0.025] p-3">
+        <div className="border-t border-white/[0.1] p-4">
+          <div className="mb-3 flex items-center gap-3 rounded-sm border border-white/[0.07] bg-[#151515] p-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gold/25 bg-gold/10 font-display text-lg text-gold">
               {user?.name?.charAt(0).toUpperCase() ?? 'A'}
             </div>

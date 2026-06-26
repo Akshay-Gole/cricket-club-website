@@ -15,7 +15,7 @@ function AdminTopbar({ onOpenMenu }: AdminTopbarProps) {
     ADMIN_PAGE_META[0]
 
   return (
-    <header className="sticky top-0 z-40 border-b border-white/[0.12] bg-[#111811]/95 backdrop-blur-xl">
+    <header className="sticky top-0 z-40 border-b border-white/[0.1] bg-[#101010]/95 backdrop-blur-xl">
       <div className="flex min-h-[76px] items-center gap-4 px-5 sm:px-7 lg:px-9">
         <button
           type="button"

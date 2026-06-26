@@ -5,7 +5,7 @@ function BioTab({ player }: { player: PlayerProfile }) {
   return (
     <div className="grid grid-cols-1 min-[901px]:grid-cols-[1fr_300px] gap-8 min-[901px]:gap-12 pb-14 sm:pb-16">
       {/* LEFT — bio text */}
-      <div>
+      <div data-animate="reveal">
         <p className="font-body text-sm sm:text-[15px] font-light text-white/65 leading-[1.85] mb-5">
           James Catto is the heartbeat of Top G's CC — both with the bat and
           with the armband. A natural leader who was voted captain before the
@@ -49,7 +49,7 @@ function BioTab({ player }: { player: PlayerProfile }) {
       </div>
 
       {/* RIGHT — info cards sidebar */}
-      <div>
+      <div data-animate="stagger">
         <InfoCard
           title="Personal Details"
           rows={[

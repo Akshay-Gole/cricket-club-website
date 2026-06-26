@@ -46,14 +46,14 @@ function FixturesPreview() {
   }
 
   return (
-    <section className="px-7 sm:px-12 py-16 sm:pb-24">
+    <section data-animate="reveal" className="px-7 sm:px-12 py-16 sm:pb-24">
       {/* Section header */}
       <div className="flex flex-wrap items-end justify-between gap-4 mb-12">
         <div>
           <div className="font-heading text-gold text-[11px] font-semibold tracking-[4px] uppercase mb-2">
             On the Field
           </div>
-          <h2 className="font-display text-white text-[clamp(40px,7vw,56px)] tracking-[1px] leading-none">
+          <h2 className="font-display text-[#efe9dc] text-[clamp(40px,7vw,56px)] tracking-[1px] leading-none">
             Fixtures &amp; Results
           </h2>
         </div>
@@ -70,6 +70,7 @@ function FixturesPreview() {
         {fixtures.map(fix => (
           <div
             key={`${fix.date}-${fix.away}`}
+            data-animate="card"
             className="flex flex-wrap items-center gap-x-4 gap-y-2 py-[18px] sm:py-5 sm:flex-nowrap sm:gap-6 border-b-[0.5px] border-gold/15"
           >
             {/* Date — order 1 */}
@@ -77,7 +78,7 @@ function FixturesPreview() {
               {fix.date}
             </div>
             {/* Teams — order 2, full width on mobile (forces line break) */}
-            <div className="order-2 basis-full sm:basis-auto sm:flex-1 font-heading text-white text-base sm:text-lg font-bold">
+            <div className="order-2 basis-full sm:basis-auto sm:flex-1 font-heading text-[#e7e0d1] text-base sm:text-lg font-bold">
               {fix.home}
               <span className="text-muted text-sm"> vs </span>
               {fix.away}

@@ -56,7 +56,7 @@ function FixtureList({ season, filter }: Props) {
         ))
       ) : (
         <div className="py-20 text-center">
-          <p className="font-display text-4xl sm:text-5xl text-white/25 tracking-[3px]">
+          <p className="font-display text-4xl sm:text-5xl text-gold/[0.22] tracking-[3px]">
             No Fixtures Found
           </p>
           <span className="block mt-4 font-heading text-[13px] tracking-[2px] uppercase text-muted">

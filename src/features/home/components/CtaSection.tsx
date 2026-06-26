@@ -3,7 +3,10 @@ import { ROUTES } from '../../../constants/routes'
 
 function CtaSection() {
   return (
-    <section className="relative bg-green px-7 sm:px-12 py-20 sm:py-24 text-center overflow-hidden">
+    <section
+      data-animate="reveal"
+      className="relative bg-green px-7 sm:px-12 py-20 sm:py-24 text-center overflow-hidden"
+    >
       {/* Giant faded background text */}
       <div
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-display text-black/15 whitespace-nowrap pointer-events-none leading-none tracking-[10px] text-[120px] sm:text-[200px]"

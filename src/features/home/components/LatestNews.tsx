@@ -32,14 +32,19 @@ function LatestNews() {
   ]
 
   return (
-    <section className="px-7 sm:px-12 py-16 sm:py-24">
+    <section
+      data-animate="reveal"
+      className="relative overflow-hidden border-y border-white/[0.06] bg-[#10100f] px-7 py-16 sm:px-12 sm:py-24"
+    >
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(201,168,76,0.11),transparent_34%),linear-gradient(180deg,rgba(255,255,255,0.025),transparent_44%)]" />
+
       {/* Section header */}
-      <div className="flex flex-wrap items-end justify-between gap-4 mb-12">
+      <div className="relative z-[1] flex flex-wrap items-end justify-between gap-4 mb-12">
         <div>
           <div className="font-heading text-gold text-[11px] font-semibold tracking-[4px] uppercase mb-2">
             From the club
           </div>
-          <h2 className="font-display text-white text-[clamp(40px,7vw,56px)] tracking-[1px] leading-none">
+          <h2 className="font-display text-[#efe9dc] text-[clamp(40px,7vw,56px)] tracking-[1px] leading-none">
             Latest News
           </h2>
         </div>
@@ -52,17 +57,17 @@ function LatestNews() {
       </div>
 
       {/* News grid — 1px gaps create thin divider lines via the border-colored background */}
-      <div className="grid grid-cols-1 min-[641px]:grid-cols-2 min-[1025px]:grid-cols-3 gap-6">
-        {' '}
+      <div className="relative z-[1] grid grid-cols-1 min-[641px]:grid-cols-2 min-[1025px]:grid-cols-3 gap-6">
         {articles.map(article => (
           <article
             key={article.title}
-            className="group cursor-pointer rounded-sm border border-white/[0.08] bg-card p-8 shadow-[0_10px_30px_rgba(0,0,0,0.22)] transition-all duration-300 hover:-translate-y-1.5 hover:border-gold/25 hover:shadow-[0_16px_44px_-16px_rgba(201,168,76,0.42)]"
+            data-animate="card"
+            className="group cursor-pointer rounded-sm border border-white/[0.09] bg-[#171918] p-8 shadow-[0_14px_36px_rgba(0,0,0,0.3)] transition-all duration-300 hover:-translate-y-1.5 hover:border-gold/30 hover:bg-[#1b1d1b] hover:shadow-[0_18px_48px_-18px_rgba(201,168,76,0.42)]"
           >
             {/* Thumbnail */}
-            <div className="h-40 rounded-sm mb-5 overflow-hidden">
-              <div className="h-full bg-gradient-to-br from-green to-[#0d3a1e] flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
-                <div className="font-display text-[13px] tracking-[3px] text-gold/50 text-center whitespace-pre-line">
+            <div className="mb-5 h-40 overflow-hidden rounded-sm border border-white/[0.07] bg-[#0d0f0e]">
+              <div className="flex h-full items-center justify-center bg-[radial-gradient(circle_at_35%_30%,rgba(201,168,76,0.16),transparent_34%),linear-gradient(135deg,#1d211e_0%,#111311_55%,#16130b_100%)] transition-transform duration-500 group-hover:scale-110">
+                <div className="font-display text-center text-[13px] tracking-[3px] text-gold/55 whitespace-pre-line">
                   {article.thumb}
                 </div>
               </div>
@@ -71,7 +76,7 @@ function LatestNews() {
             <div className="font-heading text-gold text-[10px] font-bold tracking-[3px] uppercase mb-2.5">
               {article.category}
             </div>
-            <h3 className="font-heading text-white text-[22px] font-bold leading-[1.2] mb-3 group-hover:text-gold transition-colors inline-block relative">
+            <h3 className="font-heading text-[#e7e0d1] text-[22px] font-bold leading-[1.2] mb-3 group-hover:text-gold transition-colors inline-block relative">
               {article.title}
               <span className="absolute -bottom-1 left-0 h-0.5 w-0 bg-gold group-hover:w-full transition-all duration-300" />
             </h3>

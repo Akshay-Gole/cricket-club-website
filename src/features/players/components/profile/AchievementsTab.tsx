@@ -66,6 +66,7 @@ function AchievementsTab() {
         {achievements.map(ach => (
           <div
             key={ach.title}
+            data-animate="card"
             className="relative bg-card p-6 sm:p-7 overflow-hidden"
           >
             {/* Ghost watermark */}
@@ -91,13 +92,17 @@ function AchievementsTab() {
       </div>
 
       {/* RECORDS LIST */}
-      <div className="font-heading text-[15px] font-semibold tracking-[3px] uppercase text-gold mb-4">
+      <div
+        data-animate="reveal"
+        className="font-heading text-[15px] font-semibold tracking-[3px] uppercase text-gold mb-4"
+      >
         Personal Club Records
       </div>
       <div className="flex flex-col gap-px bg-white/[0.06] rounded overflow-hidden">
         {records.map(rec => (
           <div
             key={rec.label}
+            data-animate="card"
             className="flex items-center justify-between bg-card px-5 sm:px-6 py-4"
           >
             <div>

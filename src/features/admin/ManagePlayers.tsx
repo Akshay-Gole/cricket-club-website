@@ -218,7 +218,7 @@ function ManagePlayers() {
 
   return (
     <div className="space-y-5 sm:space-y-6">
-      <section className="relative overflow-hidden rounded border border-white/[0.12] bg-[#1b241d] px-5 py-7 sm:px-7 lg:px-8">
+      <section className="relative overflow-hidden rounded border border-white/[0.1] bg-[#181818] px-5 py-7 shadow-[0_20px_70px_rgba(0,0,0,0.24)] sm:px-7 lg:px-8">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_20%,rgba(201,168,76,0.12),transparent_34%)]"
@@ -250,7 +250,7 @@ function ManagePlayers() {
       </section>
 
       <div className="grid grid-cols-1 gap-5 sm:gap-6 min-[1180px]:grid-cols-[minmax(0,1fr)_390px]">
-        <section className="overflow-hidden rounded border border-white/[0.12] bg-[#182119]">
+        <section className="overflow-hidden rounded border border-white/[0.1] bg-[#161616]">
           <div className="border-b border-white/[0.10] p-5 sm:p-6">
             <div className="flex flex-col gap-4 min-[901px]:flex-row min-[901px]:items-center min-[901px]:justify-between">
               <div>
@@ -374,7 +374,7 @@ function ManagePlayers() {
 
           <div className="grid grid-cols-1 gap-px bg-white/[0.10] min-[901px]:hidden">
             {filteredPlayers.map(player => (
-              <article key={player.id} className="bg-[#182119] p-5">
+              <article key={player.id} className="bg-[#161616] p-5">
                 <div className="mb-5 flex items-start justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <PlayerAvatar player={player} size="large" />
@@ -436,7 +436,7 @@ function ManagePlayers() {
 
         <aside
           ref={formPanelRef}
-          className="rounded border border-white/[0.12] bg-[#182119] p-5 sm:p-6"
+          className="rounded border border-white/[0.1] bg-[#161616] p-5 shadow-[0_14px_44px_rgba(0,0,0,0.22)] sm:p-6"
         >
           <div className="mb-6">
             <p className="font-heading text-[10px] font-bold uppercase tracking-[3px] text-gold">
