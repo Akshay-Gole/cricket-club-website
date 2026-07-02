@@ -21,7 +21,7 @@ app.use(express.json())
 app.use('/api', healthRoutes)
 app.use('/api', playerRoutes)
 
-app.use((error: unknown, _req: Request, res: Response, next: NextFunction) => {
+app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
   console.error(error)
 
   res.status(500).json({
