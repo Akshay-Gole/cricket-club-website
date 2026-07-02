@@ -1,0 +1,39 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Player {
+  id           String   @id @default(uuid())
+  firstName    String
+  lastName     String
+  displayName  String
+  initials     String
+  role         PlayerRole
+  jerseyNumber Int
+  imageUrl     String?
+  battingAvg   Float    @default(0)
+  bestBowl     String   @default("0/0")
+  isCaptain    Boolean  @default(false)
+  isFeatured   Boolean  @default(false)
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+enum PlayerRole {
+  batsman
+  bowler
+  all_rounder
+  wicket_keeper
+}
