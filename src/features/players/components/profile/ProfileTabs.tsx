@@ -2,8 +2,8 @@ import { useState } from 'react'
 import type { PlayerProfile } from '../../types/playerProfile.types'
 import logger from '../../../../services/logger'
 import StatsTab from './StatsTab'
-import BioTab from './BioTab'
-import AchievementsTab from './AchievementsTab'
+// import BioTab from './BioTab'
+// import AchievementsTab from './AchievementsTab'
 
 type TabId = 'stats' | 'bio' | 'achievements'
 
