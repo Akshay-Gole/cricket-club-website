@@ -1,5 +1,7 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
+import homeContentApi from '../api/homeContent.api'
+import { DEFAULT_HOME_CONTENT } from '../api/homeContent.api'
 
 function clampSkew(value: number) {
   return Math.max(-8, Math.min(8, value))
@@ -7,9 +9,14 @@ function clampSkew(value: number) {
 
 function Ticker() {
   const tickerRef = useRef<HTMLDivElement | null>(null)
-  // STATIC placeholder text — swap for real latest-news ticker from API later
-  const messages =
-    "Top G's CC def. Norwood CC by 47 runs    ·    Catto named Player of the Match    ·    Next fixture: Top G's CC vs Riverside CC — Sat 31 May    ·    U18s training every Thursday 5PM    ·    Season 2026 registrations now open    ·    "
+  const [messages, setMessages] = useState(DEFAULT_HOME_CONTENT.tickerText)
+
+  useEffect(() => {
+    homeContentApi
+      .getPublic()
+      .then(content => setMessages(content.tickerText))
+      .catch(() => setMessages(DEFAULT_HOME_CONTENT.tickerText))
+  }, [])
 
   useEffect(() => {
     const ticker = tickerRef.current

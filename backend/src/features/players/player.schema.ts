@@ -16,10 +16,10 @@ export const createPlayerSchema = z.object({
   jerseyNumber: z.number().int().positive('Jersey number must be positive'),
   imageUrl: z.string().url().optional().or(z.literal('')),
   playCricketPlayerId: z.string().uuid().optional().or(z.literal('')),
-  battingAvg: z.number().min(0).default(0),
-  bestBowl: z.string().trim().min(1).default('0/0'),
   isCaptain: z.boolean().default(false),
   isFeatured: z.boolean().default(false),
+  featuredStatValue: z.string().trim().optional().or(z.literal('')),
+  featuredStatLabel: z.string().trim().optional().or(z.literal('')),
   active: z.boolean().default(true),
 })
 

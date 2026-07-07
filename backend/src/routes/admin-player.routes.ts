@@ -144,10 +144,12 @@ router.post('/admin/players', async (_req, res, next) => {
         jerseyNumber: playerInput.jerseyNumber,
         imageUrl: playerInput.imageUrl || null,
         playCricketPlayerId: playerInput.playCricketPlayerId || null,
-        battingAvg: playerInput.battingAvg,
-        bestBowl: playerInput.bestBowl,
+        battingAvg: 0,
+        bestBowl: '0/0',
         isCaptain: playerInput.isCaptain,
         isFeatured: playerInput.isFeatured,
+        featuredStatValue: playerInput.featuredStatValue || null,
+        featuredStatLabel: playerInput.featuredStatLabel || null,
         active: playerInput.active,
       },
     })
@@ -218,10 +220,16 @@ router.patch('/admin/players/:id', async (_req, res, next) => {
           playerInput.playCricketPlayerId === undefined
             ? undefined
             : playerInput.playCricketPlayerId || null,
-        battingAvg: playerInput.battingAvg,
-        bestBowl: playerInput.bestBowl,
         isCaptain: playerInput.isCaptain,
         isFeatured: playerInput.isFeatured,
+        featuredStatValue:
+          playerInput.featuredStatValue === undefined
+            ? undefined
+            : playerInput.featuredStatValue || null,
+        featuredStatLabel:
+          playerInput.featuredStatLabel === undefined
+            ? undefined
+            : playerInput.featuredStatLabel || null,
         active: playerInput.active,
       },
     })

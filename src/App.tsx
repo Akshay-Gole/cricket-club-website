@@ -20,6 +20,9 @@ const PlayerProfile = lazy(() => import('./pages/PlayerProfile'))
 
 const AdminLogin = lazy(() => import('./features/admin/Login'))
 const AdminDashboard = lazy(() => import('./features/admin/Dashboard'))
+const ManageHomeContent = lazy(
+  () => import('./features/admin/ManageHomeContent')
+)
 const ManagePlayers = lazy(() => import('./features/admin/ManagePlayers'))
 const ManageFixtures = lazy(() => import('./features/admin/ManageFixtures'))
 const ManageNews = lazy(() => import('./features/admin/ManageNews'))
@@ -71,6 +74,7 @@ function App() {
               />
 
               <Route path="dashboard" element={<AdminDashboard />} />
+              <Route path="home-content" element={<ManageHomeContent />} />
               <Route path="players" element={<ManagePlayers />} />
               <Route path="fixtures" element={<ManageFixtures />} />
               <Route path="news" element={<ManageNews />} />

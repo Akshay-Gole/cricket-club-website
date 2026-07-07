@@ -27,6 +27,8 @@ model Player {
   bestBowl            String                   @default("0/0")
   isCaptain           Boolean                  @default(false)
   isFeatured          Boolean                  @default(false)
+  featuredStatValue   String?
+  featuredStatLabel   String?
   active              Boolean                  @default(true)
   createdAt           DateTime                 @default(now())
   updatedAt           DateTime                 @updatedAt
@@ -121,4 +123,16 @@ model AdminUser {
   active       Boolean  @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+}
+
+model HomeContent {
+  id            String   @id @default("home")
+  matchesPlayed String   @default("48")
+  victories     String   @default("31")
+  trophies      String   @default("06")
+  activePlayers String   @default("22")
+  yearsActive   String   @default("01")
+  tickerText    String   @default("Top G's CC def. Norwood CC by 47 runs    ·    Catto named Player of the Match    ·    Next fixture: Top G's CC vs Riverside CC — Sat 31 May    ·    U18s training every Thursday 5PM    ·    Season 2026 registrations now open    ·    ")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }

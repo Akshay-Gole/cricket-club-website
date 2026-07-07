@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useParams } from 'react-router-dom'
+import PageLoader from '../components/shared/PageLoader'
 import { ROUTES } from '../constants/routes'
 import ProfileHero from '../features/players/components/profile/ProfileHero'
 import ProfileTabs from '../features/players/components/profile/ProfileTabs'
@@ -115,18 +116,18 @@ function PlayerProfile() {
 
   if (isLoadingPlayer) {
     return (
-      <div className="px-5 py-24 text-center sm:px-7 lg:px-12">
-        <p className="font-display text-5xl tracking-[3px] text-white/5">
-          Loading Player
-        </p>
-      </div>
+      <PageLoader
+        variant="section"
+        label="Loading Player"
+        className="min-h-[360px] px-5 py-24 sm:px-7 lg:px-12"
+      />
     )
   }
 
   if (playerError || !player) {
     return (
       <div className="px-5 py-24 text-center sm:px-7 lg:px-12">
-        <p className="font-display text-5xl tracking-[3px] text-white/5">
+        <p className="font-display text-5xl tracking-[3px] text-white/65">
           Player Not Found
         </p>
 

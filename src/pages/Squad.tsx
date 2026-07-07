@@ -5,6 +5,7 @@ import PlayerFilter from '../features/players/components/PlayerFilter'
 import playersApi from '../features/players/api/players.api'
 import { useDebounce } from '../hooks/useDebounce'
 import logger from '../services/logger'
+import PageLoader from '../components/shared/PageLoader'
 
 type FilterValue = 'all' | PlayerRole
 
@@ -148,7 +149,7 @@ function Squad() {
             </button>
           )}
         </div>
-        <div className="font-heading text-xs font-semibold tracking-[1.5px] uppercase text-muted whitespace-nowrap sm:text-right">
+        <div className="font-heading text-xs font-semibold tracking-[1.5px] uppercase text-white/65 whitespace-nowrap sm:text-right">
           {isLoadingPlayers
             ? 'Loading Players'
             : `${filtered.length} ${filtered.length === 1 ? 'Player' : 'Players'}`}
@@ -163,7 +164,7 @@ function Squad() {
       >
         {playersError ? (
           <div className="col-span-full py-20 text-center">
-            <p className="font-display text-5xl text-white/5 tracking-[3px]">
+            <p className="font-display text-5xl text-white/60 tracking-[3px]">
               Could Not Load Players
             </p>
             <span className="block mt-4 font-heading text-[13px] tracking-[2px] uppercase text-muted">
@@ -171,16 +172,16 @@ function Squad() {
             </span>
           </div>
         ) : isLoadingPlayers ? (
-          <div className="col-span-full py-20 text-center">
-            <p className="font-display text-5xl text-white/5 tracking-[3px]">
-              Loading Squad
-            </p>
-          </div>
+          <PageLoader
+            variant="section"
+            label="Loading Squad"
+            className="col-span-full py-20"
+          />
         ) : filtered.length > 0 ? (
           filtered.map(player => <PlayerCard key={player.id} player={player} />)
         ) : (
           <div className="col-span-full py-20 text-center">
-            <p className="font-display text-5xl text-white/5 tracking-[3px]">
+            <p className="font-display text-5xl text-white/60 tracking-[3px]">
               No Players Found
             </p>
             <span className="block mt-4 font-heading text-[13px] tracking-[2px] uppercase text-muted">

@@ -4,12 +4,14 @@ export interface PlayerFormState {
   name: string
   role: PlayerRole
   jerseyNumber: string
-  battingAverage: string
-  bestBowling: string
   playCricketPlayerId: string
   imageFile: File | null
   imagePreviewUrl: string
   isCaptain: boolean
+  isFeatured: boolean
+  featuredStatValue: string
+  featuredStatLabel: string
+  active: boolean
 }
 
 export type RoleFilter = 'all' | PlayerRole
@@ -30,12 +32,14 @@ export const EMPTY_PLAYER_FORM: PlayerFormState = {
   name: '',
   role: 'batsman',
   jerseyNumber: '',
-  battingAverage: '',
-  bestBowling: '',
   playCricketPlayerId: '',
   imageFile: null,
   imagePreviewUrl: '',
   isCaptain: false,
+  isFeatured: false,
+  featuredStatValue: '',
+  featuredStatLabel: '',
+  active: true,
 }
 
 export const roleLabel: Record<PlayerRole, string> = {
