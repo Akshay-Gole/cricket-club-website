@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import Layout from './components/shared/Layout'
 import PageLoader from './components/shared/PageLoader'
 import { ROUTES } from './constants/routes'
+import PageLoader from './components/shared/PageLoader'
 
 const Home = lazy(() => import('./pages/Home'))
 const Squad = lazy(() => import('./pages/Squad'))
