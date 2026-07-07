@@ -1,50 +1,52 @@
 import type { PlayerProfile } from '../../types/playerProfile.types'
 
+const roleLabel: Record<PlayerProfile['role'], string> = {
+  batsman: 'Batsman',
+  bowler: 'Bowler',
+  'all-rounder': 'All-Rounder',
+  'wicket-keeper': 'Wicket-Keeper',
+}
+
 function BioTab({ player }: { player: PlayerProfile }) {
-  // STATIC bio content (Catto). Swap for real player bio data later.
   return (
     <div className="grid grid-cols-1 min-[901px]:grid-cols-[1fr_300px] gap-8 min-[901px]:gap-12 pb-14 sm:pb-16">
       {/* LEFT — bio text */}
       <div data-animate="reveal">
         <p className="font-body text-sm sm:text-[15px] font-light text-white/65 leading-[1.85] mb-5">
-          James Catto is the heartbeat of Top G's CC — both with the bat and
-          with the armband. A natural leader who was voted captain before the
-          club had even played its first competitive fixture, Catto set the tone
-          from day one with his aggressive but intelligent brand of cricket.
+          {player.fullName} is part of the Top G's CC squad for the current
+          season. This profile is connected to the live player database, with
+          detailed biography and career notes ready to be added from the admin
+          system later.
         </p>
         <p className="font-body text-sm sm:text-[15px] font-light text-white/65 leading-[1.85] mb-5">
-          Growing up in the northern suburbs of Adelaide, Catto started playing
-          backyard cricket with his cousins before picking up his first proper
-          bat at thirteen. His instinct for reading the game quickly stood out
-          in club Under-16s, where he twice won the competition's best player
-          award in consecutive seasons.
+          For now, the page uses the core squad details already stored in the
+          backend: role, jersey number, batting average, best bowling and
+          captain status. Match-by-match stats can be wired once the fixtures
+          and scorecard backend is ready.
         </p>
 
         {/* Pull quote with attribution */}
         <div className="border-l-2 border-gold pl-5 sm:pl-6 my-7 sm:my-8">
           <p className="font-heading text-lg sm:text-[22px] font-semibold italic text-white leading-[1.4]">
-            "We didn't build this club to finish mid-table. We're here to win,
-            and we expect every player who puts on that jersey to feel exactly
-            the same."
+            "Every player profile starts with the basics. The deeper cricket
+            story comes next."
           </p>
           <cite className="block mt-2.5 font-heading text-[11px] font-semibold tracking-[2px] uppercase text-gold not-italic">
-            — James Catto, Captain
+            — Top G's CC
           </cite>
         </div>
 
         <p className="font-body text-sm sm:text-[15px] font-light text-white/65 leading-[1.85] mb-5">
-          As an all-rounder, Catto offers genuine value in both departments. His
-          batting is built on a strong off-side game and a fearless approach
-          against pace, while his medium-fast bowling consistently generates
-          movement off the pitch, making him a reliable first-change option for
-          Top G's in all conditions.
+          {player.fullName} is listed as a{' '}
+          {roleLabel[player.role].toLowerCase()}
+          {player.isCaptain ? ' and currently marked as club captain' : ''}.
+          Jersey #{String(player.jerseyNumber).padStart(2, '0')} is now served
+          from the backend instead of local mock data.
         </p>
         <p className="font-body text-sm sm:text-[15px] font-light text-white/65 leading-[1.85]">
-          Off the field, Catto works in construction management and credits the
-          discipline of his trade with shaping his mindset as a cricketer. He is
-          known around the club for his meticulous preparation and team-first
-          attitude — two qualities that have made him the unanimous choice to
-          lead the side through its inaugural season.
+          When the backend grows, this section can become a proper editable bio
+          field. For now, it stays honest and avoids showing another player's
+          story.
         </p>
       </div>
 
@@ -54,18 +56,23 @@ function BioTab({ player }: { player: PlayerProfile }) {
           title="Personal Details"
           rows={[
             ['Full Name', player.fullName],
-            ['Age', '24'],
+            ['Age', 'To be updated'],
             ['Hometown', 'Adelaide, SA'],
             ['Jersey No.', `#${String(player.jerseyNumber).padStart(2, '0')}`],
-            ['Role', 'Captain / All-Rounder'],
+            [
+              'Role',
+              player.isCaptain
+                ? `Captain / ${roleLabel[player.role]}`
+                : roleLabel[player.role],
+            ],
           ]}
         />
         <InfoCard
           title="Playing Info"
           rows={[
-            ['Bat', 'Right-hand'],
-            ['Bowl', 'Right-arm med'],
-            ['Debut', 'Mar 2026'],
+            ['Bat', player.battingStyle],
+            ['Bowl', player.bowlingStyle],
+            ['Debut', player.debut],
             ['Club Since', '2026 (Founding)'],
           ]}
         />

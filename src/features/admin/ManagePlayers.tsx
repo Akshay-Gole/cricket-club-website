@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ChangeEvent, FormEvent, ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import SQUAD from '../players/data/squadData'
+import api from '../../services/api'
 import type { Player, PlayerRole } from '../players/types/player.types'
 import {
   adminInputClass,
@@ -14,11 +14,103 @@ import {
   type RoleFilter,
 } from './constants/adminPlayer.constants'
 
+interface AdminPlayerResponse {
+  id: string
+  name: string
+  role: PlayerRole
+  jerseyNumber: number
+  imageUrl?: string | null
+  playCricketPlayerId?: string | null
+  stats: {
+    battingAverage: number
+    bestBowling: string
+  }
+  isCaptain?: boolean
+}
+
+interface PlayerPayload {
+  firstName: string
+  lastName: string
+  displayName: string
+  initials: string
+  role: PlayerRole
+  jerseyNumber: number
+  battingAvg: number
+  bestBowl: string
+  imageUrl?: string
+  playCricketPlayerId?: string
+  isCaptain: boolean
+  isFeatured: boolean
+  active: boolean
+}
+
+function mapAdminPlayer(player: AdminPlayerResponse): Player {
+  return {
+    id: player.id,
+    name: player.name,
+    role: player.role,
+    jerseyNumber: player.jerseyNumber,
+    battingAverage: player.stats.battingAverage,
+    bestBowling: player.stats.bestBowling,
+    imageUrl: player.imageUrl ?? undefined,
+    playCricketPlayerId: player.playCricketPlayerId ?? undefined,
+    isCaptain: player.isCaptain,
+  }
+}
+
+function getNameParts(name: string) {
+  const parts = name.trim().split(/\s+/)
+  const firstName = parts[0] ?? ''
+  const lastName = parts.slice(1).join(' ') || firstName
+
+  return { firstName, lastName }
+}
+
+function getInitials(name: string) {
+  return name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 3)
+    .map(part => part[0])
+    .join('')
+    .toUpperCase()
+}
+
+function getApiMessage(error: unknown, fallback: string) {
+  if (
+    typeof error === 'object' &&
+    error &&
+    'response' in error &&
+    typeof error.response === 'object' &&
+    error.response &&
+    'data' in error.response &&
+    typeof error.response.data === 'object' &&
+    error.response.data &&
+    'message' in error.response.data &&
+    typeof error.response.data.message === 'string'
+  ) {
+    return error.response.data.message
+  }
+
+  return fallback
+}
+
 function ManagePlayers() {
-  const [players, setPlayers] = useState<Player[]>(SQUAD)
+  const [players, setPlayers] = useState<Player[]>([])
+  const [isLoadingPlayers, setIsLoadingPlayers] = useState(true)
+  const [isSavingPlayer, setIsSavingPlayer] = useState(false)
+  const [syncingPlayerId, setSyncingPlayerId] = useState<string | null>(null)
+  const [isVerifyingPlayCricketId, setIsVerifyingPlayCricketId] =
+    useState(false)
+  const [playCricketVerifyMessage, setPlayCricketVerifyMessage] = useState('')
+  const [isPlayCricketIdValid, setIsPlayCricketIdValid] = useState<
+    boolean | null
+  >(null)
+  const [playersError, setPlayersError] = useState('')
   const [search, setSearch] = useState('')
   const [activeRole, setActiveRole] = useState<RoleFilter>('all')
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [playerToDelete, setPlayerToDelete] = useState<Player | null>(null)
   const [form, setForm] = useState<PlayerFormState>(EMPTY_PLAYER_FORM)
   const [formError, setFormError] = useState('')
 
@@ -60,6 +152,11 @@ function ManagePlayers() {
       [field]: value,
     }))
 
+    if (field === 'playCricketPlayerId') {
+      setPlayCricketVerifyMessage('')
+      setIsPlayCricketIdValid(null)
+    }
+
     setFormError('')
   }
 
@@ -100,6 +197,8 @@ function ManagePlayers() {
     setForm(EMPTY_PLAYER_FORM)
     setEditingId(null)
     setFormError('')
+    setPlayCricketVerifyMessage('')
+    setIsPlayCricketIdValid(null)
 
     if (imageInputRef.current) {
       imageInputRef.current.value = ''
@@ -117,6 +216,50 @@ function ManagePlayers() {
     }, 350)
   }
 
+  const buildPlayerPayload = (
+    jerseyNumber: number,
+    battingAverage: number
+  ): PlayerPayload => {
+    const displayName = form.name.trim()
+    const { firstName, lastName } = getNameParts(displayName)
+    const savedImageUrl = form.imageFile ? undefined : form.imagePreviewUrl
+
+    return {
+      firstName,
+      lastName,
+      displayName,
+      initials: getInitials(displayName),
+      role: form.role,
+      jerseyNumber,
+      battingAvg: battingAverage,
+      bestBowl: form.bestBowling.trim() || '0/0',
+      imageUrl: savedImageUrl,
+      playCricketPlayerId: form.playCricketPlayerId.trim() || undefined,
+      isCaptain: form.isCaptain,
+      isFeatured: false,
+      active: true,
+    }
+  }
+
+  useEffect(() => {
+    async function loadPlayers() {
+      try {
+        setIsLoadingPlayers(true)
+        setPlayersError('')
+
+        const response = await api.get('/admin/players')
+
+        setPlayers(response.data.data.map(mapAdminPlayer))
+      } catch {
+        setPlayersError('Could not load players')
+      } finally {
+        setIsLoadingPlayers(false)
+      }
+    }
+
+    loadPlayers()
+  }, [])
+
   useEffect(() => {
     if (searchParams.get('action') !== 'create') return
 
@@ -132,7 +275,18 @@ function ManagePlayers() {
     }
   }, [searchParams, setSearchParams])
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  useEffect(() => {
+    if (!playerToDelete) return
+
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+
+    return () => {
+      document.body.style.overflow = previousOverflow
+    }
+  }, [playerToDelete])
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     if (!form.name.trim()) {
@@ -158,31 +312,38 @@ function ManagePlayers() {
       return
     }
 
-    const nextPlayer: Player = {
-      id: editingId ?? `player-${Date.now()}`,
-      name: form.name.trim(),
-      role: form.role,
-      jerseyNumber,
-      battingAverage,
-      bestBowling: form.bestBowling.trim() || '0/0',
+    try {
+      setIsSavingPlayer(true)
+      setFormError('')
 
-      // TEMP UI only:
-      // Later backend will upload form.imageFile to Cloudinary
-      // and return a real Cloudinary URL.
-      imageUrl: form.imagePreviewUrl,
+      const payload = buildPlayerPayload(jerseyNumber, battingAverage)
+      const response = editingId
+        ? await api.patch(`/admin/players/${editingId}`, payload)
+        : await api.post('/admin/players', payload)
 
-      isCaptain: form.isCaptain,
-    }
+      const savedPlayer = mapAdminPlayer(response.data.data)
 
-    if (editingId) {
-      setPlayers(current =>
-        current.map(player => (player.id === editingId ? nextPlayer : player))
+      if (editingId) {
+        setPlayers(current =>
+          current.map(player =>
+            player.id === editingId ? savedPlayer : player
+          )
+        )
+      } else {
+        setPlayers(current => [savedPlayer, ...current])
+      }
+
+      resetForm()
+    } catch (error) {
+      setFormError(
+        getApiMessage(
+          error,
+          'Could not save player. If the Play Cricket ID was just added, verify it and try again.'
+        )
       )
-    } else {
-      setPlayers(current => [nextPlayer, ...current])
+    } finally {
+      setIsSavingPlayer(false)
     }
-
-    resetForm()
   }
 
   const handleEdit = (player: Player) => {
@@ -194,12 +355,17 @@ function ManagePlayers() {
       jerseyNumber: String(player.jerseyNumber),
       battingAverage: String(player.battingAverage),
       bestBowling: player.bestBowling,
+      playCricketPlayerId: player.playCricketPlayerId ?? '',
       imageFile: null,
       imagePreviewUrl: player.imageUrl ?? '',
       isCaptain: Boolean(player.isCaptain),
     })
 
     setFormError('')
+    setPlayCricketVerifyMessage(
+      player.playCricketPlayerId ? 'Play Cricket ID already saved.' : ''
+    )
+    setIsPlayCricketIdValid(player.playCricketPlayerId ? true : null)
 
     if (imageInputRef.current) {
       imageInputRef.current.value = ''
@@ -208,11 +374,88 @@ function ManagePlayers() {
     focusForm()
   }
 
-  const handleDelete = (playerId: string) => {
-    setPlayers(current => current.filter(player => player.id !== playerId))
+  const verifyPlayCricketId = async () => {
+    const playerId = form.playCricketPlayerId.trim()
 
-    if (editingId === playerId) {
-      resetForm()
+    if (!playerId) {
+      setPlayCricketVerifyMessage('Enter a Play Cricket player ID first.')
+      setIsPlayCricketIdValid(false)
+      return
+    }
+
+    try {
+      setIsVerifyingPlayCricketId(true)
+      setPlayCricketVerifyMessage('')
+
+      const response = await api.get(
+        `/admin/players/verify-play-cricket/${playerId}`
+      )
+
+      if (response.data.data.valid) {
+        const summary = response.data.data.summary
+        setIsPlayCricketIdValid(true)
+        setPlayCricketVerifyMessage(
+          `Valid ID — ${summary.matches} matches, ${summary.runs} runs, ${summary.wickets} wickets found.`
+        )
+        return
+      }
+
+      setIsPlayCricketIdValid(false)
+      setPlayCricketVerifyMessage('No player stats found for this ID.')
+    } catch {
+      setIsPlayCricketIdValid(false)
+      setPlayCricketVerifyMessage('Could not verify this ID. Try again.')
+    } finally {
+      setIsVerifyingPlayCricketId(false)
+    }
+  }
+
+  const handleDeleteClick = (player: Player) => {
+    setPlayerToDelete(player)
+  }
+
+  const syncPlayerStats = async (player: Player) => {
+    if (!player.playCricketPlayerId) {
+      setPlayersError('Add a Play Cricket player ID before syncing stats')
+      return
+    }
+
+    try {
+      setSyncingPlayerId(player.id)
+      setPlayersError('')
+
+      const response = await api.post(`/admin/players/${player.id}/sync-stats`)
+      const syncedPlayer = mapAdminPlayer(response.data.data)
+
+      setPlayers(current =>
+        current.map(currentPlayer =>
+          currentPlayer.id === player.id ? syncedPlayer : currentPlayer
+        )
+      )
+    } catch {
+      setPlayersError('Could not sync player stats')
+    } finally {
+      setSyncingPlayerId(null)
+    }
+  }
+
+  const confirmDelete = async () => {
+    if (!playerToDelete) return
+
+    try {
+      await api.delete(`/admin/players/${playerToDelete.id}`)
+
+      setPlayers(current =>
+        current.filter(player => player.id !== playerToDelete.id)
+      )
+
+      if (editingId === playerToDelete.id) {
+        resetForm()
+      }
+
+      setPlayerToDelete(null)
+    } catch {
+      setPlayersError('Could not delete player')
     }
   }
 
@@ -259,7 +502,9 @@ function ManagePlayers() {
                 </p>
 
                 <h3 className="mt-1 font-display text-2xl tracking-[1px] text-white">
-                  {filteredPlayers.length} Players
+                  {isLoadingPlayers
+                    ? 'Loading...'
+                    : `${filteredPlayers.length} Players`}
                 </h3>
               </div>
 
@@ -357,9 +602,20 @@ function ManagePlayers() {
                           Edit
                         </button>
 
+                        {player.playCricketPlayerId && (
+                          <button
+                            type="button"
+                            onClick={() => syncPlayerStats(player)}
+                            disabled={syncingPlayerId === player.id}
+                            className="rounded border border-green-light/20 px-3 py-2 font-heading text-[10px] font-bold uppercase tracking-[2px] text-green-light transition-colors hover:bg-green-light/10 disabled:cursor-not-allowed disabled:opacity-60"
+                          >
+                            {syncingPlayerId === player.id ? 'Syncing' : 'Sync'}
+                          </button>
+                        )}
+
                         <button
                           type="button"
-                          onClick={() => handleDelete(player.id)}
+                          onClick={() => handleDeleteClick(player)}
                           className="rounded border border-[#d86b5f]/20 px-3 py-2 font-heading text-[10px] font-bold uppercase tracking-[2px] text-[#ff9b8f] transition-colors hover:bg-[#d86b5f]/10"
                         >
                           Delete
@@ -409,9 +665,20 @@ function ManagePlayers() {
                     Edit
                   </button>
 
+                  {player.playCricketPlayerId && (
+                    <button
+                      type="button"
+                      onClick={() => syncPlayerStats(player)}
+                      disabled={syncingPlayerId === player.id}
+                      className="flex-1 rounded border border-green-light/20 px-3 py-2.5 font-heading text-[10px] font-bold uppercase tracking-[2px] text-green-light transition-colors hover:bg-green-light/10 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {syncingPlayerId === player.id ? 'Syncing' : 'Sync'}
+                    </button>
+                  )}
+
                   <button
                     type="button"
-                    onClick={() => handleDelete(player.id)}
+                    onClick={() => handleDeleteClick(player)}
                     className="flex-1 rounded border border-[#d86b5f]/20 px-3 py-2.5 font-heading text-[10px] font-bold uppercase tracking-[2px] text-[#ff9b8f] transition-colors hover:bg-[#d86b5f]/10"
                   >
                     Delete
@@ -421,17 +688,31 @@ function ManagePlayers() {
             ))}
           </div>
 
-          {filteredPlayers.length === 0 && (
+          {playersError && (
             <div className="p-10 text-center">
               <p className="font-display text-2xl tracking-[1px] text-white">
-                No players found.
+                Could not load players.
               </p>
 
               <p className="mt-2 font-body text-sm font-light text-muted">
-                Try changing the search or role filter.
+                Please check that the backend is running.
               </p>
             </div>
           )}
+
+          {!playersError &&
+            !isLoadingPlayers &&
+            filteredPlayers.length === 0 && (
+              <div className="p-10 text-center">
+                <p className="font-display text-2xl tracking-[1px] text-white">
+                  No players found.
+                </p>
+
+                <p className="mt-2 font-body text-sm font-light text-muted">
+                  Try changing the search or role filter.
+                </p>
+              </div>
+            )}
         </section>
 
         <aside
@@ -517,6 +798,47 @@ function ManagePlayers() {
                 }
                 className={adminInputClass}
               />
+            </AdminField>
+
+            <AdminField label="Play Cricket Player ID">
+              <div className="flex flex-col gap-2">
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={form.playCricketPlayerId}
+                    placeholder="f27e5b35-5409-4ae0-acad-644e7fb55bbb"
+                    onChange={event =>
+                      updateForm('playCricketPlayerId', event.target.value)
+                    }
+                    className={adminInputClass}
+                  />
+
+                  <button
+                    type="button"
+                    onClick={verifyPlayCricketId}
+                    disabled={isVerifyingPlayCricketId}
+                    className="shrink-0 rounded border border-gold/25 bg-gold/[0.08] px-3 font-heading text-[10px] font-bold uppercase tracking-[2px] text-gold transition-colors hover:bg-gold/15 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {isVerifyingPlayCricketId ? 'Checking' : 'Verify'}
+                  </button>
+                </div>
+
+                <p className="font-body text-[11px] font-light leading-[1.5] text-muted">
+                  Optional. Add this to sync real Cricket Australia stats later.
+                </p>
+
+                {playCricketVerifyMessage && (
+                  <p
+                    className={`font-body text-[11px] font-semibold leading-[1.5] ${
+                      isPlayCricketIdValid
+                        ? 'text-green-light'
+                        : 'text-[#ff9b8f]'
+                    }`}
+                  >
+                    {playCricketVerifyMessage}
+                  </p>
+                )}
+              </div>
             </AdminField>
 
             <div>
@@ -624,9 +946,14 @@ function ManagePlayers() {
             <div className="flex flex-col gap-3 min-[420px]:flex-row">
               <button
                 type="submit"
-                className="flex-1 rounded bg-gold px-5 py-3.5 font-heading text-[11px] font-bold uppercase tracking-[2.5px] text-black transition-colors hover:bg-gold/90"
+                disabled={isSavingPlayer}
+                className="flex-1 rounded bg-gold px-5 py-3.5 font-heading text-[11px] font-bold uppercase tracking-[2.5px] text-black transition-colors hover:bg-gold/90 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {editingId ? 'Save Changes' : 'Add Player'}
+                {isSavingPlayer
+                  ? 'Saving...'
+                  : editingId
+                    ? 'Save Changes'
+                    : 'Add Player'}
               </button>
 
               {editingId && (
@@ -642,6 +969,84 @@ function ManagePlayers() {
           </form>
         </aside>
       </div>
+
+      {playerToDelete && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-player-title"
+          className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-[#050505]/85 px-5 py-8 backdrop-blur-md"
+          onClick={() => setPlayerToDelete(null)}
+        >
+          <div
+            className="relative w-full max-w-[460px] overflow-hidden rounded border border-gold/20 bg-[#151515] p-6 shadow-[0_30px_100px_rgba(0,0,0,0.6)]"
+            onClick={event => event.stopPropagation()}
+          >
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_0%,rgba(201,168,76,0.16),transparent_34%),linear-gradient(145deg,rgba(23,33,25,0.58),transparent_58%)]"
+            />
+
+            <div className="relative mb-3 font-heading text-[10px] font-bold uppercase tracking-[3px] text-gold">
+              Squad Action
+            </div>
+
+            <h3
+              id="delete-player-title"
+              className="relative font-display text-[34px] leading-none tracking-[1px] text-white"
+            >
+              Delete Player?
+            </h3>
+
+            <div className="relative mt-5 rounded border border-white/[0.08] bg-black/20 p-4">
+              <p className="font-body text-sm font-light leading-[1.7] text-muted">
+                Are you sure you want to remove{' '}
+                <span className="font-semibold text-white">
+                  {playerToDelete.name}
+                </span>
+                ?
+              </p>
+
+              <p className="mt-2 font-heading text-[10px] font-bold uppercase tracking-[2.5px] text-[#ff9b8f]">
+                This action hides the player from the squad list.
+              </p>
+            </div>
+
+            <div className="relative mt-5 flex items-center gap-3 rounded border border-white/[0.08] bg-white/[0.035] px-4 py-3">
+              <PlayerAvatar player={playerToDelete} />
+
+              <div>
+                <div className="font-heading text-sm font-bold text-white">
+                  {playerToDelete.name}
+                </div>
+
+                <div className="mt-1 font-heading text-[10px] font-bold uppercase tracking-[2px] text-muted">
+                  #{playerToDelete.jerseyNumber} ·{' '}
+                  {roleLabel[playerToDelete.role]}
+                </div>
+              </div>
+            </div>
+
+            <div className="relative mt-6 flex flex-col gap-3 min-[420px]:flex-row">
+              <button
+                type="button"
+                onClick={() => setPlayerToDelete(null)}
+                className="flex-1 rounded border border-white/[0.12] bg-white/[0.035] px-5 py-3.5 font-heading text-[11px] font-bold uppercase tracking-[2.5px] text-muted transition-colors hover:border-gold/30 hover:text-white"
+              >
+                Keep Player
+              </button>
+
+              <button
+                type="button"
+                onClick={confirmDelete}
+                className="flex-1 rounded border border-[#d86b5f]/35 bg-[#d86b5f]/15 px-5 py-3.5 font-heading text-[11px] font-bold uppercase tracking-[2.5px] text-[#ff9b8f] transition-colors hover:bg-[#d86b5f]/25 hover:text-white"
+              >
+                Delete Player
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

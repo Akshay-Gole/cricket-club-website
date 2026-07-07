@@ -6,7 +6,16 @@ export interface InningsScore {
   match: string // 'M1'
   opponent: string // 'NOR'
   runs: number
+  balls?: number
   notOut?: boolean // ★ highlight (e.g. high score / not out)
+}
+
+export interface BowlingSpell {
+  match: string
+  opponent: string
+  wickets: number
+  runs: number
+  overs: string
 }
 
 export interface PlayerProfile {
@@ -56,4 +65,5 @@ export interface PlayerProfile {
 
   // Form chart — last innings
   recentInnings: InningsScore[]
+  recentBowling: BowlingSpell[]
 }

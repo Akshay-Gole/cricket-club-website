@@ -15,6 +15,7 @@ export const createPlayerSchema = z.object({
   role: apiPlayerRoleSchema,
   jerseyNumber: z.number().int().positive('Jersey number must be positive'),
   imageUrl: z.string().url().optional().or(z.literal('')),
+  playCricketPlayerId: z.string().uuid().optional().or(z.literal('')),
   battingAvg: z.number().min(0).default(0),
   bestBowl: z.string().trim().min(1).default('0/0'),
   isCaptain: z.boolean().default(false),

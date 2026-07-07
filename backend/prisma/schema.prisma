@@ -14,21 +14,96 @@ datasource db {
 }
 
 model Player {
-  id           String   @id @default(uuid())
-  firstName    String
-  lastName     String
-  displayName  String
-  initials     String
-  role         PlayerRole
-  jerseyNumber Int
-  imageUrl     String?
-  battingAvg   Float    @default(0)
-  bestBowl     String   @default("0/0")
-  isCaptain    Boolean  @default(false)
-  isFeatured   Boolean  @default(false)
-  active       Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id                  String                   @id @default(uuid())
+  firstName           String
+  lastName            String
+  displayName         String
+  initials            String
+  role                PlayerRole
+  jerseyNumber        Int
+  imageUrl            String?
+  playCricketPlayerId String?                  @unique
+  battingAvg          Float                    @default(0)
+  bestBowl            String                   @default("0/0")
+  isCaptain           Boolean                  @default(false)
+  isFeatured          Boolean                  @default(false)
+  active              Boolean                  @default(true)
+  createdAt           DateTime                 @default(now())
+  updatedAt           DateTime                 @updatedAt
+  careerStats         PlayerCareerStats?
+  matchPerformances   PlayerMatchPerformance[]
+}
+
+model PlayerCareerStats {
+  id                   String   @id @default(uuid())
+  playerId             String   @unique
+  player               Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  matches              Int      @default(0)
+  battingInnings       Int      @default(0)
+  battingAggregate     Int      @default(0)
+  battingNotOuts       Int      @default(0)
+  batting50s           Int      @default(0)
+  batting100s          Int      @default(0)
+  batting0s            Int      @default(0)
+  battingHighScore     Int      @default(0)
+  isBattingHSNotOut    Boolean  @default(false)
+  battingAverage       Float    @default(0)
+  battingStrikeRate    Float    @default(0)
+  battingFours         Int      @default(0)
+  battingSixes         Int      @default(0)
+  bowlingWickets       Int      @default(0)
+  bowlingMaidens       Int      @default(0)
+  bowlingRuns          Int      @default(0)
+  bowlingBalls         Int      @default(0)
+  bowling5WIs          Int      @default(0)
+  bowling10WMs         Int      @default(0)
+  bowlingOvers         String   @default("0")
+  bowlingBestInnings   String   @default("0-0")
+  bowlingAverage       Float    @default(0)
+  bowlingStrikeRate    Float    @default(0)
+  bowlingEconomyRate   Float    @default(0)
+  bowlingWides         Int      @default(0)
+  bowlingNoBalls       Int      @default(0)
+  fieldingCatchesNonWK Int      @default(0)
+  fieldingCatchesWK    Int      @default(0)
+  fieldingTotalCatches Int      @default(0)
+  fieldingStumpings    Int      @default(0)
+  fieldingRunOuts      Int      @default(0)
+  syncedAt             DateTime @default(now())
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+model PlayerMatchPerformance {
+  id                     String   @id @default(uuid())
+  playerId               String
+  player                 Player   @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  externalMatchId        String
+  matchDate              DateTime
+  matchType              String?
+  gradeName              String?
+  homeTeam               String?
+  awayTeam               String?
+  battingRuns            Int?
+  battingBalls           Int?
+  battingFours           Int?
+  battingSixes           Int?
+  battingStrikeRate      Float?
+  battingDismissalTypeId Int?
+  bowlingOvers           String?
+  bowlingMaidens         Int?
+  bowlingRuns            Int?
+  bowlingWickets         Int?
+  bowlingWides           Int?
+  bowlingNoBalls         Int?
+  bowlingEconomy         Float?
+  fieldingCatches        Int?
+  fieldingStumpings      Int?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  @@unique([playerId, externalMatchId])
+  @@index([playerId, matchDate])
 }
 
 enum PlayerRole {
@@ -36,4 +111,14 @@ enum PlayerRole {
   bowler
   all_rounder
   wicket_keeper
+}
+
+model AdminUser {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
