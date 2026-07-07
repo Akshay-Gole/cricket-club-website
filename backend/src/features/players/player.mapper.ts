@@ -113,6 +113,8 @@ export function toApiPlayer(player: PlayerWithStats) {
     recentPerformances: player.matchPerformances?.map(toApiPerformance) ?? [],
     isCaptain: player.isCaptain,
     isFeatured: player.isFeatured,
+    featuredStatValue: player.featuredStatValue,
+    featuredStatLabel: player.featuredStatLabel,
     active: player.active,
   }
 }

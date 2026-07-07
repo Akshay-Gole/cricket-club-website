@@ -12,6 +12,10 @@ export interface Player {
   careerStats?: PlayerCareerStats | null
   recentPerformances?: PlayerMatchPerformance[]
   isCaptain?: boolean
+  isFeatured?: boolean
+  featuredStatValue?: string
+  featuredStatLabel?: string
+  active?: boolean
 }
 
 export interface PlayerCareerStats {
@@ -78,9 +82,11 @@ export interface CreatePlayerDto {
   name: string
   role: PlayerRole
   jerseyNumber: number
-  battingAverage: number
-  bestBowling: string
   imageUrl?: string
   playCricketPlayerId?: string
   isCaptain?: boolean
+  isFeatured?: boolean
+  featuredStatValue?: string
+  featuredStatLabel?: string
+  active?: boolean
 }

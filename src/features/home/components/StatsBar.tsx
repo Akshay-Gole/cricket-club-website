@@ -1,4 +1,8 @@
+import { useEffect, useState } from 'react'
 import { useCountUp } from '../../../hooks/useCountUp'
+import homeContentApi from '../api/homeContent.api'
+import { DEFAULT_HOME_CONTENT } from '../api/homeContent.api'
+import type { HomeContent } from '../api/homeContent.api'
 
 interface StatItemProps {
   num: string
@@ -26,13 +30,21 @@ function StatItem({ num, label, index }: StatItemProps) {
 }
 
 function StatsBar() {
-  // STATIC placeholder data — swap for real club stats from API later
+  const [content, setContent] = useState<HomeContent>(DEFAULT_HOME_CONTENT)
+
+  useEffect(() => {
+    homeContentApi
+      .getPublic()
+      .then(setContent)
+      .catch(() => setContent(DEFAULT_HOME_CONTENT))
+  }, [])
+
   const stats = [
-    { num: '48', label: 'Matches Played' },
-    { num: '31', label: 'Victories' },
-    { num: '06', label: 'Trophies' },
-    { num: '22', label: 'Active Players' },
-    { num: '01', label: 'Years Active' },
+    { num: content.matchesPlayed, label: 'Matches Played' },
+    { num: content.victories, label: 'Victories' },
+    { num: content.trophies, label: 'Trophies' },
+    { num: content.activePlayers, label: 'Active Players' },
+    { num: content.yearsActive, label: 'Years Active' },
   ]
 
   return (

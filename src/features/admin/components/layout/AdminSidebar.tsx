@@ -153,6 +153,13 @@ function AdminIcon({ name }: { name: AdminIconName | 'logout' }) {
         <rect x="14" y="14" width="7" height="7" rx="1" />
       </>
     ),
+    home: (
+      <>
+        <path d="M3 11l9-7 9 7" />
+        <path d="M5 10v10h14V10" />
+        <path d="M9 20v-6h6v6" />
+      </>
+    ),
     players: (
       <>
         <circle cx="9" cy="8" r="4" />

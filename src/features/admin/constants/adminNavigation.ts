@@ -2,6 +2,7 @@ import { ROUTES } from '../../../constants/routes'
 
 export type AdminIconName =
   | 'dashboard'
+  | 'home'
   | 'players'
   | 'fixtures'
   | 'news'
@@ -22,6 +23,11 @@ export const ADMIN_NAVIGATION: AdminNavigationItem[] = [
     label: 'Dashboard',
     to: ROUTES.ADMIN_DASHBOARD,
     icon: 'dashboard',
+  },
+  {
+    label: 'Home Content',
+    to: ROUTES.ADMIN_HOME_CONTENT,
+    icon: 'home',
   },
   {
     label: 'Players',
@@ -75,6 +81,11 @@ export const ADMIN_PAGE_META = [
     title: 'Players',
     actionLabel: '+ Add Player',
     actionTo: `${ROUTES.ADMIN_PLAYERS}?action=create`,
+  },
+  {
+    path: ROUTES.ADMIN_HOME_CONTENT,
+    eyebrow: 'Homepage Control',
+    title: 'Home Content',
   },
   {
     path: ROUTES.ADMIN_FIXTURES,

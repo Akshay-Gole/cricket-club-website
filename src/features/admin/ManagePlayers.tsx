@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ChangeEvent, FormEvent, ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import PageLoader from '../../components/shared/PageLoader'
 import api from '../../services/api'
 import type { Player, PlayerRole } from '../players/types/player.types'
 import {
@@ -26,6 +27,10 @@ interface AdminPlayerResponse {
     bestBowling: string
   }
   isCaptain?: boolean
+  isFeatured?: boolean
+  featuredStatValue?: string | null
+  featuredStatLabel?: string | null
+  active?: boolean
 }
 
 interface PlayerPayload {
@@ -35,12 +40,12 @@ interface PlayerPayload {
   initials: string
   role: PlayerRole
   jerseyNumber: number
-  battingAvg: number
-  bestBowl: string
   imageUrl?: string
   playCricketPlayerId?: string
   isCaptain: boolean
   isFeatured: boolean
+  featuredStatValue?: string
+  featuredStatLabel?: string
   active: boolean
 }
 
@@ -55,6 +60,10 @@ function mapAdminPlayer(player: AdminPlayerResponse): Player {
     imageUrl: player.imageUrl ?? undefined,
     playCricketPlayerId: player.playCricketPlayerId ?? undefined,
     isCaptain: player.isCaptain,
+    isFeatured: player.isFeatured,
+    featuredStatValue: player.featuredStatValue ?? undefined,
+    featuredStatLabel: player.featuredStatLabel ?? undefined,
+    active: player.active,
   }
 }
 
@@ -139,7 +148,9 @@ function ManagePlayers() {
       total: players.length,
       batters: players.filter(player => player.role === 'batsman').length,
       bowlers: players.filter(player => player.role === 'bowler').length,
-      leaders: players.filter(player => player.isCaptain).length,
+      allRounders: players.filter(player => player.role === 'all-rounder')
+        .length,
+      keepers: players.filter(player => player.role === 'wicket-keeper').length,
     }
   }, [players])
 
@@ -216,10 +227,7 @@ function ManagePlayers() {
     }, 350)
   }
 
-  const buildPlayerPayload = (
-    jerseyNumber: number,
-    battingAverage: number
-  ): PlayerPayload => {
+  const buildPlayerPayload = (jerseyNumber: number): PlayerPayload => {
     const displayName = form.name.trim()
     const { firstName, lastName } = getNameParts(displayName)
     const savedImageUrl = form.imageFile ? undefined : form.imagePreviewUrl
@@ -231,13 +239,13 @@ function ManagePlayers() {
       initials: getInitials(displayName),
       role: form.role,
       jerseyNumber,
-      battingAvg: battingAverage,
-      bestBowl: form.bestBowling.trim() || '0/0',
       imageUrl: savedImageUrl,
       playCricketPlayerId: form.playCricketPlayerId.trim() || undefined,
       isCaptain: form.isCaptain,
-      isFeatured: false,
-      active: true,
+      isFeatured: form.isFeatured,
+      featuredStatValue: form.featuredStatValue.trim() || undefined,
+      featuredStatLabel: form.featuredStatLabel.trim() || undefined,
+      active: form.active,
     }
   }
 
@@ -300,15 +308,9 @@ function ManagePlayers() {
     }
 
     const jerseyNumber = Number(form.jerseyNumber)
-    const battingAverage = Number(form.battingAverage || 0)
 
     if (Number.isNaN(jerseyNumber)) {
       setFormError('Jersey number must be a number')
-      return
-    }
-
-    if (Number.isNaN(battingAverage)) {
-      setFormError('Batting average must be a number')
       return
     }
 
@@ -316,7 +318,7 @@ function ManagePlayers() {
       setIsSavingPlayer(true)
       setFormError('')
 
-      const payload = buildPlayerPayload(jerseyNumber, battingAverage)
+      const payload = buildPlayerPayload(jerseyNumber)
       const response = editingId
         ? await api.patch(`/admin/players/${editingId}`, payload)
         : await api.post('/admin/players', payload)
@@ -353,12 +355,14 @@ function ManagePlayers() {
       name: player.name,
       role: player.role,
       jerseyNumber: String(player.jerseyNumber),
-      battingAverage: String(player.battingAverage),
-      bestBowling: player.bestBowling,
       playCricketPlayerId: player.playCricketPlayerId ?? '',
       imageFile: null,
       imagePreviewUrl: player.imageUrl ?? '',
       isCaptain: Boolean(player.isCaptain),
+      isFeatured: Boolean(player.isFeatured),
+      featuredStatValue: player.featuredStatValue ?? '',
+      featuredStatLabel: player.featuredStatLabel ?? '',
+      active: player.active ?? true,
     })
 
     setFormError('')
@@ -483,11 +487,12 @@ function ManagePlayers() {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 min-[520px]:grid-cols-4 min-[901px]:w-[520px]">
+          <div className="grid grid-cols-2 gap-3 min-[520px]:grid-cols-3 min-[901px]:w-[650px] min-[901px]:grid-cols-5">
             <StatCard label="Players" value={stats.total} />
             <StatCard label="Batters" value={stats.batters} />
             <StatCard label="Bowlers" value={stats.bowlers} />
-            <StatCard label="Leaders" value={stats.leaders} />
+            <StatCard label="All-Rounders" value={stats.allRounders} />
+            <StatCard label="Keepers" value={stats.keepers} />
           </div>
         </div>
       </section>
@@ -688,6 +693,14 @@ function ManagePlayers() {
             ))}
           </div>
 
+          {isLoadingPlayers && !playersError && (
+            <PageLoader
+              variant="section"
+              label="Loading Players"
+              className="border-t border-white/[0.08]"
+            />
+          )}
+
           {playersError && (
             <div className="p-10 text-center">
               <p className="font-display text-2xl tracking-[1px] text-white">
@@ -729,8 +742,8 @@ function ManagePlayers() {
             </h3>
 
             <p className="mt-2 font-body text-xs font-light leading-[1.7] text-muted">
-              This form updates local UI state only. Backend save and Cloudinary
-              upload will come later.
+              Save player identity here. Cricket stats come from Play Cricket
+              when a player ID is connected.
             </p>
           </div>
 
@@ -762,83 +775,16 @@ function ManagePlayers() {
               </select>
             </AdminField>
 
-            <div className="grid grid-cols-2 gap-3">
-              <AdminField label="Jersey" required>
-                <input
-                  type="number"
-                  value={form.jerseyNumber}
-                  placeholder="03"
-                  onChange={event =>
-                    updateForm('jerseyNumber', event.target.value)
-                  }
-                  className={adminInputClass}
-                />
-              </AdminField>
-
-              <AdminField label="Bat Avg">
-                <input
-                  type="number"
-                  value={form.battingAverage}
-                  placeholder="42.3"
-                  onChange={event =>
-                    updateForm('battingAverage', event.target.value)
-                  }
-                  className={adminInputClass}
-                />
-              </AdminField>
-            </div>
-
-            <AdminField label="Best Bowling">
+            <AdminField label="Jersey" required>
               <input
-                type="text"
-                value={form.bestBowling}
-                placeholder="4/18"
+                type="number"
+                value={form.jerseyNumber}
+                placeholder="03"
                 onChange={event =>
-                  updateForm('bestBowling', event.target.value)
+                  updateForm('jerseyNumber', event.target.value)
                 }
                 className={adminInputClass}
               />
-            </AdminField>
-
-            <AdminField label="Play Cricket Player ID">
-              <div className="flex flex-col gap-2">
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={form.playCricketPlayerId}
-                    placeholder="f27e5b35-5409-4ae0-acad-644e7fb55bbb"
-                    onChange={event =>
-                      updateForm('playCricketPlayerId', event.target.value)
-                    }
-                    className={adminInputClass}
-                  />
-
-                  <button
-                    type="button"
-                    onClick={verifyPlayCricketId}
-                    disabled={isVerifyingPlayCricketId}
-                    className="shrink-0 rounded border border-gold/25 bg-gold/[0.08] px-3 font-heading text-[10px] font-bold uppercase tracking-[2px] text-gold transition-colors hover:bg-gold/15 disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    {isVerifyingPlayCricketId ? 'Checking' : 'Verify'}
-                  </button>
-                </div>
-
-                <p className="font-body text-[11px] font-light leading-[1.5] text-muted">
-                  Optional. Add this to sync real Cricket Australia stats later.
-                </p>
-
-                {playCricketVerifyMessage && (
-                  <p
-                    className={`font-body text-[11px] font-semibold leading-[1.5] ${
-                      isPlayCricketIdValid
-                        ? 'text-green-light'
-                        : 'text-[#ff9b8f]'
-                    }`}
-                  >
-                    {playCricketVerifyMessage}
-                  </p>
-                )}
-              </div>
             </AdminField>
 
             <div>
@@ -916,26 +862,110 @@ function ManagePlayers() {
               </div>
             </div>
 
-            <label className="flex cursor-pointer items-center justify-between gap-4 rounded border border-white/[0.12] bg-white/[0.035] px-4 py-3">
-              <span>
-                <span className="block font-heading text-xs font-bold uppercase tracking-[2px] text-white">
-                  Club Captain
-                </span>
+            <div className="rounded border border-gold/15 bg-gold/[0.035] p-4">
+              <div className="mb-4">
+                <p className="font-heading text-[10px] font-bold uppercase tracking-[3px] text-gold">
+                  Advanced Controls
+                </p>
 
-                <span className="mt-1 block font-body text-xs font-light text-muted">
-                  Show captain badge on profile.
-                </span>
-              </span>
+                <p className="mt-1 font-body text-[11px] font-light leading-[1.6] text-muted">
+                  Optional admin-only settings for homepage, profile badges and
+                  Play Cricket sync.
+                </p>
+              </div>
 
-              <input
-                type="checkbox"
-                checked={form.isCaptain}
-                onChange={event =>
-                  updateForm('isCaptain', event.target.checked)
-                }
-                className="h-4 w-4 accent-gold"
-              />
-            </label>
+              <div className="space-y-3">
+                <AdminField label="Play Cricket Player ID">
+                  <div className="flex flex-col gap-2">
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        value={form.playCricketPlayerId}
+                        placeholder="f27e5b35-5409-4ae0-acad-644e7fb55bbb"
+                        onChange={event =>
+                          updateForm('playCricketPlayerId', event.target.value)
+                        }
+                        className={adminInputClass}
+                      />
+
+                      <button
+                        type="button"
+                        onClick={verifyPlayCricketId}
+                        disabled={isVerifyingPlayCricketId}
+                        className="shrink-0 rounded border border-gold/25 bg-gold/[0.08] px-3 font-heading text-[10px] font-bold uppercase tracking-[2px] text-gold transition-colors hover:bg-gold/15 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {isVerifyingPlayCricketId ? 'Checking' : 'Verify'}
+                      </button>
+                    </div>
+
+                    <p className="font-body text-[11px] font-light leading-[1.5] text-muted">
+                      Optional. Used to sync Cricket Australia stats.
+                    </p>
+
+                    {playCricketVerifyMessage && (
+                      <p
+                        className={`font-body text-[11px] font-semibold leading-[1.5] ${
+                          isPlayCricketIdValid
+                            ? 'text-green-light'
+                            : 'text-[#ff9b8f]'
+                        }`}
+                      >
+                        {playCricketVerifyMessage}
+                      </p>
+                    )}
+                  </div>
+                </AdminField>
+
+                <AdminToggle
+                  label="Featured Player"
+                  description="Show this player in the homepage featured player strip."
+                  checked={form.isFeatured}
+                  onChange={checked => updateForm('isFeatured', checked)}
+                />
+
+                {form.isFeatured && (
+                  <div className="grid grid-cols-1 gap-3 min-[520px]:grid-cols-2">
+                    <AdminField label="Featured Value">
+                      <input
+                        type="text"
+                        value={form.featuredStatValue}
+                        placeholder="847"
+                        onChange={event =>
+                          updateForm('featuredStatValue', event.target.value)
+                        }
+                        className={adminInputClass}
+                      />
+                    </AdminField>
+
+                    <AdminField label="Featured Text">
+                      <input
+                        type="text"
+                        value={form.featuredStatLabel}
+                        placeholder="Runs this season"
+                        onChange={event =>
+                          updateForm('featuredStatLabel', event.target.value)
+                        }
+                        className={adminInputClass}
+                      />
+                    </AdminField>
+                  </div>
+                )}
+
+                <AdminToggle
+                  label="Club Captain"
+                  description="Show captain badge on profile and squad cards."
+                  checked={form.isCaptain}
+                  onChange={checked => updateForm('isCaptain', checked)}
+                />
+
+                <AdminToggle
+                  label="Active Squad Member"
+                  description="Active players appear on the public squad page."
+                  checked={form.active}
+                  onChange={checked => updateForm('active', checked)}
+                />
+              </div>
+            </div>
 
             {formError && (
               <div className="rounded border border-[#d86b5f]/25 bg-[#d86b5f]/[0.08] px-4 py-3 font-body text-xs text-[#ff9b8f]">
@@ -1112,6 +1142,41 @@ function MiniStat({ label, value }: MiniStatProps) {
         {label}
       </div>
     </div>
+  )
+}
+
+interface AdminToggleProps {
+  label: string
+  description: string
+  checked: boolean
+  onChange: (checked: boolean) => void
+}
+
+function AdminToggle({
+  label,
+  description,
+  checked,
+  onChange,
+}: AdminToggleProps) {
+  return (
+    <label className="flex cursor-pointer items-center justify-between gap-4 rounded border border-white/[0.12] bg-white/[0.035] px-4 py-3">
+      <span>
+        <span className="block font-heading text-xs font-bold uppercase tracking-[2px] text-white">
+          {label}
+        </span>
+
+        <span className="mt-1 block font-body text-xs font-light leading-[1.5] text-muted">
+          {description}
+        </span>
+      </span>
+
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={event => onChange(event.target.checked)}
+        className="h-4 w-4 accent-gold"
+      />
+    </label>
   )
 }
 

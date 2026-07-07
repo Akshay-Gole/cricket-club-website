@@ -1,57 +1,95 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ROUTES } from '../../../constants/routes'
+import playersApi from '../../players/api/players.api'
+import type { Player } from '../../players/types/player.types'
 import FeaturedPlayerCard, { type FeaturedPlayer } from './FeaturedPlayerCard'
 
-function FeaturedPlayers() {
-  // STATIC placeholder data — swap for real players from API later (playersApi.getAll)
-  // TODO: extract each card into a reusable <PlayerCard /> component (own ticket)
-  const players: FeaturedPlayer[] = [
-    {
-      num: '01',
-      initials: 'AKS',
-      avatarBg: 'var(--color-green)',
-      name: 'Akshay Gole',
-      role: 'All-Rounder',
-      stat: '847',
-      statLabel: 'Runs this season',
-    },
-    {
-      num: '07',
-      initials: 'JNS',
-      avatarBg: '#0d3a1e',
-      name: 'Jones',
-      role: 'Batsman',
-      stat: '612',
-      statLabel: 'Runs this season',
-    },
-    {
-      num: '11',
-      initials: 'RYN',
-      avatarBg: '#2a1800',
-      name: 'Ryan',
-      role: 'Bowler',
-      stat: '34',
+function getRoleLabel(role: Player['role']) {
+  const labels: Record<Player['role'], string> = {
+    batsman: 'Batsman',
+    bowler: 'Bowler',
+    'all-rounder': 'All-Rounder',
+    'wicket-keeper': 'Wkt-Keeper',
+  }
+
+  return labels[role]
+}
+
+function getAvatarBg(role: Player['role']) {
+  const backgrounds: Record<Player['role'], string> = {
+    batsman: '#0d3a1e',
+    bowler: '#2a1800',
+    'all-rounder': 'var(--color-green)',
+    'wicket-keeper': '#1a0d2e',
+  }
+
+  return backgrounds[role]
+}
+
+function getFeaturedMetric(player: Player) {
+  if (player.featuredStatValue && player.featuredStatLabel) {
+    return {
+      stat: player.featuredStatValue,
+      statLabel: player.featuredStatLabel,
+    }
+  }
+
+  if (player.role === 'bowler') {
+    return {
+      stat: String(player.careerStats?.bowlingWickets ?? 0),
       statLabel: 'Wickets taken',
-    },
-    {
-      num: '02',
-      initials: 'MCH',
-      avatarBg: '#1a0d2e',
-      name: 'Mitchell',
-      role: 'Wkt-Keeper',
-      stat: '28',
+    }
+  }
+
+  if (player.role === 'wicket-keeper') {
+    return {
+      stat: String(
+        (player.careerStats?.fieldingCatchesWK ?? 0) +
+          (player.careerStats?.fieldingStumpings ?? 0)
+      ),
       statLabel: 'Dismissals',
-    },
-    {
-      num: '05',
-      initials: 'PRS',
-      avatarBg: '#1a1a00',
-      name: 'Parsons',
-      role: 'Bowler',
-      stat: '29',
-      statLabel: 'Wickets taken',
-    },
-  ]
+    }
+  }
+
+  return {
+    stat: String(player.careerStats?.battingAggregate ?? 0),
+    statLabel: 'Runs this season',
+  }
+}
+
+function toFeaturedPlayer(player: Player): FeaturedPlayer {
+  const metric = getFeaturedMetric(player)
+
+  return {
+    id: player.id,
+    num: String(player.jerseyNumber).padStart(2, '0'),
+    initials: player.name.slice(0, 3).toUpperCase(),
+    avatarBg: getAvatarBg(player.role),
+    name: player.name,
+    role: getRoleLabel(player.role),
+    ...metric,
+  }
+}
+
+function FeaturedPlayers() {
+  const [players, setPlayers] = useState<FeaturedPlayer[]>([])
+
+  useEffect(() => {
+    async function loadFeaturedPlayers() {
+      const allPlayers = await playersApi.getAll()
+      setPlayers(
+        allPlayers
+          .filter(player => player.isFeatured)
+          .slice(0, 5)
+          .map(toFeaturedPlayer)
+      )
+    }
+
+    loadFeaturedPlayers().catch(() => setPlayers([]))
+  }, [])
+
+  if (players.length === 0) return null
 
   return (
     <section
