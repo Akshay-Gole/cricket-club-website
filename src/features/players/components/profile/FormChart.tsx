@@ -51,7 +51,7 @@ function BattingChart({ innings }: { innings: InningsScore[] }) {
   const maxRuns = Math.max(50, ...innings.map(innings => innings.runs))
 
   return (
-    <ChartShell title="Batting — Recent Innings" legend="Runs">
+    <ChartShell title="Batting — Last 8 Match Stats" legend="Runs">
       {innings.map((innings, index) => {
         const x = FIRST_X + index * STEP
         const centerX = x + BAR_WIDTH / 2
@@ -93,7 +93,7 @@ function BowlingChart({ spells }: { spells: BowlingSpell[] }) {
   const maxWickets = Math.max(3, ...spells.map(spell => spell.wickets))
 
   return (
-    <ChartShell title="Bowling — Recent Spells" legend="Wickets">
+    <ChartShell title="Bowling — Last 8 Match Stats" legend="Wickets">
       {spells.map((spell, index) => {
         const x = FIRST_X + index * STEP
         const centerX = x + BAR_WIDTH / 2

@@ -2,6 +2,17 @@ import { z } from 'zod'
 import prisma from '../../lib/prisma.js'
 
 const PLAY_CRICKET_BASE_URL = 'https://grassrootsapiproxy.cricket.com.au'
+const CLUB_NAME = "top g's cc"
+
+function normaliseTeamName(teamName: string) {
+  return teamName.toLowerCase().replaceAll('’', "'").replaceAll(/\s+/g, ' ')
+}
+
+function isTopGsTeam(teamName: string) {
+  const normalised = normaliseTeamName(teamName)
+
+  return normalised.includes(CLUB_NAME) || normalised.includes('top gs cc')
+}
 
 const summarySchema = z.object({
   matches: z.number().default(0),
@@ -230,37 +241,46 @@ export async function syncPlayCricketPlayerStats(playerId: string) {
     },
   })
 
-  const performanceRows = performances.map(performance => {
+  const performanceRows = performances.flatMap(performance => {
+    const ourTeam = performance.teams.find(team =>
+      isTopGsTeam(team.displayName)
+    )
+
+    if (!ourTeam) return []
+
     const batting = performance.battingStatistics[0]
     const bowling = performance.bowlingStatistics[0]
     const fielding = performance.fieldingStatistics[0]
-    const homeTeam = performance.teams.find(team => team.isHome)
-    const awayTeam = performance.teams.find(team => !team.isHome)
+    const opponent = performance.teams.find(
+      team => !isTopGsTeam(team.displayName)
+    )
 
-    return {
-      playerId: player.id,
-      externalMatchId: performance.id,
-      matchDate: new Date(performance.startDateTime),
-      matchType: performance.matchType,
-      gradeName: performance.grade?.name,
-      homeTeam: homeTeam?.displayName,
-      awayTeam: awayTeam?.displayName,
-      battingRuns: batting?.runsScored,
-      battingBalls: batting?.ballsFaced,
-      battingFours: batting?.foursScored,
-      battingSixes: batting?.sixesScored,
-      battingStrikeRate: batting?.strikeRate,
-      battingDismissalTypeId: batting?.dismissalTypeId,
-      bowlingOvers: bowling?.oversBowled,
-      bowlingMaidens: bowling?.maidensBowled,
-      bowlingRuns: bowling?.runsConceded,
-      bowlingWickets: bowling?.wicketsTaken,
-      bowlingWides: bowling?.wideBalls,
-      bowlingNoBalls: bowling?.noBalls,
-      bowlingEconomy: bowling?.economy,
-      fieldingCatches: fielding?.catches,
-      fieldingStumpings: fielding?.stumpings,
-    }
+    return [
+      {
+        playerId: player.id,
+        externalMatchId: performance.id,
+        matchDate: new Date(performance.startDateTime),
+        matchType: performance.matchType,
+        gradeName: performance.grade?.name,
+        homeTeam: ourTeam.displayName,
+        awayTeam: opponent?.displayName,
+        battingRuns: batting?.runsScored,
+        battingBalls: batting?.ballsFaced,
+        battingFours: batting?.foursScored,
+        battingSixes: batting?.sixesScored,
+        battingStrikeRate: batting?.strikeRate,
+        battingDismissalTypeId: batting?.dismissalTypeId,
+        bowlingOvers: bowling?.oversBowled,
+        bowlingMaidens: bowling?.maidensBowled,
+        bowlingRuns: bowling?.runsConceded,
+        bowlingWickets: bowling?.wicketsTaken,
+        bowlingWides: bowling?.wideBalls,
+        bowlingNoBalls: bowling?.noBalls,
+        bowlingEconomy: bowling?.economy,
+        fieldingCatches: fielding?.catches,
+        fieldingStumpings: fielding?.stumpings,
+      },
+    ]
   })
 
   if (performanceRows.length > 0) {

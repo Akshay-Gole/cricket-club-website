@@ -19,6 +19,10 @@ interface ApiPlayer {
   careerStats?: Player['careerStats']
   recentPerformances?: Player['recentPerformances']
   isCaptain?: boolean
+  isFeatured?: boolean
+  featuredStatValue?: string | null
+  featuredStatLabel?: string | null
+  active?: boolean
 }
 
 export function mapApiPlayer(player: ApiPlayer): Player {
@@ -34,6 +38,10 @@ export function mapApiPlayer(player: ApiPlayer): Player {
     careerStats: player.careerStats ?? null,
     recentPerformances: player.recentPerformances ?? [],
     isCaptain: player.isCaptain,
+    isFeatured: player.isFeatured,
+    featuredStatValue: player.featuredStatValue ?? undefined,
+    featuredStatLabel: player.featuredStatLabel ?? undefined,
+    active: player.active,
   }
 }
 

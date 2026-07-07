@@ -1,6 +1,8 @@
+import { Link } from 'react-router-dom'
 import { useMagneticTilt } from '../../../hooks/useMagneticTilt'
 
 export interface FeaturedPlayer {
+  id: string
   num: string
   initials: string
   avatarBg: string
@@ -11,13 +13,14 @@ export interface FeaturedPlayer {
 }
 
 function FeaturedPlayerCard({ player }: { player: FeaturedPlayer }) {
-  const tiltRef = useMagneticTilt<HTMLDivElement>()
+  const tiltRef = useMagneticTilt<HTMLAnchorElement>()
 
   return (
-    <div
+    <Link
+      to={`/players/${player.id}`}
       ref={tiltRef}
       data-animate="card"
-      className="group relative cursor-pointer overflow-hidden rounded-sm border border-white/[0.09] bg-[#171918] px-5 py-7 text-center shadow-[0_14px_36px_rgba(0,0,0,0.3)] transition-colors duration-300 will-change-transform hover:border-gold/30 hover:bg-[#1b1d1b]"
+      className="group relative block cursor-pointer overflow-hidden rounded-sm border border-white/[0.09] bg-[#171918] px-5 py-7 text-center no-underline shadow-[0_14px_36px_rgba(0,0,0,0.3)] transition-colors duration-300 will-change-transform hover:border-gold/30 hover:bg-[#1b1d1b]"
     >
       <div className="absolute right-4 top-4 font-display text-[28px] text-gold/[0.52]">
         {player.num}
@@ -44,7 +47,7 @@ function FeaturedPlayerCard({ player }: { player: FeaturedPlayer }) {
       </div>
 
       <span className="absolute bottom-0 left-0 right-0 h-0.5 scale-x-0 bg-gold transition-transform duration-300 [transform-origin:var(--tilt-underline-origin,center)] group-hover:scale-x-100" />
-    </div>
+    </Link>
   )
 }
 
