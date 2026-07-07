@@ -1,14 +1,17 @@
-import { useState, useMemo, useTransition } from 'react'
-import SQUAD from '../features/players/data/squadData'
-import type { PlayerRole } from '../features/players/types/player.types'
+import { useEffect, useMemo, useState, useTransition } from 'react'
+import type { Player, PlayerRole } from '../features/players/types/player.types'
 import PlayerCard from '../features/players/components/PlayerCard'
 import PlayerFilter from '../features/players/components/PlayerFilter'
+import playersApi from '../features/players/api/players.api'
 import { useDebounce } from '../hooks/useDebounce'
 import logger from '../services/logger'
 
 type FilterValue = 'all' | PlayerRole
 
 function Squad() {
+  const [players, setPlayers] = useState<Player[]>([])
+  const [isLoadingPlayers, setIsLoadingPlayers] = useState(true)
+  const [playersError, setPlayersError] = useState('')
   const [activeFilter, setActiveFilter] = useState<FilterValue>('all')
   const [searchInput, setSearchInput] = useState('')
   const [isPending, startTransition] = useTransition()
@@ -19,14 +22,33 @@ function Squad() {
   // DERIVED STATE — the filtered list is computed from the source data + filters.
   // Not stored in state/Redux; recalculated when inputs change. (useMemo caches it.)
   const filtered = useMemo(() => {
-    return SQUAD.filter(p => {
+    return players.filter(p => {
       const matchesRole = activeFilter === 'all' || p.role === activeFilter
       const matchesSearch = p.name
         .toLowerCase()
         .includes(debouncedSearch.toLowerCase())
       return matchesRole && matchesSearch
     })
-  }, [activeFilter, debouncedSearch])
+  }, [activeFilter, debouncedSearch, players])
+
+  useEffect(() => {
+    async function loadPlayers() {
+      try {
+        setIsLoadingPlayers(true)
+        setPlayersError('')
+
+        const playerList = await playersApi.getAll()
+        setPlayers(playerList)
+      } catch (error) {
+        logger.error('Failed to load squad players', error)
+        setPlayersError('Could not load players')
+      } finally {
+        setIsLoadingPlayers(false)
+      }
+    }
+
+    loadPlayers()
+  }, [])
 
   // Filter change — wrapped in startTransition so the UI stays responsive
   const handleFilterChange = (filter: FilterValue) => {
@@ -82,7 +104,7 @@ function Squad() {
       {/* CONTROLS — filter + search + count */}
       <div className="relative z-[1] grid grid-cols-1 items-center gap-4 px-5 pb-9 min-[640px]:grid-cols-[minmax(0,1fr)_max-content] sm:px-7 sm:pb-10 min-[1080px]:grid-cols-[max-content_minmax(280px,1fr)_max-content] lg:px-12 lg:pb-12">
         <PlayerFilter
-          players={SQUAD}
+          players={players}
           active={activeFilter}
           onChange={handleFilterChange}
         />
@@ -127,7 +149,9 @@ function Squad() {
           )}
         </div>
         <div className="font-heading text-xs font-semibold tracking-[1.5px] uppercase text-muted whitespace-nowrap sm:text-right">
-          {filtered.length} {filtered.length === 1 ? 'Player' : 'Players'}
+          {isLoadingPlayers
+            ? 'Loading Players'
+            : `${filtered.length} ${filtered.length === 1 ? 'Player' : 'Players'}`}
         </div>
       </div>
 
@@ -137,7 +161,22 @@ function Squad() {
           isPending ? 'opacity-60' : 'opacity-100'
         }`}
       >
-        {filtered.length > 0 ? (
+        {playersError ? (
+          <div className="col-span-full py-20 text-center">
+            <p className="font-display text-5xl text-white/5 tracking-[3px]">
+              Could Not Load Players
+            </p>
+            <span className="block mt-4 font-heading text-[13px] tracking-[2px] uppercase text-muted">
+              Please check that the backend is running
+            </span>
+          </div>
+        ) : isLoadingPlayers ? (
+          <div className="col-span-full py-20 text-center">
+            <p className="font-display text-5xl text-white/5 tracking-[3px]">
+              Loading Squad
+            </p>
+          </div>
+        ) : filtered.length > 0 ? (
           filtered.map(player => <PlayerCard key={player.id} player={player} />)
         ) : (
           <div className="col-span-full py-20 text-center">

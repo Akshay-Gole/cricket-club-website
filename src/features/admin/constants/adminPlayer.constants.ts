@@ -6,6 +6,7 @@ export interface PlayerFormState {
   jerseyNumber: string
   battingAverage: string
   bestBowling: string
+  playCricketPlayerId: string
   imageFile: File | null
   imagePreviewUrl: string
   isCaptain: boolean
@@ -31,6 +32,7 @@ export const EMPTY_PLAYER_FORM: PlayerFormState = {
   jerseyNumber: '',
   battingAverage: '',
   bestBowling: '',
+  playCricketPlayerId: '',
   imageFile: null,
   imagePreviewUrl: '',
   isCaptain: false,

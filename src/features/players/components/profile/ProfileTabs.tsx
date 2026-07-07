@@ -2,15 +2,15 @@ import { useState } from 'react'
 import type { PlayerProfile } from '../../types/playerProfile.types'
 import logger from '../../../../services/logger'
 import StatsTab from './StatsTab'
-import BioTab from './BioTab'
-import AchievementsTab from './AchievementsTab'
+// import BioTab from './BioTab'
+// import AchievementsTab from './AchievementsTab'
 
 type TabId = 'stats' | 'bio' | 'achievements'
 
 const TABS: { id: TabId; label: string }[] = [
   { id: 'stats', label: 'Stats & Form' },
-  { id: 'bio', label: 'Biography' },
-  { id: 'achievements', label: 'Achievements' },
+  // { id: 'bio', label: 'Biography' },
+  // { id: 'achievements', label: 'Achievements' },
 ]
 
 function ProfileTabs({ player }: { player: PlayerProfile }) {
@@ -53,8 +53,8 @@ function ProfileTabs({ player }: { player: PlayerProfile }) {
         className="animate-tab-panel px-5 sm:px-7 lg:px-12 pt-7 sm:pt-8 lg:pt-10"
       >
         {activeTab === 'stats' && <StatsTab player={player} />}
-        {activeTab === 'bio' && <BioTab player={player} />}
-        {activeTab === 'achievements' && <AchievementsTab />}
+        {/* {activeTab === 'bio' && <BioTab player={player} />} */}
+        {/* {activeTab === 'achievements' && <AchievementsTab />} */}
       </div>
     </div>
   )
