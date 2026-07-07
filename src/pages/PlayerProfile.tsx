@@ -70,7 +70,7 @@ function toProfilePlayer(player: Player): PlayerProfileData {
     },
 
     bowling: {
-      overs: stats?.bowlingOvers ?? '0',
+      overs: Number(stats?.bowlingOvers ?? 0),
       wickets: stats?.bowlingWickets ?? 0,
       bestBowling: stats?.bowlingBestInnings ?? player.bestBowling,
       average: stats?.bowlingAverage ?? 0,
