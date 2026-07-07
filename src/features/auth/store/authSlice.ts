@@ -19,8 +19,8 @@ export const loginUser = createAsyncThunk(
   'auth/loginUser',
   async (credentials: LoginDto, { rejectWithValue }) => {
     try {
-      const response = await api.post('/auth/login', credentials)
-      const { user, token } = response.data
+      const response = await api.post('/admin/auth/login', credentials)
+      const { user, token } = response.data.data
 
       localStorage.setItem('token', token)
 

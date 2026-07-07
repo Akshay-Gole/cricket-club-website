@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import api from '../../../services/api'
 import logger from '../../../services/logger'
 import type { Player } from '../types/player.types'
+import playersApi from '../api/players.api'
 
 interface PlayersState {
   list: Player[]
@@ -18,12 +19,12 @@ const initialState: PlayersState = {
 }
 
 export const fetchAllPlayers = createAsyncThunk(
-  'platers/fetchAll',
+  'players/fetchAll',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await api.get('/players')
-      logger.info('All Players fetched', { count: response.data.length })
-      return response.data as Player[]
+      const players = await playersApi.getAll()
+      logger.info('All Players fetched', { count: players.length })
+      return players
     } catch (error) {
       logger.error('Failed to fetch all players', error)
       return rejectWithValue('Could not load players')
@@ -35,9 +36,9 @@ export const fetchPlayerById = createAsyncThunk(
   'players/fetchById',
   async (id: string, { rejectWithValue }) => {
     try {
-      const response = await api.get(`/players/${id}`)
+      const player = await playersApi.getById(id)
       logger.info('Single Player fetched', { id })
-      return response.data as Player
+      return player
     } catch (error) {
       logger.error('Failed to fetch single player', error)
       return rejectWithValue('Could not load player')
