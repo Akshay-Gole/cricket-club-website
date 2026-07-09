@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc",
-    "start": "node dist/src/server.js",
+    "build": "prisma generate && tsc",
+    "start": "prisma migrate deploy && node dist/src/server.js",
     "sync:player-stats": "node dist/src/scripts/sync-player-stats.js",
     "sync:player-stats:dev": "tsx src/scripts/sync-player-stats.ts"
   },
