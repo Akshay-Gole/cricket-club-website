@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { FormEvent, ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import FIXTURES from '../fixtures/data/fixturesData'
+import PageLoader from '../../components/shared/PageLoader'
+import fixturesApi from '../fixtures/api/fixture.api'
 import type { Fixture, FixtureResult } from '../fixtures/types/fixture.types'
 import {
   adminFixtureInputClass,
@@ -15,12 +16,15 @@ import {
 } from './constants/adminFixture.constants'
 
 function ManageFixtures() {
-  const [fixtures, setFixtures] = useState<Fixture[]>(FIXTURES)
+  const [fixtures, setFixtures] = useState<Fixture[]>([])
   const [search, setSearch] = useState('')
   const [activeFilter, setActiveFilter] = useState<FixtureFilter>('all')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [form, setForm] = useState<FixtureFormState>(EMPTY_FIXTURE_FORM)
   const [formError, setFormError] = useState('')
+  const [fixturesError, setFixturesError] = useState('')
+  const [isLoadingFixtures, setIsLoadingFixtures] = useState(true)
+  const [isSaving, setIsSaving] = useState(false)
 
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -71,6 +75,18 @@ function ManageFixtures() {
     setFormError('')
   }
 
+  const loadFixtures = async () => {
+    try {
+      setFixturesError('')
+      const nextFixtures = await fixturesApi.getAdmin()
+      setFixtures(nextFixtures)
+    } catch {
+      setFixturesError('Could not load fixtures. Please check the backend.')
+    } finally {
+      setIsLoadingFixtures(false)
+    }
+  }
+
   const resetForm = () => {
     setForm(EMPTY_FIXTURE_FORM)
     setEditingId(null)
@@ -89,6 +105,16 @@ function ManageFixtures() {
   }
 
   useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      void loadFixtures()
+    }, 0)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+    }
+  }, [])
+
+  useEffect(() => {
     if (searchParams.get('action') !== 'create') return
 
     const timeoutId = window.setTimeout(() => {
@@ -103,7 +129,7 @@ function ManageFixtures() {
     }
   }, [searchParams, setSearchParams])
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     if (!form.homeTeam.trim()) {
@@ -131,46 +157,42 @@ function ManageFixtures() {
       return
     }
 
-    const date = new Date(form.date)
-    const day = String(date.getDate()).padStart(2, '0')
-    const monthShort = date.toLocaleString('en-AU', { month: 'short' })
-    const monthLong = date.toLocaleString('en-AU', { month: 'long' })
-    const year = date.getFullYear()
-
-    const nextFixture: Fixture = {
-      id: editingId ?? `fixture-${Date.now()}`,
+    const nextFixture = {
       homeTeam: form.homeTeam.trim(),
       awayTeam: form.awayTeam.trim(),
       date: form.date,
       time: form.time,
       venue: form.venue.trim(),
-      season: form.season.trim() || String(year),
+      venueGoogleUrl: form.venueGoogleUrl.trim() || undefined,
       result: form.result,
       ourScore: form.ourScore.trim() || undefined,
       oppScore: form.oppScore.trim() || undefined,
-      playHqUrl: form.playHqUrl.trim() || undefined,
-      day,
-      monthShort,
-      month: `${monthLong} ${year}`,
-      isHome: form.homeTeam.toLowerCase().includes('top g'),
-      badge: createFixtureBadge(
-        form.result,
-        form.ourScore.trim(),
-        form.oppScore.trim()
-      ),
+      scoreboardUrl: form.scoreboardUrl.trim() || undefined,
     }
 
-    if (editingId) {
-      setFixtures(current =>
-        current.map(fixture =>
-          fixture.id === editingId ? nextFixture : fixture
+    try {
+      setIsSaving(true)
+      setFormError('')
+
+      if (editingId) {
+        const updatedFixture = await fixturesApi.update(editingId, nextFixture)
+
+        setFixtures(current =>
+          current.map(fixture =>
+            fixture.id === editingId ? updatedFixture : fixture
+          )
         )
-      )
-    } else {
-      setFixtures(current => [nextFixture, ...current])
-    }
+      } else {
+        const createdFixture = await fixturesApi.create(nextFixture)
+        setFixtures(current => [createdFixture, ...current])
+      }
 
-    resetForm()
+      resetForm()
+    } catch {
+      setFormError('Something went wrong while saving this fixture.')
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   const handleEdit = (fixture: Fixture) => {
@@ -182,19 +204,37 @@ function ManageFixtures() {
       date: fixture.date,
       time: fixture.time,
       venue: fixture.venue,
-      season: fixture.season,
+      venueGoogleUrl: fixture.venueGoogleUrl ?? '',
       result: fixture.result,
       ourScore: fixture.ourScore ?? '',
       oppScore: fixture.oppScore ?? '',
-      playHqUrl: fixture.playHqUrl ?? '',
+      scoreboardUrl: fixture.scoreboardUrl ?? fixture.playHqUrl ?? '',
     })
 
     setFormError('')
     focusForm()
   }
 
-  const handleDelete = (fixtureId: string) => {
-    setFixtures(current => current.filter(fixture => fixture.id !== fixtureId))
+  const handleDelete = async (fixtureId: string) => {
+    const fixture = fixtures.find(
+      currentFixture => currentFixture.id === fixtureId
+    )
+    const fixtureName = fixture
+      ? `${fixture.homeTeam} vs ${fixture.awayTeam}`
+      : 'this fixture'
+
+    if (!window.confirm(`Are you sure you want to delete ${fixtureName}?`)) {
+      return
+    }
+
+    try {
+      await fixturesApi.delete(fixtureId)
+      setFixtures(current =>
+        current.filter(fixture => fixture.id !== fixtureId)
+      )
+    } catch {
+      setFixturesError('Could not delete fixture. Please try again.')
+    }
 
     if (editingId === fixtureId) {
       resetForm()
@@ -280,6 +320,16 @@ function ManageFixtures() {
               </div>
             </div>
           </div>
+
+          {isLoadingFixtures && (
+            <PageLoader label="Loading fixtures..." variant="section" />
+          )}
+
+          {fixturesError && (
+            <div className="border-b border-white/[0.10] px-5 py-4 font-body text-sm text-[#ff9b8f]">
+              {fixturesError}
+            </div>
+          )}
 
           <div className="hidden min-[901px]:block">
             <table className="w-full border-collapse">
@@ -451,7 +501,7 @@ function ManageFixtures() {
             ))}
           </div>
 
-          {filteredFixtures.length === 0 && (
+          {!isLoadingFixtures && filteredFixtures.length === 0 && (
             <div className="p-10 text-center">
               <p className="font-display text-2xl tracking-[1px] text-white">
                 No fixtures found.
@@ -535,33 +585,45 @@ function ManageFixtures() {
               />
             </AdminField>
 
-            <div className="grid grid-cols-2 gap-3">
-              <AdminField label="Season">
-                <input
-                  type="text"
-                  value={form.season}
-                  placeholder="2026"
-                  onChange={event => updateForm('season', event.target.value)}
-                  className={adminFixtureInputClass}
-                />
-              </AdminField>
+            <AdminField label="Venue Google Link">
+              <input
+                type="url"
+                value={form.venueGoogleUrl}
+                placeholder="https://maps.google.com/..."
+                onChange={event =>
+                  updateForm('venueGoogleUrl', event.target.value)
+                }
+                className={adminFixtureInputClass}
+              />
+            </AdminField>
 
-              <AdminField label="Result">
-                <select
-                  value={form.result}
-                  onChange={event =>
-                    updateForm('result', event.target.value as FixtureResult)
-                  }
-                  className={adminFixtureInputClass}
-                >
-                  {RESULT_OPTIONS.map(result => (
-                    <option key={result.value} value={result.value}>
-                      {result.label}
-                    </option>
-                  ))}
-                </select>
-              </AdminField>
-            </div>
+            <AdminField label="Scoreboard Link">
+              <input
+                type="url"
+                value={form.scoreboardUrl}
+                placeholder="https://www.playhq.com/... or https://play.cricket.com.au/..."
+                onChange={event =>
+                  updateForm('scoreboardUrl', event.target.value)
+                }
+                className={adminFixtureInputClass}
+              />
+            </AdminField>
+
+            <AdminField label="Result">
+              <select
+                value={form.result}
+                onChange={event =>
+                  updateForm('result', event.target.value as FixtureResult)
+                }
+                className={adminFixtureInputClass}
+              >
+                {RESULT_OPTIONS.map(result => (
+                  <option key={result.value} value={result.value}>
+                    {result.label}
+                  </option>
+                ))}
+              </select>
+            </AdminField>
 
             {form.result !== 'upcoming' && (
               <div className="rounded border border-white/[0.12] bg-white/[0.035] p-4">
@@ -594,20 +656,6 @@ function ManageFixtures() {
                     />
                   </AdminField>
                 </div>
-
-                <div className="mt-4">
-                  <AdminField label="PlayHQ Scorecard URL">
-                    <input
-                      type="url"
-                      value={form.playHqUrl}
-                      placeholder="https://www.playhq.com/..."
-                      onChange={event =>
-                        updateForm('playHqUrl', event.target.value)
-                      }
-                      className={adminFixtureInputClass}
-                    />
-                  </AdminField>
-                </div>
               </div>
             )}
 
@@ -620,9 +668,14 @@ function ManageFixtures() {
             <div className="flex flex-col gap-3 min-[420px]:flex-row">
               <button
                 type="submit"
+                disabled={isSaving}
                 className="flex-1 rounded bg-gold px-5 py-3.5 font-heading text-[11px] font-bold uppercase tracking-[2.5px] text-black transition-colors hover:bg-gold/90"
               >
-                {editingId ? 'Save Changes' : 'Add Fixture'}
+                {isSaving
+                  ? 'Saving...'
+                  : editingId
+                    ? 'Save Changes'
+                    : 'Add Fixture'}
               </button>
 
               {editingId && (
@@ -640,27 +693,6 @@ function ManageFixtures() {
       </div>
     </div>
   )
-}
-
-function createFixtureBadge(
-  result: FixtureResult,
-  ourScore: string,
-  oppScore: string
-) {
-  if (result === 'upcoming') return 'Upcoming'
-  if (result === 'draw') return 'Draw'
-
-  const ourRuns = Number(ourScore.split('/')[0]?.trim())
-  const oppRuns = Number(oppScore.split('/')[0]?.trim())
-
-  if (Number.isNaN(ourRuns) || Number.isNaN(oppRuns)) {
-    return resultLabel[result]
-  }
-
-  const margin = Math.abs(ourRuns - oppRuns)
-
-  if (result === 'won') return `Won +${margin}`
-  return `Lost −${margin}`
 }
 
 function formatDate(date: string) {

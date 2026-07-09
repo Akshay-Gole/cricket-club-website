@@ -1,5 +1,9 @@
-import { useState } from 'react'
-import type { FixtureResult } from '../features/fixtures/types/fixture.types'
+import { useEffect, useMemo, useState } from 'react'
+import fixturesApi from '../features/fixtures/api/fixture.api'
+import type {
+  Fixture,
+  FixtureResult,
+} from '../features/fixtures/types/fixture.types'
 import logger from '../services/logger'
 import FixturesHeader from '../features/fixtures/components/FixturesHeader'
 import FixturesControls from '../features/fixtures/components/FixturesControls'
@@ -8,8 +12,38 @@ import FixtureList from '../features/fixtures/components/FixtureList'
 type FilterValue = 'all' | FixtureResult
 
 function Fixtures() {
-  const [activeSeason, setActiveSeason] = useState('2026')
+  const [fixtures, setFixtures] = useState<Fixture[]>([])
+  const [activeSeason, setActiveSeason] = useState('')
   const [activeFilter, setActiveFilter] = useState<FilterValue>('all')
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  const seasons = useMemo(() => {
+    const uniqueSeasons = Array.from(
+      new Set(fixtures.map(fixture => fixture.season))
+    )
+
+    return uniqueSeasons.sort((a, b) => Number(b) - Number(a))
+  }, [fixtures])
+
+  const selectedSeason =
+    activeSeason || seasons[0] || String(new Date().getFullYear())
+
+  useEffect(() => {
+    const loadFixtures = async () => {
+      try {
+        setError('')
+        const nextFixtures = await fixturesApi.getAll()
+        setFixtures(nextFixtures)
+      } catch {
+        setError('Please check that the backend is running.')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    void loadFixtures()
+  }, [])
 
   const handleSeasonChange = (season: string) => {
     setActiveSeason(season)
@@ -29,12 +63,19 @@ function Fixtures() {
       <div className="relative z-[1]">
         <FixturesHeader />
         <FixturesControls
-          activeSeason={activeSeason}
+          seasons={seasons}
+          activeSeason={selectedSeason}
           activeFilter={activeFilter}
           onSeasonChange={handleSeasonChange}
           onFilterChange={handleFilterChange}
         />
-        <FixtureList season={activeSeason} filter={activeFilter} />
+        <FixtureList
+          fixtures={fixtures}
+          season={selectedSeason}
+          filter={activeFilter}
+          isLoading={isLoading}
+          error={error}
+        />
       </div>
     </div>
   )

@@ -1,4 +1,11 @@
-export type FixtureResult = 'won' | 'lost' | 'draw' | 'upcoming'
+export type FixtureResult =
+  | 'won'
+  | 'lost'
+  | 'draw'
+  | 'upcoming'
+  | 'abandoned'
+  | 'forfeited'
+
 export interface Fixture {
   id: string
   homeTeam: string
@@ -6,6 +13,7 @@ export interface Fixture {
   date: string
   time: string
   venue: string
+  venueGoogleUrl?: string
   season: string
   result: FixtureResult
   ourScore?: string
@@ -15,6 +23,7 @@ export interface Fixture {
   monthShort?: string
   isHome?: boolean
   badge?: string
+  scoreboardUrl?: string
   playHqUrl?: string
 }
 
@@ -24,8 +33,9 @@ export interface CreateFixtureDto {
   date: string
   time: string
   venue: string
-  season: string
   result: FixtureResult
   ourScore?: string
   oppScore?: string
+  venueGoogleUrl?: string
+  scoreboardUrl?: string
 }
