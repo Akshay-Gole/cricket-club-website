@@ -1,26 +1,29 @@
 import { useMemo } from 'react'
-import FIXTURES from '../data/fixturesData'
-import type { FixtureResult } from '../types/fixture.types'
+import PageLoader from '../../../components/shared/PageLoader'
+import type { Fixture, FixtureResult } from '../types/fixture.types'
 import FixtureRow from './FixtureRow'
 
 type FilterValue = 'all' | FixtureResult
 
 interface Props {
+  fixtures: Fixture[]
   season: string
   filter: FilterValue
+  isLoading?: boolean
+  error?: string
 }
 
-function FixtureList({ season, filter }: Props) {
+function FixtureList({ fixtures, season, filter, isLoading, error }: Props) {
   // DERIVED: filter fixtures by season + result, then group by month
   const grouped = useMemo(() => {
-    const filtered = FIXTURES.filter(f => {
+    const filtered = fixtures.filter(f => {
       const matchesSeason = f.season === season
       const matchesFilter = filter === 'all' || f.result === filter
       return matchesSeason && matchesFilter
     })
 
     // Group into { month: fixtures[] }, preserving order
-    const groups: { month: string; fixtures: typeof FIXTURES }[] = []
+    const groups: { month: string; fixtures: Fixture[] }[] = []
     for (const fix of filtered) {
       const monthLabel = fix.month ?? ''
       const existing = groups.find(g => g.month === monthLabel)
@@ -31,13 +34,24 @@ function FixtureList({ season, filter }: Props) {
       }
     }
     return groups
-  }, [season, filter])
+  }, [fixtures, season, filter])
 
   const totalCount = grouped.reduce((sum, g) => sum + g.fixtures.length, 0)
 
   return (
     <div className="px-5 pb-14 sm:px-7 sm:pb-16 lg:px-12 lg:pb-20">
-      {totalCount > 0 ? (
+      {isLoading ? (
+        <PageLoader label="Loading fixtures..." variant="section" />
+      ) : error ? (
+        <div className="py-20 text-center">
+          <p className="font-display text-4xl sm:text-5xl text-[#efe9dc] tracking-[3px]">
+            Could Not Load Fixtures
+          </p>
+          <span className="block mt-4 font-heading text-[13px] tracking-[2px] uppercase text-muted">
+            {error}
+          </span>
+        </div>
+      ) : totalCount > 0 ? (
         grouped.map(group => (
           <div key={group.month}>
             {/* Month divider */}

@@ -10,6 +10,7 @@ import adminPlayerRoutes from './routes/admin-player.routes.js'
 import adminAuthRoutes from './routes/admin-auth.routes.js'
 import internalRoutes from './routes/internal.routes.js'
 import homeContentRoutes from './routes/home-content.routes.js'
+import fixtureRoutes from './routes/fixture.routes.js'
 
 const app = express()
 
@@ -28,6 +29,7 @@ app.use('/api', playerRoutes)
 app.use('/api', adminPlayerRoutes)
 app.use('/api', internalRoutes)
 app.use('/api', homeContentRoutes)
+app.use('/api', fixtureRoutes)
 
 app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
   console.error(error)
