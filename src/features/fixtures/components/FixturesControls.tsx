@@ -3,31 +3,38 @@ import type { FixtureResult } from '../types/fixture.types'
 type FilterValue = 'all' | FixtureResult
 
 interface Props {
+  seasons: string[]
   activeSeason: string
   activeFilter: FilterValue
   onSeasonChange: (season: string) => void
   onFilterChange: (filter: FilterValue) => void
 }
 
-const SEASONS = ['2026', '2025', '2024']
 const FILTERS: { value: FilterValue; label: string }[] = [
   { value: 'all', label: 'All' },
   { value: 'upcoming', label: 'Upcoming' },
   { value: 'won', label: 'Won' },
   { value: 'lost', label: 'Lost' },
+  { value: 'draw', label: 'Draw' },
+  { value: 'abandoned', label: 'Abandoned' },
+  { value: 'forfeited', label: 'Forfeited' },
 ]
 
 function FixturesControls({
+  seasons,
   activeSeason,
   activeFilter,
   onSeasonChange,
   onFilterChange,
 }: Props) {
+  const visibleSeasons =
+    seasons.length > 0 ? seasons : [String(new Date().getFullYear())]
+
   return (
     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6 px-5 sm:px-7 lg:px-12 flex-wrap">
       {/* Season tabs */}
       <div className="flex w-fit max-w-full self-start gap-px bg-white/[0.055] rounded-sm overflow-hidden overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {SEASONS.map(season => {
+        {visibleSeasons.map(season => {
           const isActive = activeSeason === season
           return (
             <button

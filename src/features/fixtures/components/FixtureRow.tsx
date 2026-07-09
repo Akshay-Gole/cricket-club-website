@@ -5,15 +5,19 @@ const badgeStyles: Record<string, string> = {
   lost: 'bg-[#c83c32]/10 text-[#d07060] border-[#c83c32]/20',
   upcoming: 'bg-gold/10 text-gold border-gold/[0.18]',
   draw: 'bg-[#828278]/10 text-[#888880] border-[#828278]/20',
+  abandoned: 'bg-[#8ea0b8]/10 text-[#b5c2d4] border-[#8ea0b8]/20',
+  forfeited: 'bg-[#d8975f]/10 text-[#ffc08a] border-[#d8975f]/20',
 }
 
 function FixtureRow({ fixture }: { fixture: Fixture }) {
   const isUpcoming = fixture.result === 'upcoming'
   const isResult = !isUpcoming
+  const scoreboardUrl = fixture.scoreboardUrl ?? fixture.playHqUrl
+  const isClickable = Boolean(scoreboardUrl)
 
   const handleClick = () => {
-    if (isResult && fixture.playHqUrl) {
-      window.open(fixture.playHqUrl, '_blank', 'noopener,noreferrer')
+    if (scoreboardUrl) {
+      window.open(scoreboardUrl, '_blank', 'noopener,noreferrer')
     }
   }
 
@@ -28,7 +32,7 @@ function FixtureRow({ fixture }: { fixture: Fixture }) {
       data-animate="card"
       onClick={handleClick}
       className={`group grid items-center gap-x-3 gap-y-3 px-3.5 py-4 min-[401px]:grid-cols-[auto_1fr_auto] min-[401px]:[grid-template-areas:'date_match_badge''score_score_cta'] min-[641px]:gap-x-4 min-[641px]:gap-y-3.5 min-[641px]:px-[18px] min-[641px]:py-[18px] min-[901px]:grid-cols-[80px_1fr_auto_auto_100px] min-[901px]:gap-4 min-[901px]:px-5 min-[901px]:py-[18px] min-[901px]:[grid-template-areas:'date_match_score_badge_cta'] min-[1025px]:grid-cols-[90px_1fr_auto_auto_120px] min-[1025px]:gap-5 min-[1025px]:px-6 min-[1025px]:py-5 rounded-sm mb-2 border-[0.5px] border-white/[0.1] bg-[linear-gradient(135deg,#171a18_0%,#101210_58%,#18160f_100%)] shadow-[0_18px_55px_rgba(0,0,0,0.28)] transition-all hover:-translate-y-0.5 hover:border-gold/25 hover:bg-[linear-gradient(135deg,#1b1e1b_0%,#121512_58%,#1c190f_100%)] hover:shadow-[0_22px_70px_rgba(0,0,0,0.38)] ${leftBorder} ${
-        isResult ? 'cursor-pointer' : 'cursor-not-allowed'
+        isClickable ? 'cursor-pointer' : 'cursor-default'
       }
       grid-cols-[auto_1fr]
       [grid-template-areas:'date_match''badge_match''score_cta']`}
@@ -69,18 +73,18 @@ function FixtureRow({ fixture }: { fixture: Fixture }) {
           <>
             <div>
               <span className="font-display text-xl tracking-[1px] text-gold min-[641px]:text-[22px] min-[901px]:text-[26px]">
-                {fixture.ourScore.split(' / ')[0]}
+                {fixture.ourScore.split('/')[0]?.trim()}
               </span>
               <span className="font-heading text-sm text-muted ml-1">
-                / {fixture.ourScore.split(' / ')[1]}
+                / {fixture.ourScore.split('/')[1]?.trim()}
               </span>
             </div>
             <div>
               <span className="font-display text-base text-muted min-[901px]:text-lg">
-                {fixture.oppScore?.split(' / ')[0]}
+                {fixture.oppScore?.split('/')[0]?.trim()}
               </span>
               <span className="font-heading text-xs text-muted ml-1">
-                / {fixture.oppScore?.split(' / ')[1]}
+                / {fixture.oppScore?.split('/')[1]?.trim()}
               </span>
             </div>
           </>
@@ -103,7 +107,7 @@ function FixtureRow({ fixture }: { fixture: Fixture }) {
 
       {/* CTA */}
       <div className="[grid-area:cta] text-right self-center font-heading text-[10px] font-bold tracking-[2px] uppercase text-muted group-hover:text-gold transition-colors">
-        {isResult ? 'Scorecard →' : ''}
+        {isClickable ? 'Details →' : ''}
       </div>
     </div>
   )
