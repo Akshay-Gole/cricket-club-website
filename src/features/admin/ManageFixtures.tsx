@@ -8,12 +8,25 @@ import {
   adminFixtureInputClass,
   EMPTY_FIXTURE_FORM,
   FIXTURE_FILTERS,
-  RESULT_OPTIONS,
   resultBadgeClass,
   resultLabel,
   type FixtureFilter,
   type FixtureFormState,
 } from './constants/adminFixture.constants'
+
+function saveErrorMessage(error: unknown) {
+  const maybeApiError = error as {
+    response?: {
+      data?: {
+        message?: unknown
+      }
+    }
+  }
+
+  return typeof maybeApiError.response?.data?.message === 'string'
+    ? maybeApiError.response.data.message
+    : 'Something went wrong while saving this fixture.'
+}
 
 function ManageFixtures() {
   const [fixtures, setFixtures] = useState<Fixture[]>([])
@@ -63,10 +76,7 @@ function ManageFixtures() {
     }
   }, [fixtures])
 
-  const updateForm = (
-    field: keyof FixtureFormState,
-    value: string | FixtureResult
-  ) => {
+  const updateForm = (field: keyof FixtureFormState, value: string) => {
     setForm(current => ({
       ...current,
       [field]: value,
@@ -164,9 +174,6 @@ function ManageFixtures() {
       time: form.time,
       venue: form.venue.trim(),
       venueGoogleUrl: form.venueGoogleUrl.trim() || undefined,
-      result: form.result,
-      ourScore: form.ourScore.trim() || undefined,
-      oppScore: form.oppScore.trim() || undefined,
       scoreboardUrl: form.scoreboardUrl.trim() || undefined,
     }
 
@@ -188,8 +195,8 @@ function ManageFixtures() {
       }
 
       resetForm()
-    } catch {
-      setFormError('Something went wrong while saving this fixture.')
+    } catch (error) {
+      setFormError(saveErrorMessage(error))
     } finally {
       setIsSaving(false)
     }
@@ -205,10 +212,7 @@ function ManageFixtures() {
       time: fixture.time,
       venue: fixture.venue,
       venueGoogleUrl: fixture.venueGoogleUrl ?? '',
-      result: fixture.result,
-      ourScore: fixture.ourScore ?? '',
-      oppScore: fixture.oppScore ?? '',
-      scoreboardUrl: fixture.scoreboardUrl ?? fixture.playHqUrl ?? '',
+      scoreboardUrl: fixture.scoreboardUrl ?? '',
     })
 
     setFormError('')
@@ -260,8 +264,8 @@ function ManageFixtures() {
             </h2>
 
             <p className="mt-4 max-w-[620px] font-body text-sm font-light leading-[1.8] text-muted">
-              Create upcoming matches, update results, add scorecards and keep
-              the public fixtures page ready for supporters.
+              Create matches, attach scorecard links and let the backend work
+              out upcoming matches and finished results.
             </p>
           </div>
 
@@ -351,6 +355,12 @@ function ManageFixtures() {
                   >
                     <td className="px-5 py-4">
                       <div className="font-heading text-sm font-bold text-white">
+                        {fixture.matchLabel && (
+                          <span className="mb-2 inline-flex rounded-full border border-gold/25 bg-gold/[0.1] px-2.5 py-1 font-heading text-[9px] font-bold uppercase tracking-[2px] text-gold">
+                            {fixture.matchLabel}
+                          </span>
+                        )}
+                        <br className={fixture.matchLabel ? '' : 'hidden'} />
                         <span
                           className={
                             fixture.homeTeam.includes('Top G')
@@ -443,6 +453,12 @@ function ManageFixtures() {
                     </p>
 
                     <h4 className="mt-2 font-heading text-base font-bold leading-[1.3] text-white">
+                      {fixture.matchLabel && (
+                        <span className="mb-2 inline-flex rounded-full border border-gold/25 bg-gold/[0.1] px-2.5 py-1 font-heading text-[9px] font-bold uppercase tracking-[2px] text-gold">
+                          {fixture.matchLabel}
+                        </span>
+                      )}
+                      <br className={fixture.matchLabel ? '' : 'hidden'} />
                       <span
                         className={
                           fixture.homeTeam.includes('Top G') ? 'text-gold' : ''
@@ -528,8 +544,8 @@ function ManageFixtures() {
             </h3>
 
             <p className="mt-2 font-body text-xs font-light leading-[1.7] text-muted">
-              Create upcoming matches first. After the match, edit it and add
-              result scores.
+              Add the match details first. If the match is finished, add the
+              PlayHQ scorecard link and the backend will fetch the result.
             </p>
           </div>
 
@@ -608,56 +624,6 @@ function ManageFixtures() {
                 className={adminFixtureInputClass}
               />
             </AdminField>
-
-            <AdminField label="Result">
-              <select
-                value={form.result}
-                onChange={event =>
-                  updateForm('result', event.target.value as FixtureResult)
-                }
-                className={adminFixtureInputClass}
-              >
-                {RESULT_OPTIONS.map(result => (
-                  <option key={result.value} value={result.value}>
-                    {result.label}
-                  </option>
-                ))}
-              </select>
-            </AdminField>
-
-            {form.result !== 'upcoming' && (
-              <div className="rounded border border-white/[0.12] bg-white/[0.035] p-4">
-                <p className="mb-3 font-heading text-[10px] font-bold uppercase tracking-[2.5px] text-gold">
-                  Result Details
-                </p>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <AdminField label="Our Score">
-                    <input
-                      type="text"
-                      value={form.ourScore}
-                      placeholder="159 / 8"
-                      onChange={event =>
-                        updateForm('ourScore', event.target.value)
-                      }
-                      className={adminFixtureInputClass}
-                    />
-                  </AdminField>
-
-                  <AdminField label="Opponent Score">
-                    <input
-                      type="text"
-                      value={form.oppScore}
-                      placeholder="112 / 10"
-                      onChange={event =>
-                        updateForm('oppScore', event.target.value)
-                      }
-                      className={adminFixtureInputClass}
-                    />
-                  </AdminField>
-                </div>
-              </div>
-            )}
 
             {formError && (
               <div className="rounded border border-[#d86b5f]/25 bg-[#d86b5f]/[0.08] px-4 py-3 font-body text-xs text-[#ff9b8f]">

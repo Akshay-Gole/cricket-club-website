@@ -3,6 +3,7 @@ export type FixtureResult =
   | 'lost'
   | 'draw'
   | 'upcoming'
+  | 'pending'
   | 'abandoned'
   | 'forfeited'
 
@@ -24,7 +25,7 @@ export interface Fixture {
   isHome?: boolean
   badge?: string
   scoreboardUrl?: string
-  playHqUrl?: string
+  matchLabel?: string | null
 }
 
 export interface CreateFixtureDto {
@@ -33,9 +34,6 @@ export interface CreateFixtureDto {
   date: string
   time: string
   venue: string
-  result: FixtureResult
-  ourScore?: string
-  oppScore?: string
   venueGoogleUrl?: string
   scoreboardUrl?: string
 }

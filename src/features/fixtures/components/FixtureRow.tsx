@@ -4,6 +4,7 @@ const badgeStyles: Record<string, string> = {
   won: 'bg-green-light/15 text-[#4abe6e] border-green-light/30',
   lost: 'bg-[#c83c32]/10 text-[#d07060] border-[#c83c32]/20',
   upcoming: 'bg-gold/10 text-gold border-gold/[0.18]',
+  pending: 'bg-[#8ea0b8]/10 text-[#b5c2d4] border-[#8ea0b8]/20',
   draw: 'bg-[#828278]/10 text-[#888880] border-[#828278]/20',
   abandoned: 'bg-[#8ea0b8]/10 text-[#b5c2d4] border-[#8ea0b8]/20',
   forfeited: 'bg-[#d8975f]/10 text-[#ffc08a] border-[#d8975f]/20',
@@ -11,8 +12,9 @@ const badgeStyles: Record<string, string> = {
 
 function FixtureRow({ fixture }: { fixture: Fixture }) {
   const isUpcoming = fixture.result === 'upcoming'
+  const isPending = fixture.result === 'pending'
   const isResult = !isUpcoming
-  const scoreboardUrl = fixture.scoreboardUrl ?? fixture.playHqUrl
+  const scoreboardUrl = fixture.scoreboardUrl
   const isClickable = Boolean(scoreboardUrl)
 
   const handleClick = () => {
@@ -49,6 +51,12 @@ function FixtureRow({ fixture }: { fixture: Fixture }) {
 
       {/* Match teams + meta */}
       <div className="min-w-0 [grid-area:match]">
+        {fixture.matchLabel && (
+          <div className="mb-2 inline-flex rounded-full border border-gold/25 bg-gold/[0.1] px-2.5 py-1 font-heading text-[9px] font-bold uppercase tracking-[2px] text-gold shadow-[0_0_24px_rgba(201,168,76,0.12)]">
+            {fixture.matchLabel}
+          </div>
+        )}
+
         <div className="mb-1 font-heading text-[15px] font-bold leading-[1.25] tracking-[0.5px] text-[#e7e0d1] min-[641px]:text-[17px] min-[641px]:leading-[1.2] min-[901px]:text-[19px]">
           {fixture.isHome ? (
             <>
@@ -92,6 +100,11 @@ function FixtureRow({ fixture }: { fixture: Fixture }) {
         {isUpcoming && (
           <div className="font-heading text-base tracking-[1px] text-muted">
             TBC
+          </div>
+        )}
+        {isPending && (
+          <div className="font-heading text-xs uppercase tracking-[2px] text-muted">
+            Awaiting result
           </div>
         )}
       </div>

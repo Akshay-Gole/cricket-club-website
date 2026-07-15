@@ -26,21 +26,6 @@ export const fixturesApi = {
     return response.data.data
   },
 
-  getUpcoming: async (): Promise<Fixture[]> => {
-    const fixtures = await fixturesApi.getAll({ result: 'upcoming' })
-    return fixtures
-  },
-
-  getResults: async (season?: string): Promise<Fixture[]> => {
-    const fixtures = await fixturesApi.getAll({ season })
-    return fixtures.filter(fixture => fixture.result !== 'upcoming')
-  },
-
-  getById: async (id: string): Promise<Fixture> => {
-    const response = await api.get<ApiItemResponse<Fixture>>(`/fixtures/${id}`)
-    return response.data.data
-  },
-
   getAdmin: async (): Promise<Fixture[]> => {
     const response = await api.get<ApiListResponse<Fixture>>('/admin/fixtures')
     return response.data.data

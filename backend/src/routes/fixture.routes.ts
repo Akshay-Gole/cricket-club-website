@@ -2,18 +2,12 @@ import { z } from 'zod'
 import { Router } from 'express'
 import type { Fixture as DbFixture } from '@prisma/client'
 import prisma from '../lib/prisma.js'
+import { getPlayHqFixtureResult } from '../features/fixtures/playhq-fixture.service.js'
 import { requireAuth } from '../middleware/requireAuth.js'
 
 const router = Router()
 
-const fixtureResults = [
-  'upcoming',
-  'won',
-  'lost',
-  'draw',
-  'abandoned',
-  'forfeited',
-] as const
+const RESULT_READY_DELAY_MS = 6 * 60 * 60 * 1000
 
 const fixtureSchema = z.object({
   homeTeam: z.string().trim().min(1),
@@ -23,9 +17,6 @@ const fixtureSchema = z.object({
   venue: z.string().trim().min(1),
   venueGoogleUrl: z.string().trim().url().or(z.literal('')).optional(),
   scoreboardUrl: z.string().trim().url().or(z.literal('')).optional(),
-  result: z.enum(fixtureResults),
-  ourScore: z.string().trim().optional(),
-  oppScore: z.string().trim().optional(),
 })
 
 function normaliseTeamName(teamName: string) {
@@ -42,6 +33,24 @@ function fixtureDate(date: string) {
   return new Date(`${date}T00:00:00.000Z`)
 }
 
+function fixtureDateTime(date: string, time: string) {
+  const [, hourValue = '0', minuteValue = '0'] =
+    time.match(/^(\d{1,2}):(\d{2})/) ?? []
+  const hour = Number(hourValue)
+  const minute = Number(minuteValue)
+  const value = new Date(`${date}T00:00:00`)
+
+  value.setHours(hour, minute, 0, 0)
+
+  return value
+}
+
+function isPastResultWindow(date: string, time: string) {
+  return (
+    fixtureDateTime(date, time).getTime() + RESULT_READY_DELAY_MS < Date.now()
+  )
+}
+
 function fixtureSeason(date: string) {
   return date.slice(0, 4)
 }
@@ -56,6 +65,7 @@ function createFixtureBadge(
   oppScore?: string | null
 ) {
   if (result === 'upcoming') return 'Upcoming'
+  if (result === 'pending') return 'Result pending'
   if (result === 'draw') return 'Draw'
   if (result === 'abandoned') return 'Abandoned'
   if (result === 'forfeited') return 'Forfeited'
@@ -75,6 +85,10 @@ function createFixtureBadge(
 function toApiFixture(fixture: DbFixture) {
   const date = formatFixtureDate(fixture.matchDate)
   const matchDate = new Date(`${date}T00:00:00`)
+  const result =
+    fixture.result === 'upcoming' && isPastResultWindow(date, fixture.time)
+      ? 'pending'
+      : fixture.result
 
   return {
     id: fixture.id,
@@ -85,9 +99,9 @@ function toApiFixture(fixture: DbFixture) {
     venue: fixture.venueName,
     venueGoogleUrl: fixture.venueGoogleUrl,
     scoreboardUrl: fixture.scoreboardUrl,
-    playHqUrl: fixture.scoreboardUrl,
+    matchLabel: fixture.matchLabel,
     season: fixture.season,
-    result: fixture.result,
+    result,
     ourScore: fixture.ourScore,
     oppScore: fixture.oppScore,
     month: matchDate.toLocaleString('en-AU', {
@@ -99,11 +113,39 @@ function toApiFixture(fixture: DbFixture) {
       month: 'short',
     }),
     isHome: isTopGsTeam(fixture.homeTeam),
-    badge: createFixtureBadge(
-      fixture.result,
-      fixture.ourScore,
-      fixture.oppScore
-    ),
+    badge: createFixtureBadge(result, fixture.ourScore, fixture.oppScore),
+  }
+}
+
+async function resolveFixtureResult(data: z.infer<typeof fixtureSchema>) {
+  if (!isPastResultWindow(data.date, data.time)) {
+    return {
+      result: 'upcoming',
+      ourScore: null,
+      oppScore: null,
+      matchLabel: null,
+    }
+  }
+
+  if (data.scoreboardUrl) {
+    try {
+      const playHqResult = await getPlayHqFixtureResult({
+        homeTeam: data.homeTeam,
+        awayTeam: data.awayTeam,
+        scoreboardUrl: data.scoreboardUrl,
+      })
+
+      if (playHqResult) return playHqResult
+    } catch (error) {
+      console.error('Failed to fetch PlayHQ fixture result', error)
+    }
+  }
+
+  return {
+    result: 'upcoming',
+    ourScore: null,
+    oppScore: null,
+    matchLabel: null,
   }
 }
 
@@ -118,41 +160,18 @@ router.get('/fixtures', async (_req, res, next) => {
       where: {
         active: true,
         ...(season ? { season } : {}),
-        ...(result && result !== 'all' ? { result } : {}),
       },
       orderBy: {
         matchDate: 'desc',
       },
     })
+    const apiFixtures = fixtures.map(toApiFixture)
 
     res.status(200).json({
-      data: fixtures.map(toApiFixture),
-    })
-  } catch (error) {
-    next(error)
-  }
-})
-
-router.get('/fixtures/:id', async (_req, res, next) => {
-  try {
-    const fixtureId = String(_req.params.id)
-
-    const fixture = await prisma.fixture.findFirst({
-      where: {
-        id: fixtureId,
-        active: true,
-      },
-    })
-
-    if (!fixture) {
-      res.status(404).json({
-        message: 'Fixture not found',
-      })
-      return
-    }
-
-    res.status(200).json({
-      data: toApiFixture(fixture),
+      data:
+        result && result !== 'all'
+          ? apiFixtures.filter(fixture => fixture.result === result)
+          : apiFixtures,
     })
   } catch (error) {
     next(error)
@@ -190,6 +209,8 @@ router.post('/admin/fixtures', requireAuth, async (_req, res, next) => {
       return
     }
 
+    const resolvedResult = await resolveFixtureResult(result.data)
+
     const fixture = await prisma.fixture.create({
       data: {
         homeTeam: result.data.homeTeam,
@@ -199,10 +220,11 @@ router.post('/admin/fixtures', requireAuth, async (_req, res, next) => {
         venueName: result.data.venue,
         venueGoogleUrl: result.data.venueGoogleUrl || null,
         scoreboardUrl: result.data.scoreboardUrl || null,
+        matchLabel: resolvedResult.matchLabel ?? null,
         season: fixtureSeason(result.data.date),
-        result: result.data.result,
-        ourScore: result.data.ourScore || null,
-        oppScore: result.data.oppScore || null,
+        result: resolvedResult.result,
+        ourScore: resolvedResult.ourScore,
+        oppScore: resolvedResult.oppScore,
       },
     })
 
@@ -227,6 +249,8 @@ router.patch('/admin/fixtures/:id', requireAuth, async (_req, res, next) => {
       return
     }
 
+    const resolvedResult = await resolveFixtureResult(result.data)
+
     const fixture = await prisma.fixture.update({
       where: {
         id: fixtureId,
@@ -239,10 +263,11 @@ router.patch('/admin/fixtures/:id', requireAuth, async (_req, res, next) => {
         venueName: result.data.venue,
         venueGoogleUrl: result.data.venueGoogleUrl || null,
         scoreboardUrl: result.data.scoreboardUrl || null,
+        matchLabel: resolvedResult.matchLabel ?? null,
         season: fixtureSeason(result.data.date),
-        result: result.data.result,
-        ourScore: result.data.ourScore || null,
-        oppScore: result.data.oppScore || null,
+        result: resolvedResult.result,
+        ourScore: resolvedResult.ourScore,
+        oppScore: resolvedResult.oppScore,
       },
     })
 

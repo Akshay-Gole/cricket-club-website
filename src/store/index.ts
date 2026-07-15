@@ -4,13 +4,11 @@ import storage from './storage'
 
 import authReducer from '../features/auth/store/authSlice'
 import playersReducer from '../features/players/store/playersSlice'
-import fixturesReducer from '../features/fixtures/store/fixturesSlice'
 import reduxLogger from './middleware/reduxLogger'
 
 const rootReducer = combineReducers({
   auth: authReducer,
   players: playersReducer,
-  fixtures: fixturesReducer,
 })
 
 const persistConfig = {
