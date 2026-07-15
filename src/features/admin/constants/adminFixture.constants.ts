@@ -9,9 +9,6 @@ export interface FixtureFormState {
   time: string
   venue: string
   venueGoogleUrl: string
-  result: FixtureResult
-  ourScore: string
-  oppScore: string
   scoreboardUrl: string
 }
 
@@ -22,13 +19,11 @@ export const EMPTY_FIXTURE_FORM: FixtureFormState = {
   time: '',
   venue: '',
   venueGoogleUrl: '',
-  result: 'upcoming',
-  ourScore: '',
-  oppScore: '',
   scoreboardUrl: '',
 }
 
-export const RESULT_OPTIONS: { value: FixtureResult; label: string }[] = [
+export const FIXTURE_FILTERS: { value: FixtureFilter; label: string }[] = [
+  { value: 'all', label: 'All' },
   { value: 'upcoming', label: 'Upcoming' },
   { value: 'won', label: 'Won' },
   { value: 'lost', label: 'Lost' },
@@ -37,13 +32,9 @@ export const RESULT_OPTIONS: { value: FixtureResult; label: string }[] = [
   { value: 'forfeited', label: 'Forfeited' },
 ]
 
-export const FIXTURE_FILTERS: { value: FixtureFilter; label: string }[] = [
-  { value: 'all', label: 'All' },
-  ...RESULT_OPTIONS,
-]
-
 export const resultLabel: Record<FixtureResult, string> = {
   upcoming: 'Upcoming',
+  pending: 'Result pending',
   won: 'Won',
   lost: 'Lost',
   draw: 'Draw',
@@ -53,6 +44,7 @@ export const resultLabel: Record<FixtureResult, string> = {
 
 export const resultBadgeClass: Record<FixtureResult, string> = {
   upcoming: 'border-gold/25 bg-gold/[0.08] text-gold',
+  pending: 'border-[#8ea0b8]/25 bg-[#8ea0b8]/[0.08] text-[#b5c2d4]',
   won: 'border-green-light/25 bg-green-light/[0.08] text-green-light',
   lost: 'border-[#d86b5f]/25 bg-[#d86b5f]/[0.08] text-[#ff9b8f]',
   draw: 'border-white/[0.12] bg-white/[0.05] text-muted',

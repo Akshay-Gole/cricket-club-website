@@ -14,6 +14,14 @@ const api = axios.create({
   timeout: 10000,
 })
 
+function shouldRedirectToAdminLogin(url?: string) {
+  return (
+    window.location.pathname.startsWith('/admin') &&
+    url?.startsWith('/admin/') &&
+    url !== '/admin/auth/login'
+  )
+}
+
 api.interceptors.request.use(
   config => {
     config.metadata = { startTime: Date.now() }
@@ -46,7 +54,10 @@ api.interceptors.response.use(
   error => {
     const ms = Date.now() - (error.config?.metadata?.startTime ?? Date.now())
 
-    if (error.response?.status === 401) {
+    if (
+      error.response?.status === 401 &&
+      shouldRedirectToAdminLogin(error.config?.url)
+    ) {
       localStorage.removeItem('token')
       window.location.href = '/admin/login'
     }

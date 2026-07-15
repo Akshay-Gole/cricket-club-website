@@ -1,4 +1,5 @@
 import { Router } from 'express'
+import { syncFinishedPlayHqFixtures } from '../features/fixtures/playhq-fixture.service.js'
 import { syncAllPlayCricketPlayerStats } from '../features/players/play-cricket.service.js'
 
 const router = Router()
@@ -28,10 +29,16 @@ router.post('/internal/sync-player-stats', async (_req, res, next) => {
       return
     }
 
-    const result = await syncAllPlayCricketPlayerStats()
+    const [players, fixtures] = await Promise.all([
+      syncAllPlayCricketPlayerStats(),
+      syncFinishedPlayHqFixtures(),
+    ])
 
     res.status(200).json({
-      data: result,
+      data: {
+        players,
+        fixtures,
+      },
     })
   } catch (error) {
     next(error)
