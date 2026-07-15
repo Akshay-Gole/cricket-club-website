@@ -12,7 +12,8 @@ function HeroSection() {
   const [now, setNow] = useState(() => new Date())
 
   const nextFixture = useMemo(() => {
-    const liveWindowMs = 4 * 60 * 60 * 1000
+    const liveWindowMs = 6 * 60 * 60 * 1000
+    const countdownWindowMs = 7 * 24 * 60 * 60 * 1000
 
     return fixtures
       .filter(fixture => fixture.result === 'upcoming')
@@ -20,9 +21,11 @@ function HeroSection() {
         fixture,
         dateTime: getFixtureDateTime(fixture),
       }))
-      .filter(
-        ({ dateTime }) => dateTime.getTime() >= now.getTime() - liveWindowMs
-      )
+      .filter(({ dateTime }) => {
+        const diffMs = dateTime.getTime() - now.getTime()
+
+        return diffMs >= -liveWindowMs && diffMs <= countdownWindowMs
+      })
       .sort((a, b) => a.dateTime.getTime() - b.dateTime.getTime())[0]
   }, [fixtures, now])
 
@@ -210,14 +213,9 @@ function HeroSection() {
               </div>
             </div>
 
-            {matchStatus.isLive &&
-            (nextFixture.fixture.scoreboardUrl ||
-              nextFixture.fixture.playHqUrl) ? (
+            {matchStatus.isLive && nextFixture.fixture.scoreboardUrl ? (
               <a
-                href={
-                  nextFixture.fixture.scoreboardUrl ??
-                  nextFixture.fixture.playHqUrl
-                }
+                href={nextFixture.fixture.scoreboardUrl}
                 target="_blank"
                 rel="noreferrer"
                 className="font-heading text-[10px] font-bold tracking-[2px] uppercase text-gold bg-gold/10 border-[0.5px] border-gold/30 px-3.5 py-2 rounded-sm hover:bg-gold/20 transition-colors"
@@ -225,12 +223,12 @@ function HeroSection() {
                 Details →
               </a>
             ) : (
-              <Link
-                to={ROUTES.FIXTURES}
-                className="font-heading text-[10px] font-bold tracking-[2px] uppercase text-gold bg-gold/10 border-[0.5px] border-gold/30 px-3.5 py-2 rounded-sm hover:bg-gold/20 transition-colors"
+              <span
+                aria-disabled="true"
+                className="cursor-not-allowed rounded-sm border-[0.5px] border-white/10 bg-white/[0.03] px-3.5 py-2 font-heading text-[10px] font-bold uppercase tracking-[2px] text-muted/60"
               >
                 Details →
-              </Link>
+              </span>
             )}
           </div>
         </div>

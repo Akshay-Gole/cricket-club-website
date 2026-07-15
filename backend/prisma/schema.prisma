@@ -146,6 +146,7 @@ model Fixture {
   venueName      String
   venueGoogleUrl String?
   scoreboardUrl  String?
+  matchLabel     String?
   season         String
   result         String   @default("upcoming")
   ourScore       String?

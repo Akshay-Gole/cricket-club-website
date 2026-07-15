@@ -63,6 +63,11 @@ function FixturesPreview() {
             </div>
             {/* Teams — order 2, full width on mobile (forces line break) */}
             <div className="order-2 basis-full sm:basis-auto sm:flex-1 font-heading text-[#e7e0d1] text-base sm:text-lg font-bold">
+              {fix.matchLabel && (
+                <span className="mb-1 mr-3 inline-flex align-middle rounded-full border border-gold/25 bg-gold/[0.1] px-2.5 py-1 font-heading text-[9px] font-bold uppercase tracking-[2px] text-gold">
+                  {fix.matchLabel}
+                </span>
+              )}
               {fix.homeTeam}
               <span className="text-muted text-sm"> vs </span>
               {fix.awayTeam}
