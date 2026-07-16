@@ -3,7 +3,6 @@ import type { FormEvent } from 'react'
 import homeContentApi from '../home/api/homeContent.api'
 import { EMPTY_HOME_CONTENT } from '../home/api/homeContent.api'
 import type { HomeContent } from '../home/api/homeContent.api'
-import { adminInputClass } from './constants/adminPlayer.constants'
 
 const STAT_FIELDS: {
   key: keyof Pick<
