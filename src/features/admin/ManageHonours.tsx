@@ -1,6 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import honoursApi from '../honours/api/honours.api'
+import type {
+  HonourAwardWinner,
+  HonourRecord,
+  HonoursData,
+  HonourTrophy,
+} from '../honours/types/honour.types'
 import {
   AdminField,
   FormActions,
@@ -14,24 +21,30 @@ import {
   EMPTY_RECORD_FORM,
   EMPTY_TROPHY_FORM,
   HONOUR_TABS,
-  MOCK_AWARDS,
-  MOCK_RECORDS,
-  MOCK_TROPHIES,
-  type AdminAward,
-  type AdminRecord,
-  type AdminTrophy,
   type AwardFormState,
   type HonourTab,
   type RecordFormState,
   type TrophyFormState,
 } from './constants/adminHonours.constants'
 
+const EMPTY_HONOURS: HonoursData = {
+  snapshot: {
+    clubTrophies: 0,
+    finalsPlayed: 0,
+    awardWinners: 0,
+  },
+  trophies: [],
+  awardWinners: [],
+  records: [],
+  manualRecordTemplates: [],
+}
+
 function ManageHonours() {
   const [activeTab, setActiveTab] = useState<HonourTab>('trophies')
   const [search, setSearch] = useState('')
-  const [trophies, setTrophies] = useState<AdminTrophy[]>(MOCK_TROPHIES)
-  const [awards, setAwards] = useState<AdminAward[]>(MOCK_AWARDS)
-  const [records, setRecords] = useState<AdminRecord[]>(MOCK_RECORDS)
+  const [honours, setHonours] = useState<HonoursData>(EMPTY_HONOURS)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSaving, setIsSaving] = useState(false)
 
   const [editingTrophyId, setEditingTrophyId] = useState<string | null>(null)
   const [editingAwardId, setEditingAwardId] = useState<string | null>(null)
@@ -48,6 +61,11 @@ function ManageHonours() {
 
   const formPanelRef = useRef<HTMLElement | null>(null)
   const firstInputRef = useRef<HTMLInputElement | null>(null)
+
+  const trophies = honours.trophies
+  const awards = honours.awardWinners
+  const records = honours.records
+  const manualRecordTemplates = honours.manualRecordTemplates
 
   const stats = useMemo(
     () => ({
@@ -85,7 +103,7 @@ function ManageHonours() {
   const filteredRecords = useMemo(() => {
     const searchValue = search.trim().toLowerCase()
     return records.filter(record =>
-      [record.label, record.value, record.meta]
+      [record.label, record.value, record.meta, record.source]
         .join(' ')
         .toLowerCase()
         .includes(searchValue)
@@ -122,6 +140,28 @@ function ManageHonours() {
     }
   }, [activeTab])
 
+  const loadHonours = useCallback(async () => {
+    try {
+      setIsLoading(true)
+      setHonours(await honoursApi.getAdmin())
+      setFormError('')
+    } catch {
+      setFormError('Could not load honours. Please check the backend.')
+    } finally {
+      setIsLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      void loadHonours()
+    }, 0)
+
+    return () => {
+      window.clearTimeout(timeoutId)
+    }
+  }, [loadHonours])
+
   useEffect(() => {
     if (searchParams.get('action') !== 'create') return
 
@@ -136,7 +176,7 @@ function ManageHonours() {
     }
   }, [focusForm, resetCurrentForm, searchParams, setSearchParams])
 
-  const handleTrophySubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleTrophySubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     if (!trophyForm.year.trim() || !trophyForm.title.trim()) {
@@ -149,31 +189,32 @@ function ManageHonours() {
       return
     }
 
-    const nextTrophy: AdminTrophy = {
-      id: editingTrophyId ?? `trophy-${Date.now()}`,
-      year: trophyForm.year.trim(),
-      title: trophyForm.title.trim(),
-      type: trophyForm.type.trim() || 'Trophy',
-      description: trophyForm.description.trim(),
-      featured: trophyForm.featured,
-    }
+    try {
+      setIsSaving(true)
+      const payload = {
+        year: trophyForm.year.trim(),
+        title: trophyForm.title.trim(),
+        type: trophyForm.type.trim() || 'Trophy',
+        description: trophyForm.description.trim(),
+        featured: trophyForm.featured,
+      }
 
-    if (editingTrophyId) {
-      setTrophies(current =>
-        current.map(trophy =>
-          trophy.id === editingTrophyId ? nextTrophy : trophy
-        )
-      )
-    } else {
-      setTrophies(current => [nextTrophy, ...current])
-    }
+      const data = editingTrophyId
+        ? await honoursApi.updateTrophy(editingTrophyId, payload)
+        : await honoursApi.createTrophy(payload)
 
-    setTrophyForm(EMPTY_TROPHY_FORM)
-    setEditingTrophyId(null)
-    setFormError('')
+      setHonours(data)
+      setTrophyForm(EMPTY_TROPHY_FORM)
+      setEditingTrophyId(null)
+      setFormError('')
+    } catch {
+      setFormError('Something went wrong while saving this trophy.')
+    } finally {
+      setIsSaving(false)
+    }
   }
 
-  const handleAwardSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleAwardSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     if (
@@ -185,29 +226,32 @@ function ManageHonours() {
       return
     }
 
-    const nextAward: AdminAward = {
-      id: editingAwardId ?? `award-${Date.now()}`,
-      season: awardForm.season.trim(),
-      award: awardForm.award.trim(),
-      name: awardForm.name.trim(),
-      detail: awardForm.detail.trim(),
-      featured: awardForm.featured,
-    }
+    try {
+      setIsSaving(true)
+      const payload = {
+        season: awardForm.season.trim(),
+        award: awardForm.award.trim(),
+        name: awardForm.name.trim(),
+        detail: awardForm.detail.trim(),
+        featured: awardForm.featured,
+      }
 
-    if (editingAwardId) {
-      setAwards(current =>
-        current.map(award => (award.id === editingAwardId ? nextAward : award))
-      )
-    } else {
-      setAwards(current => [nextAward, ...current])
-    }
+      const data = editingAwardId
+        ? await honoursApi.updateAward(editingAwardId, payload)
+        : await honoursApi.createAward(payload)
 
-    setAwardForm(EMPTY_AWARD_FORM)
-    setEditingAwardId(null)
-    setFormError('')
+      setHonours(data)
+      setAwardForm(EMPTY_AWARD_FORM)
+      setEditingAwardId(null)
+      setFormError('')
+    } catch {
+      setFormError('Something went wrong while saving this award.')
+    } finally {
+      setIsSaving(false)
+    }
   }
 
-  const handleRecordSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleRecordSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     if (!recordForm.label.trim() || !recordForm.value.trim()) {
@@ -215,30 +259,30 @@ function ManageHonours() {
       return
     }
 
-    const nextRecord: AdminRecord = {
-      id: editingRecordId ?? `record-${Date.now()}`,
-      label: recordForm.label.trim(),
-      value: recordForm.value.trim(),
-      meta: recordForm.meta.trim(),
-      featured: recordForm.featured,
-    }
+    try {
+      setIsSaving(true)
+      const id = editingRecordId ?? slugify(recordForm.label)
+      const template = manualRecordTemplates.find(item => item.id === id)
+      const payload = {
+        label: recordForm.label.trim(),
+        value: recordForm.value.trim(),
+        meta: recordForm.meta.trim(),
+        featured: recordForm.featured,
+        sortOrder: template?.sortOrder ?? 90,
+      }
 
-    if (editingRecordId) {
-      setRecords(current =>
-        current.map(record =>
-          record.id === editingRecordId ? nextRecord : record
-        )
-      )
-    } else {
-      setRecords(current => [nextRecord, ...current])
+      setHonours(await honoursApi.updateManualRecord(id, payload))
+      setRecordForm(EMPTY_RECORD_FORM)
+      setEditingRecordId(null)
+      setFormError('')
+    } catch {
+      setFormError('Something went wrong while saving this record.')
+    } finally {
+      setIsSaving(false)
     }
-
-    setRecordForm(EMPTY_RECORD_FORM)
-    setEditingRecordId(null)
-    setFormError('')
   }
 
-  const handleEditTrophy = (trophy: AdminTrophy) => {
+  const handleEditTrophy = (trophy: HonourTrophy) => {
     setActiveTab('trophies')
     setEditingTrophyId(trophy.id)
     setTrophyForm({
@@ -252,7 +296,7 @@ function ManageHonours() {
     focusForm()
   }
 
-  const handleEditAward = (award: AdminAward) => {
+  const handleEditAward = (award: HonourAwardWinner) => {
     setActiveTab('awards')
     setEditingAwardId(award.id)
     setAwardForm({
@@ -266,7 +310,9 @@ function ManageHonours() {
     focusForm()
   }
 
-  const handleEditRecord = (record: AdminRecord) => {
+  const handleEditRecord = (record: HonourRecord) => {
+    if (record.source !== 'manual') return
+
     setActiveTab('records')
     setEditingRecordId(record.id)
     setRecordForm({
@@ -277,6 +323,44 @@ function ManageHonours() {
     })
     setFormError('')
     focusForm()
+  }
+
+  const handleDeleteTrophy = async (id: string) => {
+    try {
+      setIsSaving(true)
+      await honoursApi.deleteTrophy(id)
+      await loadHonours()
+    } catch {
+      setFormError('Something went wrong while deleting this trophy.')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleDeleteAward = async (id: string) => {
+    try {
+      setIsSaving(true)
+      await honoursApi.deleteAward(id)
+      await loadHonours()
+    } catch {
+      setFormError('Something went wrong while deleting this award.')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleDeleteRecord = async (record: HonourRecord) => {
+    if (record.source !== 'manual') return
+
+    try {
+      setIsSaving(true)
+      await honoursApi.deleteManualRecord(record.id)
+      await loadHonours()
+    } catch {
+      setFormError('Something went wrong while deleting this record.')
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   return (
@@ -296,8 +380,9 @@ function ManageHonours() {
               Manage Honours.
             </h2>
             <p className="mt-4 max-w-[660px] font-body text-sm font-light leading-[1.8] text-muted">
-              Maintain trophies, award winners and club records. Later these
-              entries can come straight from backend admin APIs.
+              Add trophies and award winners manually. Club bests combine
+              automatic fixture/player data with a few manual historical
+              records.
             </p>
           </div>
 
@@ -349,7 +434,13 @@ function ManageHonours() {
             </div>
           </div>
 
-          {activeTab === 'trophies' && (
+          {isLoading && (
+            <div className="p-8 font-heading text-sm uppercase tracking-[2px] text-muted">
+              Loading honours...
+            </div>
+          )}
+
+          {!isLoading && activeTab === 'trophies' && (
             <div className="grid grid-cols-1 gap-px bg-white/[0.1] min-[760px]:grid-cols-2">
               {filteredTrophies.map(trophy => (
                 <HonourCard
@@ -359,17 +450,13 @@ function ManageHonours() {
                   meta={trophy.description}
                   featured={trophy.featured}
                   onEdit={() => handleEditTrophy(trophy)}
-                  onDelete={() =>
-                    setTrophies(current =>
-                      current.filter(item => item.id !== trophy.id)
-                    )
-                  }
+                  onDelete={() => void handleDeleteTrophy(trophy.id)}
                 />
               ))}
             </div>
           )}
 
-          {activeTab === 'awards' && (
+          {!isLoading && activeTab === 'awards' && (
             <div className="grid grid-cols-1 gap-px bg-white/[0.1] min-[760px]:grid-cols-2">
               {filteredAwards.map(award => (
                 <HonourCard
@@ -379,31 +466,28 @@ function ManageHonours() {
                   meta={award.detail}
                   featured={award.featured}
                   onEdit={() => handleEditAward(award)}
-                  onDelete={() =>
-                    setAwards(current =>
-                      current.filter(item => item.id !== award.id)
-                    )
-                  }
+                  onDelete={() => void handleDeleteAward(award.id)}
                 />
               ))}
             </div>
           )}
 
-          {activeTab === 'records' && (
+          {!isLoading && activeTab === 'records' && (
             <div className="grid grid-cols-1 gap-px bg-white/[0.1] min-[760px]:grid-cols-2">
               {filteredRecords.map(record => (
                 <HonourCard
                   key={record.id}
-                  eyebrow={record.label}
+                  eyebrow={
+                    record.source === 'automatic'
+                      ? `${record.label} · Auto`
+                      : record.label
+                  }
                   title={record.value}
                   meta={record.meta}
                   featured={record.featured}
+                  readonly={record.source === 'automatic'}
                   onEdit={() => handleEditRecord(record)}
-                  onDelete={() =>
-                    setRecords(current =>
-                      current.filter(item => item.id !== record.id)
-                    )
-                  }
+                  onDelete={() => void handleDeleteRecord(record)}
                 />
               ))}
             </div>
@@ -423,7 +507,8 @@ function ManageHonours() {
             </h3>
             <p className="mt-2 font-body text-xs font-light leading-[1.7] text-muted">
               Featured items are the ones shown first on the public Honours
-              page. Older entries remain available in the view-all popup.
+              page. Automatic records are calculated from fixtures and player
+              stats.
             </p>
           </div>
 
@@ -595,11 +680,37 @@ function ManageHonours() {
 
           {activeTab === 'records' && (
             <form onSubmit={handleRecordSubmit} className="space-y-4">
+              <AdminField label="Manual record type" required>
+                <select
+                  value={editingRecordId ?? ''}
+                  onChange={event => {
+                    const template = manualRecordTemplates.find(
+                      item => item.id === event.target.value
+                    )
+
+                    if (!template) return
+
+                    setEditingRecordId(template.id)
+                    setRecordForm(current => ({
+                      ...current,
+                      label: template.label,
+                    }))
+                  }}
+                  className={adminHonoursInputClass}
+                >
+                  <option value="">Custom record</option>
+                  {manualRecordTemplates.map(template => (
+                    <option key={template.id} value={template.id}>
+                      {template.label}
+                    </option>
+                  ))}
+                </select>
+              </AdminField>
+
               <AdminField label="Record Label" required>
                 <input
-                  ref={firstInputRef}
                   value={recordForm.label}
-                  placeholder="Highest team score"
+                  placeholder="Highest partnership"
                   onChange={event =>
                     setRecordForm(current => ({
                       ...current,
@@ -613,7 +724,7 @@ function ManageHonours() {
               <AdminField label="Value" required>
                 <input
                   value={recordForm.value}
-                  placeholder="212/5"
+                  placeholder="138"
                   onChange={event =>
                     setRecordForm(current => ({
                       ...current,
@@ -627,7 +738,7 @@ function ManageHonours() {
               <AdminField label="Meta">
                 <input
                   value={recordForm.meta}
-                  placeholder="vs Norwood CC"
+                  placeholder="Gole / Jones"
                   onChange={event =>
                     setRecordForm(current => ({
                       ...current,
@@ -662,6 +773,12 @@ function ManageHonours() {
               />
             </form>
           )}
+
+          {isSaving && (
+            <p className="mt-4 font-heading text-[10px] uppercase tracking-[2px] text-muted">
+              Saving...
+            </p>
+          )}
         </aside>
       </div>
     </div>
@@ -672,10 +789,20 @@ function formTitle(tab: HonourTab) {
   const title: Record<HonourTab, { eyebrow: string; title: string }> = {
     trophies: { eyebrow: 'Trophy Entry', title: 'Add Honour' },
     awards: { eyebrow: 'Award Entry', title: 'Add Winner' },
-    records: { eyebrow: 'Record Entry', title: 'Add Record' },
+    records: { eyebrow: 'Manual Record', title: 'Add Record' },
   }
 
   return title[tab]
+}
+
+function slugify(value: string) {
+  return (
+    value
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '') || `record-${Date.now()}`
+  )
 }
 
 function HonourCard({
@@ -683,6 +810,7 @@ function HonourCard({
   title,
   meta,
   featured,
+  readonly = false,
   onEdit,
   onDelete,
 }: {
@@ -690,6 +818,7 @@ function HonourCard({
   title: string
   meta: string
   featured: boolean
+  readonly?: boolean
   onEdit: () => void
   onDelete: () => void
 }) {
@@ -713,22 +842,28 @@ function HonourCard({
         {meta || 'No detail added yet.'}
       </p>
 
-      <div className="mt-6 flex gap-2">
-        <button
-          type="button"
-          onClick={onEdit}
-          className="flex-1 rounded border border-white/[0.08] px-3 py-2.5 font-heading text-[10px] font-bold uppercase tracking-[2px] text-muted transition-colors hover:border-gold/30 hover:text-gold"
-        >
-          Edit
-        </button>
-        <button
-          type="button"
-          onClick={onDelete}
-          className="flex-1 rounded border border-[#d86b5f]/20 px-3 py-2.5 font-heading text-[10px] font-bold uppercase tracking-[2px] text-[#ff9b8f] transition-colors hover:bg-[#d86b5f]/10"
-        >
-          Delete
-        </button>
-      </div>
+      {readonly ? (
+        <div className="mt-6 rounded border border-white/[0.08] px-3 py-2.5 font-heading text-[10px] font-bold uppercase tracking-[2px] text-muted">
+          Calculated automatically
+        </div>
+      ) : (
+        <div className="mt-6 flex gap-2">
+          <button
+            type="button"
+            onClick={onEdit}
+            className="flex-1 rounded border border-white/[0.08] px-3 py-2.5 font-heading text-[10px] font-bold uppercase tracking-[2px] text-muted transition-colors hover:border-gold/30 hover:text-gold"
+          >
+            Edit
+          </button>
+          <button
+            type="button"
+            onClick={onDelete}
+            className="flex-1 rounded border border-[#d86b5f]/20 px-3 py-2.5 font-heading text-[10px] font-bold uppercase tracking-[2px] text-[#ff9b8f] transition-colors hover:bg-[#d86b5f]/10"
+          >
+            Delete
+          </button>
+        </div>
+      )}
     </article>
   )
 }

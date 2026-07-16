@@ -1,110 +1,31 @@
 import { useEffect, useState } from 'react'
+import honoursApi from '../features/honours/api/honours.api'
+import type {
+  HonoursData,
+  HonourPanel,
+} from '../features/honours/types/honour.types'
 
-type HonourPanel = 'trophies' | 'awards' | 'records'
+const EMPTY_HONOURS: HonoursData = {
+  snapshot: {
+    clubTrophies: 0,
+    finalsPlayed: 0,
+    awardWinners: 0,
+  },
+  trophies: [],
+  awardWinners: [],
+  records: [],
+  manualRecordTemplates: [],
+}
 
-const HONOUR_STATS = [
-  { label: 'Club trophies', value: '08' },
-  { label: 'Finals played', value: '14' },
-  { label: 'Award winners', value: '32' },
-]
-
-const TROPHIES = [
-  {
-    year: '2026',
-    title: 'Senior Division Finalists',
-    type: 'Season Honour',
-    description:
-      'A breakout campaign built on consistent batting, disciplined bowling and a fearless new squad identity.',
-  },
-  {
-    year: '2025',
-    title: 'Community Club Award',
-    type: 'Club Honour',
-    description:
-      'Recognised for growing participation, creating an inclusive environment and supporting local cricket.',
-  },
-  {
-    year: '2024',
-    title: 'T20 Shield Winners',
-    type: 'Trophy',
-    description:
-      'Top G’s CC lifted the short-format shield after a dominant unbeaten run through the competition.',
-  },
-  {
-    year: '2023',
-    title: 'Best New Club Program',
-    type: 'Milestone',
-    description:
-      'The club’s player pathway and weekend training program became a foundation for long-term growth.',
-  },
-  {
-    year: '2022',
-    title: 'Winter Cup Runners Up',
-    type: 'Trophy',
-    description:
-      'A gritty campaign where the squad reached the final with a young core and strong late-season form.',
-  },
-  {
-    year: '2021',
-    title: 'Foundation Season',
-    type: 'Milestone',
-    description:
-      'The first organised season for the club, setting the standards for culture, selection and match-day identity.',
-  },
-]
-
-const PLAYER_AWARDS = [
-  {
-    award: 'Player of the Season',
-    name: 'Akshay Gole',
-    season: '2026',
-    detail: '847 runs',
-  },
-  {
-    award: 'Bowler of the Season',
-    name: 'Ryan Smith',
-    season: '2026',
-    detail: '34 wickets',
-  },
-  {
-    award: 'Club Champion',
-    name: 'James Catto',
-    season: '2025',
-    detail: 'All-round impact',
-  },
-  {
-    award: 'Best Batter',
-    name: 'Jones',
-    season: '2025',
-    detail: '612 runs',
-  },
-  {
-    award: 'Best Fielder',
-    name: 'Mitchell',
-    season: '2024',
-    detail: '28 dismissals',
-  },
-  {
-    award: 'Most Improved',
-    name: 'Khan',
-    season: '2024',
-    detail: 'Breakout all-round season',
-  },
-]
-
-const RECORDS = [
-  { label: 'Highest team score', value: '212/5', meta: 'vs Norwood CC' },
-  { label: 'Best bowling', value: '6/22', meta: 'Ryan Smith' },
-  { label: 'Highest partnership', value: '138', meta: 'Gole / Jones' },
-  { label: 'Fastest fifty', value: '24b', meta: 'James Catto' },
-  { label: 'Most season runs', value: '847', meta: 'Akshay Gole' },
-  { label: 'Most season wickets', value: '34', meta: 'Ryan Smith' },
-  { label: 'Most catches', value: '18', meta: 'Mitchell' },
-  { label: 'Biggest win', value: '+47', meta: 'vs Norwood CC' },
-]
+function statValue(value: number) {
+  return String(value).padStart(2, '0')
+}
 
 function Honours() {
   const [activePanel, setActivePanel] = useState<HonourPanel | null>(null)
+  const [honours, setHonours] = useState<HonoursData>(EMPTY_HONOURS)
+  const [isLoading, setIsLoading] = useState(true)
+  const [hasError, setHasError] = useState(false)
 
   useEffect(() => {
     if (!activePanel) return
@@ -120,6 +41,36 @@ function Honours() {
       document.documentElement.style.overflow = previousHtmlOverflow
     }
   }, [activePanel])
+
+  useEffect(() => {
+    let ignore = false
+
+    honoursApi
+      .getPublic()
+      .then(data => {
+        if (ignore) return
+        setHonours(data)
+        setHasError(false)
+      })
+      .catch(() => {
+        if (ignore) return
+        setHasError(true)
+      })
+      .finally(() => {
+        if (ignore) return
+        setIsLoading(false)
+      })
+
+    return () => {
+      ignore = true
+    }
+  }, [])
+
+  const honourStats = [
+    { label: 'Club trophies', value: statValue(honours.snapshot.clubTrophies) },
+    { label: 'Finals played', value: statValue(honours.snapshot.finalsPlayed) },
+    { label: 'Award winners', value: statValue(honours.snapshot.awardWinners) },
+  ]
 
   return (
     <div className="relative overflow-hidden bg-[#080a08]">
@@ -148,9 +99,8 @@ function Honours() {
               data-animate="hero"
               className="mt-6 max-w-[620px] font-body text-base font-light leading-[1.8] text-muted sm:text-lg"
             >
-              Trophies, awards, records and moments that shaped Top G&apos;s CC.
-              This page is ready for real backend data later, but already gives
-              the club history a proper home.
+              Trophies, awards, records and moments that shaped Top G&apos;s CC
+              — updated from club data and admin-managed honours.
             </p>
           </div>
 
@@ -162,7 +112,7 @@ function Honours() {
               Snapshot
             </div>
             <div className="grid grid-cols-3 gap-3">
-              {HONOUR_STATS.map(stat => (
+              {honourStats.map(stat => (
                 <div
                   key={stat.label}
                   className="rounded-sm border border-white/[0.08] bg-black/25 p-4"
@@ -203,34 +153,47 @@ function Honours() {
           data-animate="stagger"
           className="grid grid-cols-1 gap-5 min-[641px]:grid-cols-2 min-[1025px]:grid-cols-4 sm:gap-6"
         >
-          {TROPHIES.slice(0, 4).map(trophy => (
-            <article
-              key={`${trophy.year}-${trophy.title}`}
-              className="group relative min-h-[330px] overflow-hidden rounded-sm border border-white/[0.09] bg-[#171918] p-7 shadow-[0_14px_36px_rgba(0,0,0,0.3)] transition-colors duration-300 hover:border-gold/30 hover:bg-[#1b1d1b]"
-            >
-              <div className="absolute -right-2 top-5 font-display text-[82px] leading-none text-gold/[0.09] transition-colors group-hover:text-gold/[0.14]">
-                {trophy.year.slice(2)}
-              </div>
+          {isLoading &&
+            Array.from({ length: 4 }).map((_, index) => (
+              <div
+                key={`trophy-loading-${index}`}
+                className="min-h-[330px] animate-pulse rounded-sm border border-white/[0.09] bg-[#171918]"
+              />
+            ))}
 
-              <div className="relative flex h-full flex-col">
-                <div className="mb-14 inline-flex w-fit rounded-sm border border-gold/25 bg-gold/[0.08] px-3 py-1 font-heading text-[9px] font-bold uppercase tracking-[2.5px] text-gold">
-                  {trophy.type}
+          {!isLoading &&
+            honours.trophies.slice(0, 4).map(trophy => (
+              <article
+                key={`${trophy.year}-${trophy.title}`}
+                className="group relative min-h-[330px] overflow-hidden rounded-sm border border-white/[0.09] bg-[#171918] p-7 shadow-[0_14px_36px_rgba(0,0,0,0.3)] transition-colors duration-300 hover:border-gold/30 hover:bg-[#1b1d1b]"
+              >
+                <div className="absolute -right-2 top-5 font-display text-[82px] leading-none text-gold/[0.09] transition-colors group-hover:text-gold/[0.14]">
+                  {trophy.year.slice(2)}
                 </div>
 
-                <div className="mt-auto">
-                  <div className="mb-3 font-heading text-[10px] font-bold uppercase tracking-[3px] text-muted">
-                    {trophy.year}
+                <div className="relative flex h-full flex-col">
+                  <div className="mb-14 inline-flex w-fit rounded-sm border border-gold/25 bg-gold/[0.08] px-3 py-1 font-heading text-[9px] font-bold uppercase tracking-[2.5px] text-gold">
+                    {trophy.type}
                   </div>
-                  <h3 className="font-heading text-[27px] font-bold leading-[1.05] text-cream">
-                    {trophy.title}
-                  </h3>
-                  <p className="mt-4 font-body text-sm font-light leading-[1.65] text-muted">
-                    {trophy.description}
-                  </p>
+
+                  <div className="mt-auto">
+                    <div className="mb-3 font-heading text-[10px] font-bold uppercase tracking-[3px] text-muted">
+                      {trophy.year}
+                    </div>
+                    <h3 className="font-heading text-[27px] font-bold leading-[1.05] text-cream">
+                      {trophy.title}
+                    </h3>
+                    <p className="mt-4 font-body text-sm font-light leading-[1.65] text-muted">
+                      {trophy.description}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            </article>
-          ))}
+              </article>
+            ))}
+
+          {!isLoading && honours.trophies.length === 0 && (
+            <EmptyState title="No trophies added yet." />
+          )}
         </div>
       </section>
 
@@ -244,8 +207,8 @@ function Honours() {
               Award Winners
             </h2>
             <p className="mt-5 max-w-[420px] font-body text-sm font-light leading-[1.8] text-muted sm:text-base">
-              These cards can later come from admin-managed award entries, so
-              every season can have its own winners.
+              Admin-managed award entries, so every season can have its own
+              winners without touching code.
             </p>
             <button
               type="button"
@@ -257,27 +220,40 @@ function Honours() {
           </div>
 
           <div data-animate="stagger" className="grid gap-4">
-            {PLAYER_AWARDS.slice(0, 3).map(award => (
-              <article
-                key={`${award.season}-${award.award}`}
-                className="grid gap-5 rounded-sm border border-white/[0.09] bg-[#171918] p-5 shadow-[0_12px_32px_rgba(0,0,0,0.26)] min-[641px]:grid-cols-[1fr_auto] min-[641px]:items-center sm:p-6"
-              >
-                <div>
-                  <div className="mb-3 font-heading text-[10px] font-bold uppercase tracking-[3px] text-gold">
-                    {award.award}
+            {isLoading &&
+              Array.from({ length: 3 }).map((_, index) => (
+                <div
+                  key={`award-loading-${index}`}
+                  className="h-[140px] animate-pulse rounded-sm border border-white/[0.09] bg-[#171918]"
+                />
+              ))}
+
+            {!isLoading &&
+              honours.awardWinners.slice(0, 3).map(award => (
+                <article
+                  key={`${award.season}-${award.award}`}
+                  className="grid gap-5 rounded-sm border border-white/[0.09] bg-[#171918] p-5 shadow-[0_12px_32px_rgba(0,0,0,0.26)] min-[641px]:grid-cols-[1fr_auto] min-[641px]:items-center sm:p-6"
+                >
+                  <div>
+                    <div className="mb-3 font-heading text-[10px] font-bold uppercase tracking-[3px] text-gold">
+                      {award.award}
+                    </div>
+                    <h3 className="font-heading text-[30px] font-bold leading-none text-cream">
+                      {award.name}
+                    </h3>
+                    <div className="mt-3 font-body text-sm text-muted">
+                      {award.detail}
+                    </div>
                   </div>
-                  <h3 className="font-heading text-[30px] font-bold leading-none text-cream">
-                    {award.name}
-                  </h3>
-                  <div className="mt-3 font-body text-sm text-muted">
-                    {award.detail}
+                  <div className="w-fit rounded-sm border border-white/[0.08] bg-black/25 px-5 py-4 font-display text-[38px] leading-none text-gold">
+                    {award.season}
                   </div>
-                </div>
-                <div className="w-fit rounded-sm border border-white/[0.08] bg-black/25 px-5 py-4 font-display text-[38px] leading-none text-gold">
-                  {award.season}
-                </div>
-              </article>
-            ))}
+                </article>
+              ))}
+
+            {!isLoading && honours.awardWinners.length === 0 && (
+              <EmptyState title="No award winners added yet." />
+            )}
           </div>
         </div>
       </section>
@@ -305,20 +281,39 @@ function Honours() {
           data-animate="stagger"
           className="grid grid-cols-1 gap-px overflow-hidden rounded-sm border border-white/[0.08] bg-white/[0.08] min-[641px]:grid-cols-2 min-[1025px]:grid-cols-4"
         >
-          {RECORDS.slice(0, 4).map(record => (
-            <article key={record.label} className="bg-[#151817] p-6 sm:p-7">
-              <div className="font-heading text-[10px] font-bold uppercase tracking-[3px] text-muted">
-                {record.label}
-              </div>
-              <div className="mt-5 font-display text-[54px] leading-none text-cream">
-                {record.value}
-              </div>
-              <div className="mt-4 font-body text-sm text-gold">
-                {record.meta}
-              </div>
-            </article>
-          ))}
+          {isLoading &&
+            Array.from({ length: 4 }).map((_, index) => (
+              <div
+                key={`record-loading-${index}`}
+                className="h-[180px] animate-pulse bg-[#151817]"
+              />
+            ))}
+
+          {!isLoading &&
+            honours.records.slice(0, 4).map(record => (
+              <article key={record.label} className="bg-[#151817] p-6 sm:p-7">
+                <div className="font-heading text-[10px] font-bold uppercase tracking-[3px] text-muted">
+                  {record.label}
+                </div>
+                <div className="mt-5 font-display text-[54px] leading-none text-cream">
+                  {record.value}
+                </div>
+                <div className="mt-4 font-body text-sm text-gold">
+                  {record.meta}
+                </div>
+              </article>
+            ))}
+
+          {!isLoading && honours.records.length === 0 && (
+            <EmptyState title="No records available yet." />
+          )}
         </div>
+
+        {hasError && (
+          <p className="mt-6 font-body text-sm text-[#ff9b8f]">
+            Could not load live honours data. Please check the backend.
+          </p>
+        )}
       </section>
 
       {activePanel && (
@@ -358,7 +353,7 @@ function Honours() {
             <div className="p-5 sm:p-7">
               {activePanel === 'trophies' && (
                 <div className="grid grid-cols-1 gap-4 min-[641px]:grid-cols-2">
-                  {TROPHIES.map(trophy => (
+                  {honours.trophies.map(trophy => (
                     <article
                       key={`modal-${trophy.year}-${trophy.title}`}
                       className="rounded-sm border border-white/[0.09] bg-[#171918] p-5 sm:p-6"
@@ -384,7 +379,7 @@ function Honours() {
 
               {activePanel === 'awards' && (
                 <div className="grid gap-3">
-                  {PLAYER_AWARDS.map(award => (
+                  {honours.awardWinners.map(award => (
                     <article
                       key={`modal-${award.season}-${award.award}`}
                       className="grid gap-4 rounded-sm border border-white/[0.09] bg-[#171918] p-5 min-[641px]:grid-cols-[1fr_auto] min-[641px]:items-center"
@@ -410,7 +405,7 @@ function Honours() {
 
               {activePanel === 'records' && (
                 <div className="grid grid-cols-1 gap-px overflow-hidden rounded-sm border border-white/[0.08] bg-white/[0.08] min-[641px]:grid-cols-2 min-[1025px]:grid-cols-4">
-                  {RECORDS.map(record => (
+                  {honours.records.map(record => (
                     <article
                       key={`modal-${record.label}`}
                       className="bg-[#171918] p-6"
@@ -432,6 +427,14 @@ function Honours() {
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+function EmptyState({ title }: { title: string }) {
+  return (
+    <div className="rounded-sm border border-white/[0.08] bg-[#171918] p-7 font-heading text-sm uppercase tracking-[2px] text-muted">
+      {title}
     </div>
   )
 }
