@@ -14,10 +14,14 @@ const api = axios.create({
   timeout: 10000,
 })
 
+function isAdminApiUrl(url?: string) {
+  return url?.startsWith('/admin/') ?? false
+}
+
 function shouldRedirectToAdminLogin(url?: string) {
   return (
     window.location.pathname.startsWith('/admin') &&
-    url?.startsWith('/admin/') &&
+    isAdminApiUrl(url) &&
     url !== '/admin/auth/login'
   )
 }
@@ -27,7 +31,7 @@ api.interceptors.request.use(
     config.metadata = { startTime: Date.now() }
 
     const token = localStorage.getItem('token')
-    if (token) {
+    if (token && isAdminApiUrl(config.url)) {
       config.headers.Authorization = `Bearer ${token}`
     }
 

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import homeContentApi from '../home/api/homeContent.api'
-import { DEFAULT_HOME_CONTENT } from '../home/api/homeContent.api'
+import { EMPTY_HOME_CONTENT } from '../home/api/homeContent.api'
 import type { HomeContent } from '../home/api/homeContent.api'
 import { adminInputClass } from './constants/adminPlayer.constants'
 
@@ -11,37 +11,31 @@ const STAT_FIELDS: {
     'matchesPlayed' | 'victories' | 'trophies' | 'activePlayers' | 'yearsActive'
   >
   label: string
-  hint: string
 }[] = [
   {
     key: 'matchesPlayed',
     label: 'Matches Played',
-    hint: 'Example: 48',
   },
   {
     key: 'victories',
     label: 'Victories',
-    hint: 'Example: 31',
   },
   {
     key: 'trophies',
     label: 'Trophies',
-    hint: 'Example: 06',
   },
   {
     key: 'activePlayers',
     label: 'Active Players',
-    hint: 'Example: 22',
   },
   {
     key: 'yearsActive',
     label: 'Years Active',
-    hint: 'Example: 01',
   },
 ]
 
 function ManageHomeContent() {
-  const [form, setForm] = useState<HomeContent>(DEFAULT_HOME_CONTENT)
+  const [form, setForm] = useState<HomeContent>(EMPTY_HOME_CONTENT)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [message, setMessage] = useState('')
@@ -82,7 +76,9 @@ function ManageHomeContent() {
       setError('')
       setMessage('')
 
-      const savedContent = await homeContentApi.update(form)
+      const savedContent = await homeContentApi.update({
+        tickerText: form.tickerText,
+      })
       setForm(savedContent)
       setMessage('Home content saved.')
     } catch {
@@ -105,8 +101,8 @@ function ManageHomeContent() {
               Home Content
             </h1>
             <p className="mt-3 max-w-[620px] font-body text-sm leading-[1.7] text-muted">
-              Update the homepage stats bar and latest ticker without touching
-              code.
+              Homepage stats are calculated automatically from players and
+              fixtures. Admin only controls the latest ticker text.
             </p>
           </div>
         </div>
@@ -118,17 +114,20 @@ function ManageHomeContent() {
       >
         <div className="grid grid-cols-1 gap-4 min-[641px]:grid-cols-2 min-[1180px]:grid-cols-5">
           {STAT_FIELDS.map(field => (
-            <label key={field.key} className="block">
-              <span className="font-heading text-[10px] font-bold uppercase tracking-[3px] text-muted">
+            <div
+              key={field.key}
+              className="rounded border border-white/[0.1] bg-white/[0.035] p-4"
+            >
+              <span className="font-heading text-[10px] font-bold uppercase tracking-[3px] text-gold/80">
                 {field.label}
               </span>
-              <input
-                value={form[field.key]}
-                placeholder={field.hint}
-                onChange={event => updateField(field.key, event.target.value)}
-                className={`${adminInputClass} mt-2`}
-              />
-            </label>
+              <strong className="mt-3 block font-display text-4xl leading-none text-white">
+                {form[field.key] || '0'}
+              </strong>
+              <span className="mt-2 block font-body text-xs leading-[1.6] text-muted">
+                Calculated automatically
+              </span>
+            </div>
           ))}
         </div>
 
@@ -168,7 +167,7 @@ function ManageHomeContent() {
 
         <button
           type="submit"
-          disabled={isLoading || isSaving}
+          disabled={isLoading || isSaving || Boolean(error)}
           className="mt-6 min-h-12 w-full rounded-sm bg-gold px-5 font-heading text-[11px] font-bold uppercase tracking-[3px] text-black transition-colors hover:bg-[#d8b95c] disabled:cursor-not-allowed disabled:opacity-60 min-[641px]:w-auto"
         >
           {isSaving ? 'Saving...' : 'Save Home Content'}

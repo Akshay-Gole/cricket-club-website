@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import homeContentApi from '../api/homeContent.api'
-import { DEFAULT_HOME_CONTENT } from '../api/homeContent.api'
 
 function clampSkew(value: number) {
   return Math.max(-8, Math.min(8, value))
@@ -9,13 +8,23 @@ function clampSkew(value: number) {
 
 function Ticker() {
   const tickerRef = useRef<HTMLDivElement | null>(null)
-  const [messages, setMessages] = useState(DEFAULT_HOME_CONTENT.tickerText)
+  const [messages, setMessages] = useState('Loading latest club updates...')
 
   useEffect(() => {
+    let isMounted = true
+
     homeContentApi
       .getPublic()
-      .then(content => setMessages(content.tickerText))
-      .catch(() => setMessages(DEFAULT_HOME_CONTENT.tickerText))
+      .then(content => {
+        if (isMounted) setMessages(content.tickerText.trim())
+      })
+      .catch(() => {
+        if (isMounted) setMessages('Latest club updates coming soon.')
+      })
+
+    return () => {
+      isMounted = false
+    }
   }, [])
 
   useEffect(() => {
