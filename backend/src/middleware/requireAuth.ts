@@ -7,6 +7,11 @@ interface JwtPayload {
 }
 
 export function requireAuth(req: Request, res: Response, next: NextFunction) {
+  if (!req.path.startsWith('/admin/')) {
+    next()
+    return
+  }
+
   const authHeader = req.headers.authorization
 
   if (!authHeader?.startsWith('Bearer ')) {
