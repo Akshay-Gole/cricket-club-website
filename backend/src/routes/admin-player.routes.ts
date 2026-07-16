@@ -14,8 +14,6 @@ import { requireAuth } from '../middleware/requireAuth.js'
 
 const router = Router()
 
-router.use(requireAuth)
-
 async function findPlayerWithStats(playerId: string) {
   return prisma.player.findUniqueOrThrow({
     where: {
@@ -47,7 +45,7 @@ async function syncPlayerStatsAfterSave(playerId: string) {
   return syncPlayCricketPlayerStats(playerId)
 }
 
-router.get('/admin/players', async (_req, res, next) => {
+router.get('/admin/players', requireAuth, async (_req, res, next) => {
   try {
     const players = await prisma.player.findMany({
       where: {
@@ -71,9 +69,10 @@ router.get('/admin/players', async (_req, res, next) => {
 
 router.get(
   '/admin/players/verify-play-cricket/:playerId',
+  requireAuth,
   async (_req, res, next) => {
     try {
-      const playerId = _req.params.playerId
+      const playerId = String(_req.params.playerId)
       const playerIdResult = z.string().uuid().safeParse(playerId)
 
       if (!playerIdResult.success) {
@@ -104,19 +103,24 @@ router.get(
   }
 )
 
-router.post('/admin/players/:id/sync-stats', async (_req, res, next) => {
-  try {
-    const player = await syncPlayCricketPlayerStats(_req.params.id)
+router.post(
+  '/admin/players/:id/sync-stats',
+  requireAuth,
+  async (_req, res, next) => {
+    try {
+      const playerId = String(_req.params.id)
+      const player = await syncPlayCricketPlayerStats(playerId)
 
-    res.status(200).json({
-      data: toApiPlayer(player),
-    })
-  } catch (error) {
-    next(error)
+      res.status(200).json({
+        data: toApiPlayer(player),
+      })
+    } catch (error) {
+      next(error)
+    }
   }
-})
+)
 
-router.post('/admin/players', async (_req, res, next) => {
+router.post('/admin/players', requireAuth, async (_req, res, next) => {
   try {
     const result = createPlayerSchema.safeParse(_req.body)
 
@@ -170,8 +174,9 @@ router.post('/admin/players', async (_req, res, next) => {
   }
 })
 
-router.patch('/admin/players/:id', async (_req, res, next) => {
+router.patch('/admin/players/:id', requireAuth, async (_req, res, next) => {
   try {
+    const playerId = String(_req.params.id)
     const result = updatePlayerSchema.safeParse(_req.body)
 
     if (!result.success) {
@@ -184,7 +189,7 @@ router.patch('/admin/players/:id', async (_req, res, next) => {
 
     const existingPlayer = await prisma.player.findUnique({
       where: {
-        id: _req.params.id,
+        id: playerId,
       },
     })
 
@@ -203,7 +208,7 @@ router.patch('/admin/players/:id', async (_req, res, next) => {
 
     const player = await prisma.player.update({
       where: {
-        id: _req.params.id,
+        id: playerId,
       },
       data: {
         firstName: playerInput.firstName,
@@ -250,11 +255,12 @@ router.patch('/admin/players/:id', async (_req, res, next) => {
   }
 })
 
-router.delete('/admin/players/:id', async (_req, res, next) => {
+router.delete('/admin/players/:id', requireAuth, async (_req, res, next) => {
   try {
+    const playerId = String(_req.params.id)
     const existingPlayer = await prisma.player.findUnique({
       where: {
-        id: _req.params.id,
+        id: playerId,
       },
     })
 
@@ -267,7 +273,7 @@ router.delete('/admin/players/:id', async (_req, res, next) => {
 
     const player = await prisma.player.update({
       where: {
-        id: _req.params.id,
+        id: playerId,
       },
       data: {
         active: false,
