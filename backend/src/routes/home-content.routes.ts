@@ -7,23 +7,76 @@ const router = Router()
 
 const DEFAULT_HOME_CONTENT = {
   id: 'home',
-  matchesPlayed: '48',
-  victories: '31',
-  trophies: '06',
-  activePlayers: '22',
-  yearsActive: '01',
-  tickerText:
-    "Top G's CC def. Norwood CC by 47 runs    ·    Catto named Player of the Match    ·    Next fixture: Top G's CC vs Riverside CC — Sat 31 May    ·    U18s training every Thursday 5PM    ·    Season 2026 registrations now open    ·    ",
+  tickerText: '',
 }
 
 const homeContentSchema = z.object({
-  matchesPlayed: z.string().trim().min(1),
-  victories: z.string().trim().min(1),
-  trophies: z.string().trim().min(1),
-  activePlayers: z.string().trim().min(1),
-  yearsActive: z.string().trim().min(1),
   tickerText: z.string().trim().min(1),
 })
+
+function formatTwoDigits(value: number) {
+  return String(value).padStart(2, '0')
+}
+
+async function getComputedHomeStats() {
+  const now = new Date()
+
+  const [matchesPlayed, victories, trophies, activePlayers, firstFixture] =
+    await Promise.all([
+      prisma.fixture.count({
+        where: {
+          active: true,
+          matchDate: {
+            lte: now,
+          },
+        },
+      }),
+      prisma.fixture.count({
+        where: {
+          active: true,
+          result: 'won',
+        },
+      }),
+      prisma.fixture.count({
+        where: {
+          active: true,
+          result: 'won',
+          matchLabel: {
+            equals: 'Grand Final',
+            mode: 'insensitive',
+          },
+        },
+      }),
+      prisma.player.count({
+        where: {
+          active: true,
+        },
+      }),
+      prisma.fixture.findFirst({
+        where: {
+          active: true,
+        },
+        orderBy: {
+          matchDate: 'asc',
+        },
+        select: {
+          matchDate: true,
+        },
+      }),
+    ])
+
+  const currentYear = now.getFullYear()
+  const firstYear = firstFixture?.matchDate.getFullYear()
+  const yearsActive = firstYear ? currentYear - firstYear + 1 : 0
+
+  return {
+    matchesPlayed: String(matchesPlayed),
+    victories: String(victories),
+    trophies: formatTwoDigits(trophies),
+    activePlayers: String(activePlayers),
+    yearsActive: formatTwoDigits(yearsActive),
+  }
+}
 
 async function getHomeContent() {
   const content = await prisma.homeContent.findUnique({
@@ -32,7 +85,13 @@ async function getHomeContent() {
     },
   })
 
-  return content ?? DEFAULT_HOME_CONTENT
+  const stats = await getComputedHomeStats()
+
+  return {
+    ...DEFAULT_HOME_CONTENT,
+    ...content,
+    ...stats,
+  }
 }
 
 router.get('/home-content', async (_req, res, next) => {
@@ -67,7 +126,7 @@ router.patch('/admin/home-content', requireAuth, async (_req, res, next) => {
       return
     }
 
-    const content = await prisma.homeContent.upsert({
+    await prisma.homeContent.upsert({
       where: {
         id: 'home',
       },
@@ -79,7 +138,7 @@ router.patch('/admin/home-content', requireAuth, async (_req, res, next) => {
     })
 
     res.status(200).json({
-      data: content,
+      data: await getHomeContent(),
     })
   } catch (error) {
     next(error)
