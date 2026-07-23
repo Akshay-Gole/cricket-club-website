@@ -1,5 +1,5 @@
 import type { RefObject } from 'react'
-import type { NewsArticle } from '../types/news.types'
+import type { NewsArticle, NewsBlock } from '../types/news.types'
 import { categoryLabel, formatArticleDate } from '../data/newsData'
 import ArticleAuthorStrip from './ArticleAuthorStrip'
 import ArticleMoreGrid from './ArticleMoreGrid'
@@ -11,7 +11,12 @@ interface StandardArticleProps {
 }
 
 function StandardArticle({ article, progressRef }: StandardArticleProps) {
-  const paragraphs = article.content.split('\n\n')
+  const blocks = article.blocks.length
+    ? article.blocks
+    : article.content
+        .split('\n\n')
+        .filter(Boolean)
+        .map(text => ({ type: 'paragraph' as const, data: { text } }))
 
   return (
     <div className="bg-black">
@@ -28,7 +33,7 @@ function StandardArticle({ article, progressRef }: StandardArticleProps) {
                 {categoryLabel[article.category]}
               </span>
               <span>{formatArticleDate(article.publishedAt)}</span>
-              <span>3 min read</span>
+              <span>{article.readTime}</span>
             </div>
             <h1 className="font-serif text-[38px] font-bold leading-[1.08] tracking-[-0.5px] text-cream sm:text-[58px] lg:text-[70px]">
               {article.title}
@@ -63,53 +68,33 @@ function StandardArticle({ article, progressRef }: StandardArticleProps) {
         <article className="font-body text-[16px] font-light leading-[1.9] text-cream/72 sm:text-[18px]">
           <div className="mb-10 rounded-sm border-[0.5px] border-gold/20 bg-gold/[0.06] p-5">
             <div className="mb-2 font-heading text-[10px] font-bold uppercase tracking-[3px] text-gold">
-              Club Notice
+              {categoryLabel[article.category]}
             </div>
             <p className="m-0 text-base leading-[1.7] text-cream/75">
-              This is a standard article layout. No scorecard, no player of the
-              match, no match-specific stats — just a clean editorial story.
+              {article.excerpt}
             </p>
           </div>
 
-          {paragraphs.map((paragraph, index) => (
-            <p
-              key={paragraph}
-              className={
-                index === 0
-                  ? 'first-letter:float-left first-letter:mr-2.5 first-letter:mt-2 first-letter:font-display first-letter:text-[64px] first-letter:leading-[0.8] first-letter:text-gold sm:first-letter:text-[80px]'
-                  : ''
-              }
-            >
-              {paragraph}
-            </p>
+          {blocks.map((block, index) => (
+            <ArticleBlock
+              key={`${block.type}-${index}`}
+              block={block}
+              index={index}
+            />
           ))}
 
-          <div data-animate="reveal" className="my-10 overflow-hidden bg-card">
-            <div className="relative flex h-[220px] items-center justify-center overflow-hidden bg-[linear-gradient(135deg,#18170f,#090a08)] sm:h-[300px]">
-              <div className="absolute inset-0 opacity-[0.08] [background-image:repeating-linear-gradient(170deg,transparent,transparent_40px,rgba(201,168,76,0.6)_40px,rgba(201,168,76,0.6)_80px)]" />
-              <div className="relative font-display text-[38px] uppercase tracking-[4px] text-gold/20 sm:text-[52px]">
-                Club Photo
-              </div>
+          {article.featuredImage && (
+            <div
+              data-animate="reveal"
+              className="my-10 overflow-hidden bg-card"
+            >
+              <img
+                src={article.featuredImage}
+                alt=""
+                className="h-[220px] w-full object-cover sm:h-[300px]"
+              />
             </div>
-          </div>
-
-          <h2 className="mt-12 font-serif text-[26px] font-bold leading-[1.2] text-cream sm:text-[30px]">
-            What members should know
-          </h2>
-          <ul className="mt-5 grid gap-3">
-            {[
-              'Keep an eye on club communication for confirmed dates.',
-              'Speak to the committee if you want to volunteer or sponsor.',
-              'New players can still reach out through the contact form.',
-            ].map(item => (
-              <li
-                key={item}
-                className="border-l-2 border-gold/60 bg-white/[0.03] px-4 py-3 text-base text-cream/75"
-              >
-                {item}
-              </li>
-            ))}
-          </ul>
+          )}
         </article>
 
         <aside className="lg:sticky lg:top-24 lg:self-start">
@@ -140,6 +125,14 @@ function StandardArticle({ article, progressRef }: StandardArticleProps) {
                 </div>
                 <div className="text-base font-bold text-gold">Standard</div>
               </div>
+              <div>
+                <div className="text-[9px] font-bold uppercase tracking-[2px] text-muted">
+                  Read Time
+                </div>
+                <div className="text-base font-bold text-cream">
+                  {article.readTime}
+                </div>
+              </div>
             </div>
           </div>
         </aside>
@@ -147,6 +140,73 @@ function StandardArticle({ article, progressRef }: StandardArticleProps) {
 
       <ArticleMoreGrid currentSlug={article.slug} />
     </div>
+  )
+}
+
+function blockText(block: NewsBlock, key: string) {
+  const value = block.data[key]
+  return typeof value === 'string' ? value : ''
+}
+
+function ArticleBlock({ block, index }: { block: NewsBlock; index: number }) {
+  if (block.type === 'heading') {
+    return (
+      <h2 className="mt-12 font-serif text-[26px] font-bold leading-[1.2] text-cream sm:text-[30px]">
+        {blockText(block, 'text')}
+      </h2>
+    )
+  }
+
+  if (block.type === 'quote') {
+    return (
+      <blockquote className="my-10 border-l-[3px] border-gold py-1 pl-6">
+        <p className="font-serif text-xl italic leading-[1.55] text-cream sm:text-[23px]">
+          “{blockText(block, 'text')}”
+        </p>
+        {blockText(block, 'cite') && (
+          <cite className="mt-3 block font-heading text-[11px] font-bold uppercase not-italic tracking-[2.5px] text-gold">
+            — {blockText(block, 'cite')}
+          </cite>
+        )}
+      </blockquote>
+    )
+  }
+
+  if (block.type === 'callout') {
+    return (
+      <div className="my-8 border-[0.5px] border-gold/20 bg-gold/[0.06] p-5 text-base leading-[1.7] text-cream/75">
+        {blockText(block, 'text')}
+      </div>
+    )
+  }
+
+  if (block.type === 'image') {
+    return (
+      <figure data-animate="reveal" className="my-10 overflow-hidden bg-card">
+        <img
+          src={blockText(block, 'url')}
+          alt={blockText(block, 'alt')}
+          className="h-[220px] w-full object-cover sm:h-[300px]"
+        />
+        {blockText(block, 'caption') && (
+          <figcaption className="border-t-[0.5px] border-white/[0.06] px-4 py-2 font-body text-xs italic text-muted">
+            {blockText(block, 'caption')}
+          </figcaption>
+        )}
+      </figure>
+    )
+  }
+
+  return (
+    <p
+      className={
+        index === 0
+          ? 'first-letter:float-left first-letter:mr-2.5 first-letter:mt-2 first-letter:font-display first-letter:text-[64px] first-letter:leading-[0.8] first-letter:text-gold sm:first-letter:text-[80px]'
+          : ''
+      }
+    >
+      {blockText(block, 'text')}
+    </p>
   )
 }
 

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ChangeEvent, FormEvent, ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import newsApi from '../news/api/news.api'
 import type { NewsCategory } from '../news/types/news.types'
 import {
   adminNewsInputClass,
@@ -8,7 +9,7 @@ import {
   categoryBadgeClass,
   categoryLabel,
   EMPTY_NEWS_FORM,
-  MOCK_NEWS_ARTICLES,
+  NEWS_LAYOUT_OPTIONS,
   NEWS_CATEGORY_OPTIONS,
   NEWS_FILTERS,
   statusBadgeClass,
@@ -19,13 +20,14 @@ import {
 } from './constants/adminNews.constants'
 
 function ManageNews() {
-  const [articles, setArticles] =
-    useState<AdminNewsArticle[]>(MOCK_NEWS_ARTICLES)
+  const [articles, setArticles] = useState<AdminNewsArticle[]>([])
   const [search, setSearch] = useState('')
   const [activeFilter, setActiveFilter] = useState<NewsFilter>('all')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [form, setForm] = useState<NewsFormState>(EMPTY_NEWS_FORM)
   const [formError, setFormError] = useState('')
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSaving, setIsSaving] = useState(false)
 
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -131,6 +133,29 @@ function ManageNews() {
     }, 350)
   }
 
+  const loadArticles = () => {
+    setIsLoading(true)
+
+    newsApi
+      .getAdminAll()
+      .then(data => {
+        setArticles(data as AdminNewsArticle[])
+        setFormError('')
+      })
+      .catch(() => {
+        setFormError('Could not load news articles.')
+      })
+      .finally(() => {
+        setIsLoading(false)
+      })
+  }
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(loadArticles, 0)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [])
+
   useEffect(() => {
     if (searchParams.get('action') !== 'create') return
 
@@ -160,7 +185,7 @@ function ManageNews() {
     }
   }, [searchParams, setSearchParams])
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     if (!form.title.trim()) {
@@ -178,35 +203,42 @@ function ManageNews() {
       return
     }
 
-    const now = new Date().toISOString().slice(0, 10)
-    const slug = createSlug(form.title)
+    const featuredImage = form.featuredImagePreviewUrl.trim()
 
-    const nextArticle: AdminNewsArticle = {
-      id: editingId ?? `news-${Date.now()}`,
+    const payload = {
       title: form.title.trim(),
-      slug,
       excerpt: form.excerpt.trim(),
       content: form.content.trim(),
       category: form.category,
-      featuredImage: form.featuredImagePreviewUrl,
-      author: 'Admin',
-      publishedAt: now,
-      updatedAt: now,
+      layout: form.layout,
+      author: form.author.trim() || "Top G's CC",
+      featuredImage: /^https?:\/\//i.test(featuredImage) ? featuredImage : '',
       status: form.status,
-      readTime: estimateReadTime(form.content),
     }
 
-    if (editingId) {
+    try {
+      setIsSaving(true)
+
+      const savedArticle = editingId
+        ? await newsApi.updateAdmin(editingId, payload)
+        : await newsApi.createAdmin(payload)
+
       setArticles(current =>
-        current.map(article =>
-          article.id === editingId ? nextArticle : article
-        )
+        editingId
+          ? current.map(article =>
+              article.id === savedArticle.id
+                ? (savedArticle as AdminNewsArticle)
+                : article
+            )
+          : [savedArticle as AdminNewsArticle, ...current]
       )
-    } else {
-      setArticles(current => [nextArticle, ...current])
-    }
 
-    resetForm()
+      resetForm()
+    } catch {
+      setFormError('Something went wrong while saving this article.')
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   const handleEdit = (article: AdminNewsArticle) => {
@@ -215,10 +247,12 @@ function ManageNews() {
     setForm({
       title: article.title,
       category: article.category,
+      layout: article.layout,
       excerpt: article.excerpt,
       content: article.content,
       featuredImageFile: null,
       featuredImagePreviewUrl: article.featuredImage ?? '',
+      author: article.author,
       status: article.status,
     })
 
@@ -231,11 +265,18 @@ function ManageNews() {
     focusForm()
   }
 
-  const handleDelete = (articleId: string) => {
-    setArticles(current => current.filter(article => article.id !== articleId))
+  const handleDelete = async (articleId: string) => {
+    try {
+      await newsApi.deleteAdmin(articleId)
+      setArticles(current =>
+        current.filter(article => article.id !== articleId)
+      )
 
-    if (editingId === articleId) {
-      resetForm()
+      if (editingId === articleId) {
+        resetForm()
+      }
+    } catch {
+      setFormError('Something went wrong while deleting this article.')
     }
   }
 
@@ -282,7 +323,9 @@ function ManageNews() {
                 </p>
 
                 <h3 className="mt-1 font-display text-2xl tracking-[1px] text-white">
-                  {filteredArticles.length} Articles
+                  {isLoading
+                    ? 'Loading Articles'
+                    : `${filteredArticles.length} Articles`}
                 </h3>
               </div>
 
@@ -471,8 +514,8 @@ function ManageNews() {
             </h3>
 
             <p className="mt-2 font-body text-xs font-light leading-[1.7] text-muted">
-              This form updates local UI state only. Backend save and Cloudinary
-              upload will come later.
+              Save real club news to the backend. Paste an image URL for now;
+              Cloudinary upload can replace this later.
             </p>
           </div>
 
@@ -488,7 +531,7 @@ function ManageNews() {
               />
             </AdminField>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 min-[520px]:grid-cols-2">
               <AdminField label="Category">
                 <select
                   value={form.category}
@@ -518,6 +561,48 @@ function ManageNews() {
                 </select>
               </AdminField>
             </div>
+
+            <div className="grid grid-cols-1 gap-3 min-[520px]:grid-cols-2">
+              <AdminField label="Layout">
+                <select
+                  value={form.layout}
+                  onChange={event => updateForm('layout', event.target.value)}
+                  className={adminNewsInputClass}
+                >
+                  {NEWS_LAYOUT_OPTIONS.map(layout => (
+                    <option key={layout.value} value={layout.value}>
+                      {layout.label}
+                    </option>
+                  ))}
+                </select>
+              </AdminField>
+
+              <AdminField label="Author">
+                <input
+                  type="text"
+                  value={form.author}
+                  placeholder="Top G's CC"
+                  onChange={event => updateForm('author', event.target.value)}
+                  className={adminNewsInputClass}
+                />
+              </AdminField>
+            </div>
+
+            <AdminField label="Featured Image URL">
+              <input
+                type="url"
+                value={
+                  /^https?:\/\//i.test(form.featuredImagePreviewUrl)
+                    ? form.featuredImagePreviewUrl
+                    : ''
+                }
+                placeholder="https://res.cloudinary.com/..."
+                onChange={event =>
+                  updateForm('featuredImagePreviewUrl', event.target.value)
+                }
+                className={adminNewsInputClass}
+              />
+            </AdminField>
 
             <AdminField label="Excerpt" required>
               <textarea
@@ -622,9 +707,14 @@ function ManageNews() {
             <div className="flex flex-col gap-3 min-[420px]:flex-row">
               <button
                 type="submit"
-                className="flex-1 rounded bg-gold px-5 py-3.5 font-heading text-[11px] font-bold uppercase tracking-[2.5px] text-black transition-colors hover:bg-gold/90"
+                disabled={isSaving}
+                className="flex-1 rounded bg-gold px-5 py-3.5 font-heading text-[11px] font-bold uppercase tracking-[2.5px] text-black transition-colors hover:bg-gold/90 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {editingId ? 'Save Changes' : 'Create Article'}
+                {isSaving
+                  ? 'Saving...'
+                  : editingId
+                    ? 'Save Changes'
+                    : 'Create Article'}
               </button>
 
               {editingId && (
@@ -642,22 +732,6 @@ function ManageNews() {
       </div>
     </div>
   )
-}
-
-function createSlug(title: string) {
-  return title
-    .trim()
-    .toLowerCase()
-    .replace(/['’]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-}
-
-function estimateReadTime(content: string) {
-  const words = content.trim().split(/\s+/).filter(Boolean).length
-  const minutes = Math.max(1, Math.ceil(words / 180))
-
-  return `${minutes} min read`
 }
 
 function formatDate(date: string) {

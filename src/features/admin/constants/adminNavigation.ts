@@ -39,11 +39,12 @@ export const ADMIN_NAVIGATION: AdminNavigationItem[] = [
     to: ROUTES.ADMIN_FIXTURES,
     icon: 'fixtures',
   },
-  {
-    label: 'News',
-    to: ROUTES.ADMIN_NEWS,
-    icon: 'news',
-  },
+  // News is paused for now.
+  // {
+  //   label: 'News',
+  //   to: ROUTES.ADMIN_NEWS,
+  //   icon: 'news',
+  // },
   {
     label: 'Honours',
     to: ROUTES.ADMIN_HONOURS,
@@ -94,13 +95,14 @@ export const ADMIN_PAGE_META = [
     actionLabel: '+ Add Fixture',
     actionTo: ROUTES.ADMIN_FIXTURES,
   },
-  {
-    path: ROUTES.ADMIN_NEWS,
-    eyebrow: 'Club Publishing',
-    title: 'News & Articles',
-    actionLabel: '+ New Article',
-    actionTo: `${ROUTES.ADMIN_NEWS}?action=create`,
-  },
+  // News is paused for now.
+  // {
+  //   path: ROUTES.ADMIN_NEWS,
+  //   eyebrow: 'Club Publishing',
+  //   title: 'News & Articles',
+  //   actionLabel: '+ New Article',
+  //   actionTo: `${ROUTES.ADMIN_NEWS}?action=create`,
+  // },
   {
     path: ROUTES.ADMIN_HONOURS,
     eyebrow: 'Club Legacy',
