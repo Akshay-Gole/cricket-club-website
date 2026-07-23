@@ -13,6 +13,23 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model InstagramPost {
+  id               String   @id @default(uuid())
+  instagramMediaId String   @unique
+  caption          String?
+  mediaType        String
+  mediaUrl         String?
+  thumbnailUrl     String?
+  permalink        String
+  timestamp        DateTime
+  active           Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([active])
+  @@index([timestamp])
+}
+
 model Player {
   id                  String                   @id @default(uuid())
   firstName           String
@@ -202,4 +219,39 @@ model HonourManualRecord {
 
   @@index([featured])
   @@index([sortOrder])
+}
+
+model NewsPost {
+  id            String      @id @default(uuid())
+  title         String
+  slug          String      @unique
+  category      String
+  layout        String      @default("standard")
+  excerpt       String
+  content       String
+  featuredImage String?
+  author        String      @default("Top G's CC")
+  status        String      @default("draft")
+  readTime      String      @default("1 min read")
+  publishedAt   DateTime?
+  active        Boolean     @default(true)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  blocks        NewsBlock[]
+
+  @@index([status, publishedAt])
+  @@index([category, publishedAt])
+}
+
+model NewsBlock {
+  id        String   @id @default(uuid())
+  postId    String
+  post      NewsPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  type      String
+  sortOrder Int      @default(0)
+  data      Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([postId, sortOrder])
 }

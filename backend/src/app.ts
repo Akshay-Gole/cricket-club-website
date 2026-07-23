@@ -12,6 +12,9 @@ import internalRoutes from './routes/internal.routes.js'
 import homeContentRoutes from './routes/home-content.routes.js'
 import fixtureRoutes from './routes/fixture.routes.js'
 import honourRoutes from './routes/honour.routes.js'
+import galleryRoutes from './routes/gallery.routes.js'
+// News is paused for now. Keep the route file for future work.
+// import newsRoutes from './routes/news.routes.js'
 
 const app = express()
 
@@ -32,6 +35,9 @@ app.use('/api', internalRoutes)
 app.use('/api', homeContentRoutes)
 app.use('/api', fixtureRoutes)
 app.use('/api', honourRoutes)
+app.use('/api', galleryRoutes)
+// News is paused for now.
+// app.use('/api', newsRoutes)
 
 app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
   console.error(error)
