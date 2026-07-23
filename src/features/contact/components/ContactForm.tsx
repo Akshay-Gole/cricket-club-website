@@ -12,6 +12,7 @@ import ContactFormFields from './ContactFormFields'
 import ContactSuccess from './ContactSuccess'
 import PlayerFields from './PlayerFields'
 import SponsorFields from './SponsorFields'
+import { submitContact } from '../api/contact.api'
 
 interface ContactFormProps {
   intent: IntentId | null
@@ -21,6 +22,8 @@ function ContactForm({ intent }: ContactFormProps) {
   const [form, setForm] = useState<ContactFormData>(EMPTY_FORM)
   const [errors, setErrors] = useState<FormErrors>({})
   const [submitted, setSubmitted] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitError, setSubmitError] = useState('')
 
   const intentMeta = INTENTS.find(item => item.id === intent)
 
@@ -60,7 +63,7 @@ function ContactForm({ intent }: ContactFormProps) {
     return false
   }
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
     if (!validate()) {
@@ -68,18 +71,31 @@ function ContactForm({ intent }: ContactFormProps) {
       return
     }
 
-    logger.action('Contact form submitted', {
-      intent,
-      name: form.name,
-      subject: form.subject,
-    })
+    if (!intent) return
 
-    setSubmitted(true)
+    setIsSubmitting(true)
+    setSubmitError('')
+
+    try {
+      await submitContact(intent, form)
+      logger.action('Contact form submitted', {
+        intent,
+        name: form.name,
+        subject: form.subject,
+      })
+      setSubmitted(true)
+    } catch (error) {
+      logger.error('Contact form submission failed', error)
+      setSubmitError('Could not send your message. Please try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleReset = () => {
     setForm(EMPTY_FORM)
     setErrors({})
+    setSubmitError('')
     setSubmitted(false)
   }
 
@@ -88,7 +104,10 @@ function ContactForm({ intent }: ContactFormProps) {
   }
 
   return (
-    <section className="px-5 py-8 pb-14 sm:px-7 sm:py-10 sm:pb-16 lg:px-12 lg:py-12 lg:pb-20">
+    <section
+      id="contact-form"
+      className="scroll-mt-20 px-5 py-8 pb-14 sm:px-7 sm:py-10 sm:pb-16 lg:px-12 lg:py-12 lg:pb-20"
+    >
       <form
         data-animate="reveal"
         onSubmit={handleSubmit}
@@ -118,6 +137,23 @@ function ContactForm({ intent }: ContactFormProps) {
             )}
           </ContactFormFields>
 
+          <input
+            type="text"
+            name="nickname"
+            value={form.nickname ?? ''}
+            onChange={event => update('nickname', event.target.value)}
+            tabIndex={-1}
+            autoComplete="off"
+            aria-hidden="true"
+            className="absolute -left-[9999px]"
+          />
+
+          {submitError && (
+            <p role="alert" className="mt-4 font-body text-sm text-[#ff9b8f]">
+              {submitError}
+            </p>
+          )}
+
           <div className="mt-6 flex flex-col items-stretch gap-4 min-[641px]:flex-row min-[641px]:items-center min-[641px]:justify-between">
             <p className="max-w-none font-body text-xs font-light leading-[1.5] text-muted min-[641px]:max-w-[220px]">
               We'll reply within 48 hours. No spam, ever.
@@ -125,9 +161,10 @@ function ContactForm({ intent }: ContactFormProps) {
 
             <button
               type="submit"
-              className="flex cursor-pointer justify-center rounded-sm bg-gold px-6 py-3.5 font-heading text-xs font-bold uppercase tracking-[3px] text-black transition-colors hover:bg-gold-light min-[641px]:px-9 min-[641px]:py-[15px]"
+              disabled={isSubmitting}
+              className="flex cursor-pointer justify-center rounded-sm bg-gold px-6 py-3.5 font-heading text-xs font-bold uppercase tracking-[3px] text-black transition-colors hover:bg-gold-light disabled:cursor-wait disabled:opacity-60 min-[641px]:px-9 min-[641px]:py-[15px]"
             >
-              Send Message →
+              {isSubmitting ? 'Sending…' : 'Send Message →'}
             </button>
           </div>
         </div>

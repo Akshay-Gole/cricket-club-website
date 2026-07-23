@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { FormEvent, ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import PageLoader from '../../components/shared/PageLoader'
 import fixturesApi from '../fixtures/api/fixture.api'
 import type { Fixture, FixtureResult } from '../fixtures/types/fixture.types'
@@ -13,6 +14,7 @@ import {
   type FixtureFilter,
   type FixtureFormState,
 } from './constants/adminFixture.constants'
+import { adminFixturesQuery, queryKeys } from '../../lib/queryOptions'
 
 function saveErrorMessage(error: unknown) {
   const maybeApiError = error as {
@@ -29,15 +31,22 @@ function saveErrorMessage(error: unknown) {
 }
 
 function ManageFixtures() {
-  const [fixtures, setFixtures] = useState<Fixture[]>([])
+  const queryClient = useQueryClient()
+  const {
+    data: fixtures = [],
+    isLoading: isLoadingFixtures,
+    isError,
+  } = useQuery(adminFixturesQuery)
   const [search, setSearch] = useState('')
   const [activeFilter, setActiveFilter] = useState<FixtureFilter>('all')
   const [editingId, setEditingId] = useState<string | null>(null)
   const [form, setForm] = useState<FixtureFormState>(EMPTY_FIXTURE_FORM)
   const [formError, setFormError] = useState('')
   const [fixturesError, setFixturesError] = useState('')
-  const [isLoadingFixtures, setIsLoadingFixtures] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
+  const displayedFixturesError =
+    fixturesError ||
+    (isError ? 'Could not load fixtures. Please check the backend.' : '')
 
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -85,18 +94,6 @@ function ManageFixtures() {
     setFormError('')
   }
 
-  const loadFixtures = async () => {
-    try {
-      setFixturesError('')
-      const nextFixtures = await fixturesApi.getAdmin()
-      setFixtures(nextFixtures)
-    } catch {
-      setFixturesError('Could not load fixtures. Please check the backend.')
-    } finally {
-      setIsLoadingFixtures(false)
-    }
-  }
-
   const resetForm = () => {
     setForm(EMPTY_FIXTURE_FORM)
     setEditingId(null)
@@ -113,16 +110,6 @@ function ManageFixtures() {
       awayTeamInputRef.current?.focus()
     }, 350)
   }
-
-  useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
-      void loadFixtures()
-    }, 0)
-
-    return () => {
-      window.clearTimeout(timeoutId)
-    }
-  }, [])
 
   useEffect(() => {
     if (searchParams.get('action') !== 'create') return
@@ -184,15 +171,21 @@ function ManageFixtures() {
       if (editingId) {
         const updatedFixture = await fixturesApi.update(editingId, nextFixture)
 
-        setFixtures(current =>
-          current.map(fixture =>
-            fixture.id === editingId ? updatedFixture : fixture
-          )
+        queryClient.setQueryData<Fixture[]>(
+          queryKeys.adminFixtures,
+          current =>
+            current?.map(fixture =>
+              fixture.id === editingId ? updatedFixture : fixture
+            ) ?? []
         )
       } else {
         const createdFixture = await fixturesApi.create(nextFixture)
-        setFixtures(current => [createdFixture, ...current])
+        queryClient.setQueryData<Fixture[]>(
+          queryKeys.adminFixtures,
+          current => [createdFixture, ...(current ?? [])]
+        )
       }
+      void queryClient.invalidateQueries({ queryKey: queryKeys.fixtures })
 
       resetForm()
     } catch (error) {
@@ -233,9 +226,11 @@ function ManageFixtures() {
 
     try {
       await fixturesApi.delete(fixtureId)
-      setFixtures(current =>
-        current.filter(fixture => fixture.id !== fixtureId)
+      queryClient.setQueryData<Fixture[]>(
+        queryKeys.adminFixtures,
+        current => current?.filter(fixture => fixture.id !== fixtureId) ?? []
       )
+      void queryClient.invalidateQueries({ queryKey: queryKeys.fixtures })
     } catch {
       setFixturesError('Could not delete fixture. Please try again.')
     }
@@ -281,7 +276,7 @@ function ManageFixtures() {
       <div className="grid grid-cols-1 gap-5 sm:gap-6 min-[1180px]:grid-cols-[minmax(0,1fr)_410px]">
         <section className="overflow-hidden rounded border border-white/[0.1] bg-[#161616]">
           <div className="border-b border-white/[0.10] p-5 sm:p-6">
-            <div className="flex flex-col gap-4 min-[901px]:flex-row min-[901px]:items-center min-[901px]:justify-between">
+            <div className="flex flex-col gap-4">
               <div>
                 <p className="font-heading text-[10px] font-bold uppercase tracking-[3px] text-gold">
                   Fixture List
@@ -292,16 +287,16 @@ function ManageFixtures() {
                 </h3>
               </div>
 
-              <div className="flex flex-col gap-3 min-[641px]:flex-row">
+              <div className="flex min-w-0 flex-col gap-3">
                 <input
                   type="search"
                   value={search}
                   placeholder="Search team, venue, season..."
                   onChange={event => setSearch(event.target.value)}
-                  className="h-11 rounded border border-white/[0.12] bg-white/[0.045] px-4 font-heading text-sm font-semibold tracking-[0.5px] text-white outline-none placeholder:text-muted focus:border-gold/40 min-[641px]:w-[280px]"
+                  className="h-11 w-full rounded border border-white/[0.12] bg-white/[0.045] px-4 font-heading text-sm font-semibold tracking-[0.5px] text-white outline-none placeholder:text-muted focus:border-gold/40"
                 />
 
-                <div className="flex overflow-x-auto rounded border border-white/[0.12] bg-white/[0.035] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <div className="flex min-w-0 flex-wrap overflow-hidden rounded border border-white/[0.12] bg-white/[0.035]">
                   {FIXTURE_FILTERS.map(filter => {
                     const isActive = activeFilter === filter.value
 
@@ -329,9 +324,9 @@ function ManageFixtures() {
             <PageLoader label="Loading fixtures..." variant="section" />
           )}
 
-          {fixturesError && (
+          {displayedFixturesError && (
             <div className="border-b border-white/[0.10] px-5 py-4 font-body text-sm text-[#ff9b8f]">
-              {fixturesError}
+              {displayedFixturesError}
             </div>
           )}
 

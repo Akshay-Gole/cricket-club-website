@@ -1,13 +1,19 @@
 import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import ContactHero from '../features/contact/components/ContactHero'
 import IntentSelector from '../features/contact/components/IntentSelector'
-import { type IntentId } from '../features/contact/intents'
+import { INTENTS, type IntentId } from '../features/contact/intents'
 import logger from '../services/logger'
 import ContactForm from '../features/contact/components/ContactForm'
 import ContactMap from '../features/contact/components/ContactMap'
 
 function Contact() {
-  const [selectedIntent, setSelectedIntent] = useState<IntentId | null>(null)
+  const [searchParams] = useSearchParams()
+  const requestedIntent = searchParams.get('intent')
+  const initialIntent = INTENTS.some(intent => intent.id === requestedIntent)
+    ? (requestedIntent as IntentId)
+    : 'player'
+  const [selectedIntent, setSelectedIntent] = useState<IntentId>(initialIntent)
 
   const handleIntentSelect = (intent: IntentId) => {
     setSelectedIntent(intent)

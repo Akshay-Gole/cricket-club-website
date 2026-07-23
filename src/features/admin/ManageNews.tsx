@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ChangeEvent, FormEvent, ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import newsApi from '../news/api/news.api'
 import type { NewsCategory } from '../news/types/news.types'
 import {
@@ -18,8 +19,10 @@ import {
   type NewsFilter,
   type NewsFormState,
 } from './constants/adminNews.constants'
+import { adminNewsQuery, queryKeys } from '../../lib/queryOptions'
 
 function ManageNews() {
+  const queryClient = useQueryClient()
   const [articles, setArticles] = useState<AdminNewsArticle[]>([])
   const [search, setSearch] = useState('')
   const [activeFilter, setActiveFilter] = useState<NewsFilter>('all')
@@ -133,11 +136,11 @@ function ManageNews() {
     }, 350)
   }
 
-  const loadArticles = () => {
+  const loadArticles = useCallback(() => {
     setIsLoading(true)
 
-    newsApi
-      .getAdminAll()
+    queryClient
+      .fetchQuery(adminNewsQuery)
       .then(data => {
         setArticles(data as AdminNewsArticle[])
         setFormError('')
@@ -148,13 +151,13 @@ function ManageNews() {
       .finally(() => {
         setIsLoading(false)
       })
-  }
+  }, [queryClient])
 
   useEffect(() => {
     const timeoutId = window.setTimeout(loadArticles, 0)
 
     return () => window.clearTimeout(timeoutId)
-  }, [])
+  }, [loadArticles])
 
   useEffect(() => {
     if (searchParams.get('action') !== 'create') return
@@ -232,6 +235,8 @@ function ManageNews() {
             )
           : [savedArticle as AdminNewsArticle, ...current]
       )
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminNews })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.news })
 
       resetForm()
     } catch {
@@ -271,6 +276,8 @@ function ManageNews() {
       setArticles(current =>
         current.filter(article => article.id !== articleId)
       )
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminNews })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.news })
 
       if (editingId === articleId) {
         resetForm()

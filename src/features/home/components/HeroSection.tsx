@@ -3,12 +3,13 @@ import { Link } from 'react-router-dom'
 import gsap from 'gsap'
 import { ROUTES } from '../../../constants/routes'
 import logger from '../../../services/logger'
-import fixturesApi from '../../fixtures/api/fixture.api'
+import { useQuery } from '@tanstack/react-query'
+import { fixturesQuery } from '../../../lib/queryOptions'
 import type { Fixture } from '../../fixtures/types/fixture.types'
 
 function HeroSection() {
   const sectionRef = useRef<HTMLElement | null>(null)
-  const [fixtures, setFixtures] = useState<Fixture[]>([])
+  const { data: fixtures = [] } = useQuery(fixturesQuery)
   const [now, setNow] = useState(() => new Date())
 
   const nextFixture = useMemo(() => {
@@ -71,19 +72,6 @@ function HeroSection() {
     }, section)
 
     return () => context.revert()
-  }, [])
-
-  useEffect(() => {
-    const loadFixtures = async () => {
-      try {
-        const nextFixtures = await fixturesApi.getAll()
-        setFixtures(nextFixtures)
-      } catch {
-        setFixtures([])
-      }
-    }
-
-    void loadFixtures()
   }, [])
 
   useEffect(() => {

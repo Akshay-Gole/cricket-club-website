@@ -3,9 +3,9 @@ import PlaceholderPage from '../components/shared/PlaceholderPage'
 function About() {
   return (
     <PlaceholderPage
-      eyebrow="The Club"
-      title="About Top G's."
-      description="This page is ready for your club story, values, coaching philosophy and foundation details."
+      eyebrow="About Us"
+      title="Under Construction."
+      description="We’re still putting our club story together. Check back soon to learn more about Top G’s CC, our values and how the club began."
       ghost="ABOUT"
     />
   )

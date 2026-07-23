@@ -1,5 +1,4 @@
-import { dashboardStats } from '../../constants/dashboardData'
-import type { AdminTone } from '../../types/admin.types'
+import type { AdminTone, DashboardStat } from '../../types/admin.types'
 
 const toneClasses: Record<AdminTone, string> = {
   gold: 'border-gold/25 bg-gold/[0.08] text-gold',
@@ -9,10 +8,10 @@ const toneClasses: Record<AdminTone, string> = {
   neutral: 'border-white/[0.08] bg-white/[0.04] text-muted',
 }
 
-function DashboardStats() {
+function DashboardStats({ stats }: { stats: DashboardStat[] }) {
   return (
     <section className="grid grid-cols-1 gap-4 min-[641px]:grid-cols-2 min-[1025px]:grid-cols-4">
-      {dashboardStats.map(stat => (
+      {stats.map(stat => (
         <article
           key={stat.label}
           className="group relative overflow-hidden rounded border border-white/[0.1] bg-[#161616] p-5 shadow-[0_14px_40px_rgba(0,0,0,0.22)] transition-all duration-300 hover:-translate-y-1 hover:border-gold/25 hover:bg-[#1b1b1b] hover:shadow-[0_18px_50px_-24px_rgba(201,168,76,0.38)]"

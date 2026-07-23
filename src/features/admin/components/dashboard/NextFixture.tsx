@@ -1,6 +1,21 @@
-import { nextFixture } from '../../constants/dashboardData'
+import type { NextFixtureData } from '../../types/admin.types'
 
-function NextFixture() {
+function NextFixture({ fixture }: { fixture: NextFixtureData | null }) {
+  if (!fixture) {
+    return (
+      <section className="rounded border border-white/[0.1] bg-[#161616] p-6">
+        <p className="font-heading text-[10px] font-bold uppercase tracking-[4px] text-gold">
+          Next Fixture
+        </p>
+        <h3 className="mt-2 font-display text-[34px] text-white">
+          No Upcoming Match
+        </h3>
+      </section>
+    )
+  }
+
+  const date = new Date(fixture.date)
+
   return (
     <section className="relative overflow-hidden rounded border border-white/[0.1] bg-[#161616] p-5 shadow-[0_14px_44px_rgba(0,0,0,0.24)] sm:p-6">
       <div
@@ -21,17 +36,20 @@ function NextFixture() {
           </div>
 
           <span className="rounded border border-gold/25 bg-gold/[0.08] px-3 py-2 font-heading text-[10px] font-bold uppercase tracking-[2.5px] text-gold">
-            {nextFixture.status}
+            {fixture.status}
           </span>
         </div>
 
         <div className="grid grid-cols-1 gap-5 min-[641px]:grid-cols-[150px_1fr]">
           <div className="rounded border border-white/[0.1] bg-[#202020]/80 p-5">
             <div className="font-display text-[44px] leading-none text-[#efe9dc]">
-              14
+              {date.getDate()}
             </div>
             <div className="mt-1 font-heading text-[11px] font-bold uppercase tracking-[3px] text-muted">
-              Jun 2026
+              {date.toLocaleDateString('en-AU', {
+                month: 'short',
+                year: 'numeric',
+              })}
             </div>
           </div>
 
@@ -41,7 +59,7 @@ function NextFixture() {
             </p>
 
             <h4 className="mt-2 font-display text-[30px] leading-[1.05] tracking-[1px] text-gold sm:text-[38px]">
-              {nextFixture.opponent}
+              {fixture.opponent}
             </h4>
 
             <div className="mt-5 grid grid-cols-1 gap-3 min-[641px]:grid-cols-2">
@@ -50,7 +68,7 @@ function NextFixture() {
                   Time
                 </p>
                 <p className="mt-1 font-body text-sm text-[#e7e0d1]">
-                  {nextFixture.time}
+                  {fixture.time}
                 </p>
               </div>
 
@@ -59,7 +77,7 @@ function NextFixture() {
                   Ground
                 </p>
                 <p className="mt-1 font-body text-sm text-[#e7e0d1]">
-                  {nextFixture.ground}
+                  {fixture.ground}
                 </p>
               </div>
 
@@ -68,7 +86,7 @@ function NextFixture() {
                   Competition
                 </p>
                 <p className="mt-1 font-body text-sm text-[#e7e0d1]">
-                  {nextFixture.competition}
+                  {fixture.competition}
                 </p>
               </div>
             </div>

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import honoursApi from '../honours/api/honours.api'
 import type {
   HonourAwardWinner,
@@ -26,6 +27,7 @@ import {
   type RecordFormState,
   type TrophyFormState,
 } from './constants/adminHonours.constants'
+import { adminHonoursQuery, queryKeys } from '../../lib/queryOptions'
 
 const EMPTY_HONOURS: HonoursData = {
   snapshot: {
@@ -40,6 +42,7 @@ const EMPTY_HONOURS: HonoursData = {
 }
 
 function ManageHonours() {
+  const queryClient = useQueryClient()
   const [activeTab, setActiveTab] = useState<HonourTab>('trophies')
   const [search, setSearch] = useState('')
   const [honours, setHonours] = useState<HonoursData>(EMPTY_HONOURS)
@@ -143,14 +146,14 @@ function ManageHonours() {
   const loadHonours = useCallback(async () => {
     try {
       setIsLoading(true)
-      setHonours(await honoursApi.getAdmin())
+      setHonours(await queryClient.fetchQuery(adminHonoursQuery))
       setFormError('')
     } catch {
       setFormError('Could not load honours. Please check the backend.')
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [queryClient])
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -204,6 +207,8 @@ function ManageHonours() {
         : await honoursApi.createTrophy(payload)
 
       setHonours(data)
+      queryClient.setQueryData(queryKeys.adminHonours, data)
+      void queryClient.invalidateQueries({ queryKey: queryKeys.honours })
       setTrophyForm(EMPTY_TROPHY_FORM)
       setEditingTrophyId(null)
       setFormError('')
@@ -241,6 +246,8 @@ function ManageHonours() {
         : await honoursApi.createAward(payload)
 
       setHonours(data)
+      queryClient.setQueryData(queryKeys.adminHonours, data)
+      void queryClient.invalidateQueries({ queryKey: queryKeys.honours })
       setAwardForm(EMPTY_AWARD_FORM)
       setEditingAwardId(null)
       setFormError('')
@@ -271,7 +278,10 @@ function ManageHonours() {
         sortOrder: template?.sortOrder ?? 90,
       }
 
-      setHonours(await honoursApi.updateManualRecord(id, payload))
+      const data = await honoursApi.updateManualRecord(id, payload)
+      setHonours(data)
+      queryClient.setQueryData(queryKeys.adminHonours, data)
+      void queryClient.invalidateQueries({ queryKey: queryKeys.honours })
       setRecordForm(EMPTY_RECORD_FORM)
       setEditingRecordId(null)
       setFormError('')
@@ -329,6 +339,8 @@ function ManageHonours() {
     try {
       setIsSaving(true)
       await honoursApi.deleteTrophy(id)
+      await queryClient.invalidateQueries({ queryKey: queryKeys.adminHonours })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.honours })
       await loadHonours()
     } catch {
       setFormError('Something went wrong while deleting this trophy.')
@@ -341,6 +353,8 @@ function ManageHonours() {
     try {
       setIsSaving(true)
       await honoursApi.deleteAward(id)
+      await queryClient.invalidateQueries({ queryKey: queryKeys.adminHonours })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.honours })
       await loadHonours()
     } catch {
       setFormError('Something went wrong while deleting this award.')
@@ -355,6 +369,8 @@ function ManageHonours() {
     try {
       setIsSaving(true)
       await honoursApi.deleteManualRecord(record.id)
+      await queryClient.invalidateQueries({ queryKey: queryKeys.adminHonours })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.honours })
       await loadHonours()
     } catch {
       setFormError('Something went wrong while deleting this record.')
@@ -398,12 +414,12 @@ function ManageHonours() {
       <div className="grid grid-cols-1 gap-5 sm:gap-6 min-[1180px]:grid-cols-[minmax(0,1fr)_430px]">
         <section className="overflow-hidden rounded border border-white/[0.1] bg-[#161616]">
           <div className="border-b border-white/[0.1] p-5 sm:p-6">
-            <div className="flex flex-col gap-4 min-[901px]:flex-row min-[901px]:items-center min-[901px]:justify-between">
+            <div className="flex flex-col gap-4">
               <div>
                 <p className="font-heading text-[10px] font-bold uppercase tracking-[3px] text-gold">
                   Content Type
                 </p>
-                <div className="mt-3 flex overflow-x-auto rounded border border-white/[0.12] bg-white/[0.035] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <div className="mt-3 flex min-w-0 flex-wrap overflow-hidden rounded border border-white/[0.12] bg-white/[0.035]">
                   {HONOUR_TABS.map(tab => (
                     <button
                       key={tab.value}
@@ -429,7 +445,7 @@ function ManageHonours() {
                 value={search}
                 placeholder="Search honours..."
                 onChange={event => setSearch(event.target.value)}
-                className="h-11 rounded border border-white/[0.12] bg-white/[0.045] px-4 font-heading text-sm font-semibold tracking-[0.5px] text-white outline-none placeholder:text-muted focus:border-gold/40 min-[641px]:w-[300px]"
+                className="h-11 w-full rounded border border-white/[0.12] bg-white/[0.045] px-4 font-heading text-sm font-semibold tracking-[0.5px] text-white outline-none placeholder:text-muted focus:border-gold/40"
               />
             </div>
           </div>

@@ -21,7 +21,6 @@ export const ROUTES = {
   ADMIN_FIXTURES: '/admin/fixtures',
   ADMIN_NEWS: '/admin/news',
   ADMIN_HONOURS: '/admin/honours',
-  ADMIN_GALLERY: '/admin/gallery',
   ADMIN_SPONSORS: '/admin/sponsors',
   ADMIN_MESSAGES: '/admin/messages',
 

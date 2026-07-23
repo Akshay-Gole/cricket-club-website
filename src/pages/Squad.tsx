@@ -1,18 +1,21 @@
-import { useEffect, useMemo, useState, useTransition } from 'react'
-import type { Player, PlayerRole } from '../features/players/types/player.types'
+import { useMemo, useState, useTransition } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import type { PlayerRole } from '../features/players/types/player.types'
 import PlayerCard from '../features/players/components/PlayerCard'
 import PlayerFilter from '../features/players/components/PlayerFilter'
-import playersApi from '../features/players/api/players.api'
 import { useDebounce } from '../hooks/useDebounce'
 import logger from '../services/logger'
 import PageLoader from '../components/shared/PageLoader'
+import { playersQuery } from '../lib/queryOptions'
 
 type FilterValue = 'all' | PlayerRole
 
 function Squad() {
-  const [players, setPlayers] = useState<Player[]>([])
-  const [isLoadingPlayers, setIsLoadingPlayers] = useState(true)
-  const [playersError, setPlayersError] = useState('')
+  const {
+    data: players = [],
+    isLoading: isLoadingPlayers,
+    isError,
+  } = useQuery(playersQuery)
   const [activeFilter, setActiveFilter] = useState<FilterValue>('all')
   const [searchInput, setSearchInput] = useState('')
   const [isPending, startTransition] = useTransition()
@@ -31,25 +34,6 @@ function Squad() {
       return matchesRole && matchesSearch
     })
   }, [activeFilter, debouncedSearch, players])
-
-  useEffect(() => {
-    async function loadPlayers() {
-      try {
-        setIsLoadingPlayers(true)
-        setPlayersError('')
-
-        const playerList = await playersApi.getAll()
-        setPlayers(playerList)
-      } catch (error) {
-        logger.error('Failed to load squad players', error)
-        setPlayersError('Could not load players')
-      } finally {
-        setIsLoadingPlayers(false)
-      }
-    }
-
-    loadPlayers()
-  }, [])
 
   // Filter change — wrapped in startTransition so the UI stays responsive
   const handleFilterChange = (filter: FilterValue) => {
@@ -162,7 +146,7 @@ function Squad() {
           isPending ? 'opacity-60' : 'opacity-100'
         }`}
       >
-        {playersError ? (
+        {isError ? (
           <div className="col-span-full py-20 text-center">
             <p className="font-display text-5xl text-white/60 tracking-[3px]">
               Could Not Load Players

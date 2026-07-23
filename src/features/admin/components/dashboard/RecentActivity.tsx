@@ -1,5 +1,5 @@
-import { recentActivity } from '../../constants/dashboardData'
-import type { AdminTone } from '../../types/admin.types'
+import { relativeTime } from '../../api/dashboard.api'
+import type { AdminTone, RecentActivityItem } from '../../types/admin.types'
 
 const dotClasses: Record<AdminTone, string> = {
   gold: 'bg-gold',
@@ -9,7 +9,7 @@ const dotClasses: Record<AdminTone, string> = {
   neutral: 'bg-muted',
 }
 
-function RecentActivity() {
+function RecentActivity({ activity }: { activity: RecentActivityItem[] }) {
   return (
     <section className="rounded border border-white/[0.1] bg-[#161616] shadow-[0_14px_44px_rgba(0,0,0,0.22)]">
       <div className="border-b border-white/[0.10] px-5 py-4">
@@ -28,7 +28,7 @@ function RecentActivity() {
             className="absolute bottom-2 left-[5px] top-2 w-px bg-white/[0.08]"
           />
 
-          {recentActivity.map(item => (
+          {activity.map(item => (
             <article key={item.id} className="relative flex gap-4">
               <span
                 className={`relative z-[1] mt-1.5 h-2.5 w-2.5 rounded-full ${dotClasses[item.tone]}`}
@@ -41,7 +41,7 @@ function RecentActivity() {
                   </h4>
 
                   <span className="shrink-0 font-heading text-[10px] font-bold uppercase tracking-[1.5px] text-muted">
-                    {item.time}
+                    {relativeTime(item.occurredAt)}
                   </span>
                 </div>
 
@@ -51,6 +51,9 @@ function RecentActivity() {
               </div>
             </article>
           ))}
+          {activity.length === 0 && (
+            <p className="font-body text-sm text-muted">No activity yet.</p>
+          )}
         </div>
       </div>
     </section>

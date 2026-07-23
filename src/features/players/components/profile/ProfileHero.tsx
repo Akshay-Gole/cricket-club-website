@@ -1,5 +1,12 @@
 import type { PlayerProfile } from '../../types/playerProfile.types'
 
+const roleLabel: Record<PlayerProfile['role'], string> = {
+  batsman: 'Batsman',
+  bowler: 'Bowler',
+  'all-rounder': 'All-Rounder',
+  'wicket-keeper': 'Wicket-Keeper',
+}
+
 function ProfileHero({ player }: { player: PlayerProfile }) {
   const initials = player.name.slice(0, 3)
 
@@ -9,30 +16,43 @@ function ProfileHero({ player }: { player: PlayerProfile }) {
       className="grid grid-cols-1 min-[901px]:grid-cols-[400px_1fr] mx-5 sm:mx-7 lg:mx-12 bg-card border-[0.5px] border-white/[0.06] rounded overflow-hidden relative min-[901px]:min-h-[480px]"
     >
       {/* LEFT — visual panel */}
-      <div className="relative flex flex-col justify-end p-7 min-[901px]:p-9 overflow-hidden min-h-[240px] sm:min-h-[280px] [background:linear-gradient(160deg,#0d2a18_0%,#061510_60%,#0a0a0a_100%)]">
-        <div className="absolute -top-3 sm:-top-5 -right-1.5 sm:-right-2.5 font-display text-[140px] sm:text-[200px] text-gold/40 leading-none pointer-events-none">
+      <div className="group relative flex min-h-[420px] flex-col justify-end overflow-hidden bg-[#06120b] p-7 sm:min-h-[500px] min-[901px]:min-h-full min-[901px]:p-9">
+        {player.imageUrl ? (
+          <img
+            src={player.imageUrl}
+            alt=""
+            aria-hidden="true"
+            className="absolute inset-0 h-full w-full scale-[1.04] object-cover object-center saturate-[0.85] transition-transform duration-700 ease-out group-hover:scale-[1.08]"
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center bg-[radial-gradient(circle_at_50%_30%,#1a4a28,#06120b_60%,#050706)] font-display text-[96px] tracking-[4px] text-green-light/35">
+            {initials}
+          </div>
+        )}
+
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(2,8,5,0.08)_0%,rgba(2,8,5,0.2)_32%,rgba(2,8,5,0.86)_74%,#030605_100%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(3,16,9,0.18),transparent_55%,rgba(201,168,76,0.1))]" />
+        <div className="pointer-events-none absolute inset-0 shadow-[inset_0_0_80px_rgba(0,0,0,0.5)]" />
+
+        <div className="pointer-events-none absolute -right-2 -top-4 font-display text-[150px] leading-none text-gold/[0.24] mix-blend-screen sm:text-[210px]">
           {String(player.jerseyNumber).padStart(2, '0')}
         </div>
 
-        <div className="relative w-[90px] h-[90px] sm:w-[120px] sm:h-[120px] rounded-full border-2 border-gold/20 flex items-center justify-center font-display text-[28px] sm:text-4xl text-green-light tracking-[2px] mb-4 sm:mb-5 [background:radial-gradient(circle_at_30%_30%,#1a4a28,#06120b)]">
-          {initials}
+        <div className="relative z-[1] mb-3 inline-flex items-center self-start rounded-sm border-[0.5px] border-green-light/40 bg-[#062512]/80 px-3 py-[5px] font-heading text-[10px] font-bold uppercase tracking-[2.5px] text-green-light shadow-[0_8px_24px_rgba(0,0,0,0.35)] backdrop-blur-sm">
+          {roleLabel[player.role]}
           {player.isCaptain && (
-            <div className="absolute top-1 right-1 w-7 h-7 rounded-full bg-gold border-2 border-card flex items-center justify-center font-heading text-[11px] font-bold text-black">
-              C
-            </div>
+            <span className="ml-2 rounded-sm bg-gold px-1.5 py-0.5 text-[8px] tracking-[1.5px] text-black">
+              Captain
+            </span>
           )}
         </div>
 
-        <div className="inline-flex items-center self-start font-heading text-[10px] font-bold tracking-[2.5px] uppercase px-3 py-[5px] rounded-sm mb-3 bg-green-light/15 text-green-light border-[0.5px] border-green-light/30">
-          All-Rounder
-        </div>
-
-        <div className="font-display text-[38px] sm:text-[52px] leading-[0.95] tracking-[1px] text-white mb-1">
+        <div className="relative z-[1] mb-1 font-display text-[44px] leading-[0.92] tracking-[1px] text-white drop-shadow-[0_4px_16px_rgba(0,0,0,0.9)] sm:text-[58px]">
           {player.name}
         </div>
-        <div className="font-body text-xs sm:text-[13px] font-light text-muted tracking-[0.5px]">
+        <div className="relative z-[1] font-body text-xs font-light tracking-[0.5px] text-white/70 drop-shadow-[0_2px_8px_rgba(0,0,0,1)] sm:text-[13px]">
           {player.fullName} · Jersey #
-          {String(player.jerseyNumber).padStart(2, '0')} · Captain
+          {String(player.jerseyNumber).padStart(2, '0')}
         </div>
 
         <div className="absolute bottom-0 left-0 right-0 h-1 [background:linear-gradient(90deg,#c9a84c_0%,#2d8a47_40%,#c9a84c_100%)]" />

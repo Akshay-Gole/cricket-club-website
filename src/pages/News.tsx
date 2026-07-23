@@ -1,39 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import newsApi from '../features/news/api/news.api'
 import {
   NEWS_ARTICLES,
   categoryLabel,
   formatArticleDate,
 } from '../features/news/data/newsData'
 import type { NewsArticle } from '../features/news/types/news.types'
+import { newsQuery } from '../lib/queryOptions'
 
 function News() {
-  const [articles, setArticles] = useState<NewsArticle[]>(NEWS_ARTICLES)
-  const [isLoading, setIsLoading] = useState(true)
-  const [hasError, setHasError] = useState(false)
-
-  useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
-      newsApi
-        .getAll()
-        .then(data => {
-          if (data.length) {
-            setArticles(data)
-          }
-
-          setHasError(false)
-        })
-        .catch(() => {
-          setHasError(true)
-        })
-        .finally(() => {
-          setIsLoading(false)
-        })
-    }, 0)
-
-    return () => window.clearTimeout(timeoutId)
-  }, [])
+  const { data, isLoading, isError: hasError } = useQuery(newsQuery)
+  const articles = data?.length ? data : NEWS_ARTICLES
 
   const featureArticle = articles[0]
   const sideArticles = articles.slice(1, 3)
