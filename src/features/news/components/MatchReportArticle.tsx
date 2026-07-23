@@ -26,6 +26,8 @@ const scorecard = [
 ]
 
 function MatchReportArticle({ article, progressRef }: MatchReportArticleProps) {
+  const paragraphs = article.content.split('\n\n').filter(Boolean)
+
   return (
     <div className="bg-black">
       <ArticleProgress progressRef={progressRef} />
@@ -80,17 +82,13 @@ function MatchReportArticle({ article, progressRef }: MatchReportArticleProps) {
                 {categoryLabel[article.category]}
               </span>
               <span>{formatArticleDate(article.publishedAt)}</span>
-              <span>6 min read</span>
+              <span>{article.readTime}</span>
             </div>
             <h1
               data-animate="hero"
               className="font-serif text-[36px] font-bold leading-[1.08] tracking-[-0.5px] text-cream sm:text-[54px] lg:text-[64px]"
             >
-              Top G&apos;s <em className="text-gold">Demolish</em>
-              <br />
-              Norwood by 47 Runs
-              <br />
-              in Dominant Opener
+              {article.title}
             </h1>
             <p
               data-animate="hero"
@@ -103,17 +101,20 @@ function MatchReportArticle({ article, progressRef }: MatchReportArticleProps) {
       </section>
 
       <ArticleAuthorStrip
-        initials="JC"
-        name="James Catto"
-        role="Club Captain · Match Reporter"
+        initials={article.author
+          .split(' ')
+          .map(part => part[0])
+          .join('')
+          .slice(0, 2)
+          .toUpperCase()}
+        name={article.author}
+        role="Club Match Report"
       />
 
       <div className="mx-auto grid max-w-[1200px] gap-12 px-5 py-10 sm:px-7 sm:py-12 lg:grid-cols-[1fr_300px] lg:gap-16 lg:px-12 lg:py-16">
         <article className="font-body text-[15px] font-light leading-[1.85] text-cream/72 sm:text-[17px]">
           <p className="first-letter:float-left first-letter:mr-2.5 first-letter:mt-2 first-letter:font-display first-letter:text-[64px] first-letter:leading-[0.8] first-letter:text-gold sm:first-letter:text-[80px]">
-            From the first over it was clear this wasn&apos;t going to be a
-            close contest. Sent in to bat at a sunlit Adelaide Oval No.2, Top
-            G&apos;s CC built their innings with patience and precision.
+            {paragraphs[0] ?? article.excerpt}
           </p>
 
           <div
@@ -132,30 +133,11 @@ function MatchReportArticle({ article, progressRef }: MatchReportArticleProps) {
             ))}
           </div>
 
-          <h2 className="mt-12 font-serif text-[26px] font-bold leading-[1.2] text-cream sm:text-[30px]">
-            Catto sets the standard
-          </h2>
-          <p className="mt-4">
-            Coming in at 68/2, Catto immediately looked at ease. He read length
-            early, refused to be hurried, then changed the tempo with clean
-            shots through mid-on and cover.
-          </p>
-
-          <blockquote className="my-10 border-l-[3px] border-gold py-1 pl-6">
-            <p className="font-serif text-xl italic leading-[1.55] text-cream sm:text-[23px]">
-              “I wasn&apos;t trying to be the hero. I just backed myself to stay
-              in and let the ball-striking come naturally.”
+          {paragraphs.slice(1).map(paragraph => (
+            <p key={paragraph} className="mt-4">
+              {paragraph}
             </p>
-            <cite className="mt-3 block font-heading text-[11px] font-bold uppercase not-italic tracking-[2.5px] text-gold">
-              — James Catto, Captain
-            </cite>
-          </blockquote>
-
-          <p>
-            He finished on 55 not out from 38 balls — a strike rate of 144.7
-            that never felt forced. Five fours, two sixes, and only one false
-            shot all innings: everything else was clean, deliberate, clinical.
-          </p>
+          ))}
 
           <div data-animate="reveal" className="my-10 overflow-hidden bg-card">
             <div className="relative flex h-[220px] items-center justify-center overflow-hidden bg-[linear-gradient(135deg,#0d2a18,#061510)] sm:h-[320px]">
@@ -169,16 +151,6 @@ function MatchReportArticle({ article, progressRef }: MatchReportArticleProps) {
               Top G&apos;s CC.
             </div>
           </div>
-
-          <h2 className="mt-12 font-serif text-[26px] font-bold leading-[1.2] text-cream sm:text-[30px]">
-            Ryan dismantles the top order
-          </h2>
-          <p className="mt-4">
-            Chasing 160, Norwood needed a strong start — and they didn&apos;t
-            get one. Ryan was unplayable in his opening spell, removing both
-            openers inside the powerplay and leaving the visitors behind the
-            game.
-          </p>
 
           <div className="my-9 border-[0.5px] border-white/[0.08] border-l-2 border-l-gold bg-card p-5 sm:p-6">
             <div className="mb-3 font-heading text-[10px] font-bold uppercase tracking-[3px] text-gold">
