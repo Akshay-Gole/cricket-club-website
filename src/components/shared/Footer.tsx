@@ -4,8 +4,9 @@ import { NavLink } from 'react-router-dom'
 
 const SOCIAL_LINKS = [
   { label: 'Insta', href: 'https://www.instagram.com/topgs_cc/' },
-  { label: 'Facebook', href: '#' },
-  { label: 'X', href: '#' },
+  // Add Facebook and X after the club's official profiles are created.
+  // { label: 'Facebook', href: 'https://facebook.com/...' },
+  // { label: 'X', href: 'https://x.com/...' },
 ]
 
 const NAV_COLUMNS = [
@@ -19,15 +20,14 @@ const NAV_COLUMNS = [
       // News is paused for now.
       // { label: 'News', to: ROUTES.NEWS },
       { label: 'Gallery', to: ROUTES.GALLERY },
+      { label: 'Contact', to: ROUTES.CONTACT },
     ],
   },
   {
     title: 'The Club',
     links: [
       { label: 'About Us', to: ROUTES.ABOUT },
-      { label: 'Coaching Staff', to: ROUTES.SQUAD },
-      { label: 'Sponsors', to: ROUTES.SPONSORS },
-      { label: 'Contact', to: ROUTES.CONTACT },
+      // { label: 'Sponsors', to: ROUTES.SPONSORS },
       // News is paused for now.
       // { label: 'Media', to: ROUTES.NEWS },
     ],

@@ -22,7 +22,7 @@ export interface RecentMessage {
   name: string
   intent: string
   preview: string
-  time: string
+  occurredAt: string
   unread: boolean
 }
 
@@ -30,7 +30,7 @@ export interface RecentActivityItem {
   id: string
   title: string
   detail: string
-  time: string
+  occurredAt: string
   tone: AdminTone
 }
 
@@ -39,4 +39,14 @@ export interface QuickAction {
   description: string
   to: string
   tone: AdminTone
+}
+
+export interface DashboardSummary {
+  season: string
+  unread: number
+  upcoming: number
+  stats: DashboardStat[]
+  nextFixture: NextFixtureData | null
+  recentMessages: RecentMessage[]
+  recentActivity: RecentActivityItem[]
 }

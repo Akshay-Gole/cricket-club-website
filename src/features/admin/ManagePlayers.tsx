@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { ChangeEvent, FormEvent, ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import PageLoader from '../../components/shared/PageLoader'
 import api from '../../services/api'
 import type { Player, PlayerRole } from '../players/types/player.types'
@@ -14,6 +15,7 @@ import {
   type PlayerFormState,
   type RoleFilter,
 } from './constants/adminPlayer.constants'
+import { queryKeys } from '../../lib/queryOptions'
 
 interface AdminPlayerResponse {
   id: string
@@ -21,6 +23,7 @@ interface AdminPlayerResponse {
   role: PlayerRole
   jerseyNumber: number
   imageUrl?: string | null
+  imagePublicId?: string | null
   playCricketPlayerId?: string | null
   stats: {
     battingAverage: number
@@ -41,6 +44,7 @@ interface PlayerPayload {
   role: PlayerRole
   jerseyNumber: number
   imageUrl?: string
+  imagePublicId?: string
   playCricketPlayerId?: string
   isCaptain: boolean
   isFeatured: boolean
@@ -58,6 +62,7 @@ function mapAdminPlayer(player: AdminPlayerResponse): Player {
     battingAverage: player.stats.battingAverage,
     bestBowling: player.stats.bestBowling,
     imageUrl: player.imageUrl ?? undefined,
+    imagePublicId: player.imagePublicId ?? undefined,
     playCricketPlayerId: player.playCricketPlayerId ?? undefined,
     isCaptain: player.isCaptain,
     isFeatured: player.isFeatured,
@@ -105,6 +110,7 @@ function getApiMessage(error: unknown, fallback: string) {
 }
 
 function ManagePlayers() {
+  const queryClient = useQueryClient()
   const [players, setPlayers] = useState<Player[]>([])
   const [isLoadingPlayers, setIsLoadingPlayers] = useState(true)
   const [isSavingPlayer, setIsSavingPlayer] = useState(false)
@@ -181,6 +187,15 @@ function ManagePlayers() {
       return
     }
 
+    if (file.size > 5 * 1024 * 1024) {
+      setFormError('Player image must be smaller than 5 MB')
+      return
+    }
+
+    if (form.imagePreviewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(form.imagePreviewUrl)
+    }
+
     const previewUrl = URL.createObjectURL(file)
 
     setForm(current => ({
@@ -193,10 +208,16 @@ function ManagePlayers() {
   }
 
   const removeImage = () => {
+    if (form.imagePreviewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(form.imagePreviewUrl)
+    }
+
     setForm(current => ({
       ...current,
       imageFile: null,
       imagePreviewUrl: '',
+      imageUrl: '',
+      imagePublicId: '',
     }))
 
     if (imageInputRef.current) {
@@ -204,7 +225,11 @@ function ManagePlayers() {
     }
   }
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
+    if (form.imagePreviewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(form.imagePreviewUrl)
+    }
+
     setForm(EMPTY_PLAYER_FORM)
     setEditingId(null)
     setFormError('')
@@ -214,9 +239,9 @@ function ManagePlayers() {
     if (imageInputRef.current) {
       imageInputRef.current.value = ''
     }
-  }
+  }, [form.imagePreviewUrl])
 
-  const focusForm = () => {
+  const focusForm = useCallback(() => {
     formPanelRef.current?.scrollIntoView({
       behavior: 'smooth',
       block: 'start',
@@ -225,13 +250,11 @@ function ManagePlayers() {
     window.setTimeout(() => {
       nameInputRef.current?.focus()
     }, 350)
-  }
+  }, [])
 
   const buildPlayerPayload = (jerseyNumber: number): PlayerPayload => {
     const displayName = form.name.trim()
     const { firstName, lastName } = getNameParts(displayName)
-    const savedImageUrl = form.imageFile ? undefined : form.imagePreviewUrl
-
     return {
       firstName,
       lastName,
@@ -239,7 +262,8 @@ function ManagePlayers() {
       initials: getInitials(displayName),
       role: form.role,
       jerseyNumber,
-      imageUrl: savedImageUrl,
+      imageUrl: form.imageUrl,
+      imagePublicId: form.imagePublicId,
       playCricketPlayerId: form.playCricketPlayerId.trim() || undefined,
       isCaptain: form.isCaptain,
       isFeatured: form.isFeatured,
@@ -255,7 +279,10 @@ function ManagePlayers() {
         setIsLoadingPlayers(true)
         setPlayersError('')
 
-        const response = await api.get('/admin/players')
+        const response = await queryClient.fetchQuery({
+          queryKey: ['admin', 'players'],
+          queryFn: () => api.get('/admin/players'),
+        })
 
         setPlayers(response.data.data.map(mapAdminPlayer))
       } catch {
@@ -266,7 +293,7 @@ function ManagePlayers() {
     }
 
     loadPlayers()
-  }, [])
+  }, [queryClient])
 
   useEffect(() => {
     if (searchParams.get('action') !== 'create') return
@@ -281,7 +308,7 @@ function ManagePlayers() {
     return () => {
       window.clearTimeout(timeoutId)
     }
-  }, [searchParams, setSearchParams])
+  }, [focusForm, resetForm, searchParams, setSearchParams])
 
   useEffect(() => {
     if (!playerToDelete) return
@@ -318,7 +345,17 @@ function ManagePlayers() {
       setIsSavingPlayer(true)
       setFormError('')
 
-      const payload = buildPlayerPayload(jerseyNumber)
+      const uploadedImage = form.imageFile
+        ? (
+            await api.post('/admin/players/image', form.imageFile, {
+              headers: { 'Content-Type': form.imageFile.type },
+            })
+          ).data.data
+        : null
+      const payload = {
+        ...buildPlayerPayload(jerseyNumber),
+        ...(uploadedImage ?? {}),
+      }
       const response = editingId
         ? await api.patch(`/admin/players/${editingId}`, payload)
         : await api.post('/admin/players', payload)
@@ -334,6 +371,8 @@ function ManagePlayers() {
       } else {
         setPlayers(current => [savedPlayer, ...current])
       }
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminPlayers })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.players })
 
       resetForm()
     } catch (error) {
@@ -358,6 +397,8 @@ function ManagePlayers() {
       playCricketPlayerId: player.playCricketPlayerId ?? '',
       imageFile: null,
       imagePreviewUrl: player.imageUrl ?? '',
+      imageUrl: player.imageUrl ?? '',
+      imagePublicId: player.imagePublicId ?? '',
       isCaptain: Boolean(player.isCaptain),
       isFeatured: Boolean(player.isFeatured),
       featuredStatValue: player.featuredStatValue ?? '',
@@ -436,6 +477,8 @@ function ManagePlayers() {
           currentPlayer.id === player.id ? syncedPlayer : currentPlayer
         )
       )
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminPlayers })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.players })
     } catch {
       setPlayersError('Could not sync player stats')
     } finally {
@@ -452,6 +495,8 @@ function ManagePlayers() {
       setPlayers(current =>
         current.filter(player => player.id !== playerToDelete.id)
       )
+      void queryClient.invalidateQueries({ queryKey: queryKeys.adminPlayers })
+      void queryClient.invalidateQueries({ queryKey: queryKeys.players })
 
       if (editingId === playerToDelete.id) {
         resetForm()
@@ -482,8 +527,8 @@ function ManagePlayers() {
             </h2>
 
             <p className="mt-4 max-w-[620px] font-body text-sm font-light leading-[1.8] text-muted">
-              Add, edit and organise squad members. Image upload is UI-only for
-              now. Later the backend will upload the image to Cloudinary.
+              Add, edit and organise squad members. Player images are stored
+              securely through the backend.
             </p>
           </div>
 
@@ -500,7 +545,7 @@ function ManagePlayers() {
       <div className="grid grid-cols-1 gap-5 sm:gap-6 min-[1180px]:grid-cols-[minmax(0,1fr)_390px]">
         <section className="overflow-hidden rounded border border-white/[0.1] bg-[#161616]">
           <div className="border-b border-white/[0.10] p-5 sm:p-6">
-            <div className="flex flex-col gap-4 min-[901px]:flex-row min-[901px]:items-center min-[901px]:justify-between">
+            <div className="flex flex-col gap-4">
               <div>
                 <p className="font-heading text-[10px] font-bold uppercase tracking-[3px] text-gold">
                   Squad List
@@ -513,16 +558,16 @@ function ManagePlayers() {
                 </h3>
               </div>
 
-              <div className="flex flex-col gap-3 min-[641px]:flex-row">
+              <div className="flex min-w-0 flex-col gap-3">
                 <input
                   type="search"
                   value={search}
                   placeholder="Search player or jersey..."
                   onChange={event => setSearch(event.target.value)}
-                  className="h-11 rounded border border-white/[0.12] bg-white/[0.045] px-4 font-heading text-sm font-semibold tracking-[0.5px] text-white outline-none placeholder:text-muted focus:border-gold/40 min-[641px]:w-[260px]"
+                  className="h-11 w-full rounded border border-white/[0.12] bg-white/[0.045] px-4 font-heading text-sm font-semibold tracking-[0.5px] text-white outline-none placeholder:text-muted focus:border-gold/40"
                 />
 
-                <div className="flex overflow-x-auto rounded border border-white/[0.12] bg-white/[0.035] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <div className="flex min-w-0 flex-wrap overflow-hidden rounded border border-white/[0.12] bg-white/[0.035]">
                   {ROLE_FILTERS.map(filter => {
                     const isActive = activeRole === filter.value
 
@@ -808,7 +853,7 @@ function ManagePlayers() {
                         </p>
 
                         <p className="mt-0.5 font-body text-[11px] text-muted">
-                          Preview only — backend upload will come later
+                          Saved to Cloudinary when you save the player
                         </p>
                       </div>
 
@@ -846,8 +891,7 @@ function ManagePlayers() {
                     </span>
 
                     <span className="mt-2 max-w-[260px] font-body text-xs font-light leading-[1.6] text-muted">
-                      Choose JPG, PNG or WebP. This will preview now and upload
-                      to Cloudinary later through backend.
+                      Choose JPG, PNG, WebP or SVG · maximum 5 MB
                     </span>
                   </button>
                 )}
@@ -855,7 +899,7 @@ function ManagePlayers() {
                 <input
                   ref={imageInputRef}
                   type="file"
-                  accept="image/*"
+                  accept="image/png,image/jpeg,image/webp,image/svg+xml"
                   onChange={handleImageSelect}
                   className="hidden"
                 />

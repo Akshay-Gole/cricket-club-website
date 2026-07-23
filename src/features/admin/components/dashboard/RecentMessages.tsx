@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom'
 import { ROUTES } from '../../../../constants/routes'
-import { recentMessages } from '../../constants/dashboardData'
+import { relativeTime } from '../../api/dashboard.api'
+import type { RecentMessage } from '../../types/admin.types'
 
-function RecentMessages() {
+function RecentMessages({ messages }: { messages: RecentMessage[] }) {
   return (
     <section className="rounded border border-white/[0.1] bg-[#161616] shadow-[0_14px_44px_rgba(0,0,0,0.22)]">
       <div className="flex items-center justify-between gap-4 border-b border-white/[0.10] px-5 py-4">
@@ -24,7 +25,7 @@ function RecentMessages() {
       </div>
 
       <div className="divide-y divide-white/[0.10]">
-        {recentMessages.map(message => (
+        {messages.map(message => (
           <article
             key={message.id}
             className="group flex gap-4 px-5 py-4 transition-colors hover:bg-white/[0.055]"
@@ -49,7 +50,7 @@ function RecentMessages() {
                 </div>
 
                 <span className="shrink-0 font-heading text-[10px] font-bold uppercase tracking-[1.5px] text-muted">
-                  {message.time}
+                  {relativeTime(message.occurredAt)}
                 </span>
               </div>
 
@@ -59,6 +60,11 @@ function RecentMessages() {
             </div>
           </article>
         ))}
+        {messages.length === 0 && (
+          <p className="px-5 py-8 font-body text-sm text-muted">
+            No contact messages yet.
+          </p>
+        )}
       </div>
     </section>
   )

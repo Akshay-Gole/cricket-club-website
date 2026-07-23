@@ -1,24 +1,62 @@
 import { useMemo, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   intentBadgeClass,
   intentLabel,
   MESSAGE_FILTERS,
-  MOCK_MESSAGES,
   statusBadgeClass,
   statusLabel,
   type AdminMessage,
   type MessageFilter,
   type MessageStatus,
 } from './constants/adminMessage.constants'
+import {
+  CONTACT_SUBMISSIONS_QUERY_KEY,
+  deleteContactSubmission,
+  getContactSubmissions,
+  updateContactSubmissionStatus,
+} from '../contact/api/contact.api'
 
 function ContactSubmissions() {
-  const [messages, setMessages] = useState<AdminMessage[]>(MOCK_MESSAGES)
   const [activeFilter, setActiveFilter] = useState<MessageFilter>('all')
   const [search, setSearch] = useState('')
-  const [selectedId, setSelectedId] = useState<string | null>(
-    MOCK_MESSAGES[0]?.id ?? null
-  )
+  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const queryClient = useQueryClient()
+
+  const {
+    data: messages = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
+    queryKey: CONTACT_SUBMISSIONS_QUERY_KEY,
+    queryFn: getContactSubmissions,
+  })
+
+  const statusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: MessageStatus }) =>
+      updateContactSubmissionStatus(id, status),
+    onSuccess: updated => {
+      queryClient.setQueryData<AdminMessage[]>(
+        CONTACT_SUBMISSIONS_QUERY_KEY,
+        current =>
+          current?.map(message =>
+            message.id === updated.id ? updated : message
+          ) ?? []
+      )
+    },
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteContactSubmission,
+    onSuccess: (_data, deletedId) => {
+      queryClient.setQueryData<AdminMessage[]>(
+        CONTACT_SUBMISSIONS_QUERY_KEY,
+        current => current?.filter(message => message.id !== deletedId) ?? []
+      )
+    },
+  })
 
   const detailPanelRef = useRef<HTMLElement | null>(null)
 
@@ -67,11 +105,7 @@ function ContactSubmissions() {
   }, [messages])
 
   const updateStatus = (messageId: string, status: MessageStatus) => {
-    setMessages(current =>
-      current.map(message =>
-        message.id === messageId ? { ...message, status } : message
-      )
-    )
+    statusMutation.mutate({ id: messageId, status })
   }
 
   const handleSelect = (message: AdminMessage) => {
@@ -94,12 +128,12 @@ function ContactSubmissions() {
   }
 
   const handleDelete = (messageId: string) => {
-    setMessages(current => current.filter(message => message.id !== messageId))
-
     if (selectedId === messageId) {
       const nextMessage = messages.find(message => message.id !== messageId)
       setSelectedId(nextMessage?.id ?? null)
     }
+
+    deleteMutation.mutate(messageId)
   }
 
   const handleReply = (message: AdminMessage) => {
@@ -133,7 +167,7 @@ function ContactSubmissions() {
 
             <p className="mt-4 max-w-[620px] font-body text-sm font-light leading-[1.8] text-muted">
               Review contact form submissions from players, sponsors, supporters
-              and general enquiries. This is mock data until backend is ready.
+              and general enquiries.
             </p>
           </div>
 
@@ -146,30 +180,47 @@ function ContactSubmissions() {
         </div>
       </section>
 
+      {isError && (
+        <section className="rounded border border-[#d86b5f]/30 bg-[#d86b5f]/[0.08] p-5 text-center">
+          <p className="font-heading text-sm font-bold text-[#ff9b8f]">
+            Could not load contact messages.
+          </p>
+          <button
+            type="button"
+            onClick={() => void refetch()}
+            className="mt-3 font-heading text-xs font-bold uppercase tracking-[2px] text-gold"
+          >
+            Try again
+          </button>
+        </section>
+      )}
+
       <div className="grid grid-cols-1 gap-5 sm:gap-6 min-[1180px]:grid-cols-[minmax(0,1fr)_430px]">
         <section className="overflow-hidden rounded border border-white/[0.1] bg-[#161616]">
           <div className="border-b border-white/[0.10] p-5 sm:p-6">
-            <div className="flex flex-col gap-4 min-[901px]:flex-row min-[901px]:items-center min-[901px]:justify-between">
+            <div className="flex flex-col gap-4">
               <div>
                 <p className="font-heading text-[10px] font-bold uppercase tracking-[3px] text-gold">
                   Inbox
                 </p>
 
                 <h3 className="mt-1 font-display text-2xl tracking-[1px] text-white">
-                  {filteredMessages.length} Messages
+                  {isLoading
+                    ? 'Loading…'
+                    : `${filteredMessages.length} Messages`}
                 </h3>
               </div>
 
-              <div className="flex flex-col gap-3 min-[641px]:flex-row">
+              <div className="flex min-w-0 flex-col gap-3">
                 <input
                   type="search"
                   value={search}
                   placeholder="Search name, subject..."
                   onChange={event => setSearch(event.target.value)}
-                  className="h-11 rounded border border-white/[0.12] bg-white/[0.045] px-4 font-heading text-sm font-semibold tracking-[0.5px] text-white outline-none placeholder:text-muted focus:border-gold/40 min-[641px]:w-[280px]"
+                  className="h-11 w-full rounded border border-white/[0.12] bg-white/[0.045] px-4 font-heading text-sm font-semibold tracking-[0.5px] text-white outline-none placeholder:text-muted focus:border-gold/40"
                 />
 
-                <div className="flex overflow-x-auto rounded border border-white/[0.12] bg-white/[0.035] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <div className="flex min-w-0 flex-wrap overflow-hidden rounded border border-white/[0.12] bg-white/[0.035]">
                   {MESSAGE_FILTERS.map(filter => {
                     const isActive = activeFilter === filter.value
 

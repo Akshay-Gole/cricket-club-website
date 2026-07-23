@@ -1,22 +1,18 @@
-import { useEffect, useMemo, useState } from 'react'
-import fixturesApi from '../features/fixtures/api/fixture.api'
-import type {
-  Fixture,
-  FixtureResult,
-} from '../features/fixtures/types/fixture.types'
+import { useMemo, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import type { FixtureResult } from '../features/fixtures/types/fixture.types'
 import logger from '../services/logger'
 import FixturesHeader from '../features/fixtures/components/FixturesHeader'
 import FixturesControls from '../features/fixtures/components/FixturesControls'
 import FixtureList from '../features/fixtures/components/FixtureList'
+import { fixturesQuery } from '../lib/queryOptions'
 
 type FilterValue = 'all' | FixtureResult
 
 function Fixtures() {
-  const [fixtures, setFixtures] = useState<Fixture[]>([])
+  const { data: fixtures = [], isLoading, isError } = useQuery(fixturesQuery)
   const [activeSeason, setActiveSeason] = useState('')
   const [activeFilter, setActiveFilter] = useState<FilterValue>('all')
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState('')
 
   const seasons = useMemo(() => {
     const uniqueSeasons = Array.from(
@@ -28,22 +24,6 @@ function Fixtures() {
 
   const selectedSeason =
     activeSeason || seasons[0] || String(new Date().getFullYear())
-
-  useEffect(() => {
-    const loadFixtures = async () => {
-      try {
-        setError('')
-        const nextFixtures = await fixturesApi.getAll()
-        setFixtures(nextFixtures)
-      } catch {
-        setError('Please check that the backend is running.')
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    void loadFixtures()
-  }, [])
 
   const handleSeasonChange = (season: string) => {
     setActiveSeason(season)
@@ -74,7 +54,7 @@ function Fixtures() {
           season={selectedSeason}
           filter={activeFilter}
           isLoading={isLoading}
-          error={error}
+          error={isError ? 'Please check that the backend is running.' : ''}
         />
       </div>
     </div>

@@ -1,35 +1,16 @@
-import { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { ROUTES } from '../../../constants/routes'
-import newsApi from '../../news/api/news.api'
 import {
   NEWS_ARTICLES,
   categoryLabel,
   formatArticleDate,
 } from '../../news/data/newsData'
-import type { NewsArticle } from '../../news/types/news.types'
+import { newsQuery } from '../../../lib/queryOptions'
 
 function LatestNews() {
-  const [articles, setArticles] = useState<NewsArticle[]>(
-    NEWS_ARTICLES.slice(0, 3)
-  )
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
-      newsApi
-        .getAll()
-        .then(data => {
-          if (data.length) {
-            setArticles(data.slice(0, 3))
-          }
-        })
-        .catch(() => undefined)
-        .finally(() => setIsLoading(false))
-    }, 0)
-
-    return () => window.clearTimeout(timeoutId)
-  }, [])
+  const { data, isLoading } = useQuery(newsQuery)
+  const articles = data?.length ? data.slice(0, 3) : NEWS_ARTICLES.slice(0, 3)
 
   return (
     <section

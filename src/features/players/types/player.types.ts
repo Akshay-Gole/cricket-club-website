@@ -8,6 +8,7 @@ export interface Player {
   battingAverage: number
   bestBowling: string
   imageUrl?: string
+  imagePublicId?: string
   playCricketPlayerId?: string
   careerStats?: PlayerCareerStats | null
   recentPerformances?: PlayerMatchPerformance[]

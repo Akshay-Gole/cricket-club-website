@@ -1,20 +1,28 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { ChangeEvent, FormEvent, ReactNode } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
   adminSponsorInputClass,
   adminSponsorTextareaClass,
   EMPTY_SPONSOR_FORM,
-  MOCK_SPONSORS,
   sponsorStatusClass,
   SPONSOR_FILTERS,
   type AdminSponsor,
   type SponsorFilter,
   type SponsorFormState,
 } from './constants/adminSponsor.constants'
+import {
+  ADMIN_SPONSORS_QUERY_KEY,
+  PUBLIC_SPONSORS_QUERY_KEY,
+  createSponsor,
+  deleteSponsor,
+  getAdminSponsors,
+  uploadSponsorLogo,
+  updateSponsor,
+} from '../sponsors/api/sponsor.api'
 
 function ManageSponsors() {
-  const [sponsors, setSponsors] = useState<AdminSponsor[]>(MOCK_SPONSORS)
   const [search, setSearch] = useState('')
   const [activeFilter, setActiveFilter] = useState<SponsorFilter>('all')
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -22,10 +30,60 @@ function ManageSponsors() {
   const [formError, setFormError] = useState('')
 
   const [searchParams, setSearchParams] = useSearchParams()
+  const queryClient = useQueryClient()
+  const {
+    data: sponsors = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
+    queryKey: ADMIN_SPONSORS_QUERY_KEY,
+    queryFn: getAdminSponsors,
+  })
 
   const logoInputRef = useRef<HTMLInputElement | null>(null)
   const formPanelRef = useRef<HTMLElement | null>(null)
   const nameInputRef = useRef<HTMLInputElement | null>(null)
+
+  const saveMutation = useMutation({
+    mutationFn: async () => {
+      let sponsorForm = form
+
+      if (form.logoFile) {
+        const uploadedLogo = await uploadSponsorLogo(form.logoFile)
+        sponsorForm = {
+          ...form,
+          ...uploadedLogo,
+        }
+      }
+
+      return editingId
+        ? updateSponsor(editingId, sponsorForm)
+        : createSponsor(sponsorForm)
+    },
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ADMIN_SPONSORS_QUERY_KEY }),
+        queryClient.invalidateQueries({ queryKey: PUBLIC_SPONSORS_QUERY_KEY }),
+      ])
+      resetForm()
+    },
+    onError: () => {
+      setFormError('Could not save sponsor. Check the details and try again.')
+    },
+  })
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteSponsor,
+    onSuccess: async (_data, sponsorId) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ADMIN_SPONSORS_QUERY_KEY }),
+        queryClient.invalidateQueries({ queryKey: PUBLIC_SPONSORS_QUERY_KEY }),
+      ])
+
+      if (editingId === sponsorId) resetForm()
+    },
+  })
 
   const filteredSponsors = useMemo(() => {
     const searchValue = search.trim().toLowerCase()
@@ -74,9 +132,7 @@ function ManageSponsors() {
   }
 
   const revokeBlobPreview = (previewUrl: string) => {
-    if (previewUrl.startsWith('blob:')) {
-      URL.revokeObjectURL(previewUrl)
-    }
+    if (previewUrl.startsWith('blob:')) URL.revokeObjectURL(previewUrl)
   }
 
   const handleLogoSelect = (event: ChangeEvent<HTMLInputElement>) => {
@@ -89,49 +145,38 @@ function ManageSponsors() {
       return
     }
 
-    if (form.logoPreviewUrl) {
-      revokeBlobPreview(form.logoPreviewUrl)
+    if (file.size > 5 * 1024 * 1024) {
+      setFormError('Sponsor logo must be smaller than 5 MB')
+      return
     }
 
-    const previewUrl = URL.createObjectURL(file)
-
+    revokeBlobPreview(form.logoPreviewUrl)
     setForm(current => ({
       ...current,
       logoFile: file,
-      logoPreviewUrl: previewUrl,
+      logoPreviewUrl: URL.createObjectURL(file),
     }))
-
     setFormError('')
   }
 
   const removeLogo = () => {
-    if (form.logoPreviewUrl) {
-      revokeBlobPreview(form.logoPreviewUrl)
-    }
-
+    revokeBlobPreview(form.logoPreviewUrl)
     setForm(current => ({
       ...current,
       logoFile: null,
       logoPreviewUrl: '',
+      logoUrl: '',
+      logoPublicId: '',
     }))
 
-    if (logoInputRef.current) {
-      logoInputRef.current.value = ''
-    }
+    if (logoInputRef.current) logoInputRef.current.value = ''
   }
 
   const resetForm = () => {
-    if (form.logoPreviewUrl) {
-      revokeBlobPreview(form.logoPreviewUrl)
-    }
-
+    revokeBlobPreview(form.logoPreviewUrl)
     setForm(EMPTY_SPONSOR_FORM)
     setEditingId(null)
     setFormError('')
-
-    if (logoInputRef.current) {
-      logoInputRef.current.value = ''
-    }
   }
 
   const focusForm = () => {
@@ -152,10 +197,6 @@ function ManageSponsors() {
       setForm(EMPTY_SPONSOR_FORM)
       setEditingId(null)
       setFormError('')
-
-      if (logoInputRef.current) {
-        logoInputRef.current.value = ''
-      }
 
       formPanelRef.current?.scrollIntoView({
         behavior: 'smooth',
@@ -192,35 +233,7 @@ function ManageSponsors() {
       return
     }
 
-    const today = new Date().toISOString().slice(0, 10)
-
-    const nextSponsor: AdminSponsor = {
-      id: editingId ?? `sponsor-${Date.now()}`,
-      name: form.name.trim(),
-      industry: form.industry.trim(),
-      website: form.website.trim(),
-      contactName: form.contactName.trim(),
-      contactEmail: form.contactEmail.trim(),
-      phone: form.phone.trim(),
-      logoUrl: form.logoPreviewUrl,
-      active: form.active,
-      featured: form.featured,
-      joinedAt:
-        sponsors.find(sponsor => sponsor.id === editingId)?.joinedAt ?? today,
-      notes: form.notes.trim(),
-    }
-
-    if (editingId) {
-      setSponsors(current =>
-        current.map(sponsor =>
-          sponsor.id === editingId ? nextSponsor : sponsor
-        )
-      )
-    } else {
-      setSponsors(current => [nextSponsor, ...current])
-    }
-
-    resetForm()
+    saveMutation.mutate()
   }
 
   const handleEdit = (sponsor: AdminSponsor) => {
@@ -235,6 +248,8 @@ function ManageSponsors() {
       phone: sponsor.phone,
       logoFile: null,
       logoPreviewUrl: sponsor.logoUrl,
+      logoUrl: sponsor.logoUrl,
+      logoPublicId: sponsor.logoPublicId,
       active: sponsor.active,
       featured: sponsor.featured,
       notes: sponsor.notes,
@@ -242,19 +257,11 @@ function ManageSponsors() {
 
     setFormError('')
 
-    if (logoInputRef.current) {
-      logoInputRef.current.value = ''
-    }
-
     focusForm()
   }
 
   const handleDelete = (sponsorId: string) => {
-    setSponsors(current => current.filter(sponsor => sponsor.id !== sponsorId))
-
-    if (editingId === sponsorId) {
-      resetForm()
-    }
+    deleteMutation.mutate(sponsorId)
   }
 
   return (
@@ -276,8 +283,8 @@ function ManageSponsors() {
             </h2>
 
             <p className="mt-4 max-w-[620px] font-body text-sm font-light leading-[1.8] text-muted">
-              Add club partners and prepare logo uploads. Logo upload is UI-only
-              until backend and Cloudinary are connected.
+              Add club partners, control public visibility and feature sponsors
+              on the homepage.
             </p>
           </div>
 
@@ -293,27 +300,29 @@ function ManageSponsors() {
       <div className="grid grid-cols-1 gap-5 sm:gap-6 min-[1180px]:grid-cols-[minmax(0,1fr)_430px]">
         <section className="overflow-hidden rounded border border-white/[0.1] bg-[#161616]">
           <div className="border-b border-white/[0.10] p-5 sm:p-6">
-            <div className="flex flex-col gap-4 min-[901px]:flex-row min-[901px]:items-center min-[901px]:justify-between">
+            <div className="flex flex-col gap-4">
               <div>
                 <p className="font-heading text-[10px] font-bold uppercase tracking-[3px] text-gold">
                   Sponsor List
                 </p>
 
                 <h3 className="mt-1 font-display text-2xl tracking-[1px] text-white">
-                  {filteredSponsors.length} Sponsors
+                  {isLoading
+                    ? 'Loading...'
+                    : `${filteredSponsors.length} Sponsors`}
                 </h3>
               </div>
 
-              <div className="flex flex-col gap-3 min-[641px]:flex-row">
+              <div className="flex min-w-0 flex-col gap-3">
                 <input
                   type="search"
                   value={search}
                   placeholder="Search sponsor, industry..."
                   onChange={event => setSearch(event.target.value)}
-                  className="h-11 rounded border border-white/[0.12] bg-white/[0.045] px-4 font-heading text-sm font-semibold tracking-[0.5px] text-white outline-none placeholder:text-muted focus:border-gold/40 min-[641px]:w-[280px]"
+                  className="h-11 w-full rounded border border-white/[0.12] bg-white/[0.045] px-4 font-heading text-sm font-semibold tracking-[0.5px] text-white outline-none placeholder:text-muted focus:border-gold/40"
                 />
 
-                <div className="flex overflow-x-auto rounded border border-white/[0.12] bg-white/[0.035] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <div className="flex min-w-0 flex-wrap overflow-hidden rounded border border-white/[0.12] bg-white/[0.035]">
                   {SPONSOR_FILTERS.map(filter => {
                     const isActive = activeFilter === filter.value
 
@@ -336,6 +345,21 @@ function ManageSponsors() {
               </div>
             </div>
           </div>
+
+          {isError && (
+            <div className="border-b border-[#d86b5f]/25 bg-[#d86b5f]/[0.08] p-5">
+              <p className="font-body text-sm text-[#ff9b8f]">
+                Could not load sponsors.
+              </p>
+              <button
+                type="button"
+                onClick={() => refetch()}
+                className="mt-2 font-heading text-[10px] font-bold uppercase tracking-[2px] text-gold"
+              >
+                Try again
+              </button>
+            </div>
+          )}
 
           <div className="hidden min-[901px]:block">
             <table className="w-full border-collapse">
@@ -511,8 +535,7 @@ function ManageSponsors() {
             </h3>
 
             <p className="mt-2 font-body text-xs font-light leading-[1.7] text-muted">
-              This form updates local UI state only. Backend save and Cloudinary
-              logo upload will come later.
+              Sponsor details and logo images are saved through the backend.
             </p>
           </div>
 
@@ -591,8 +614,8 @@ function ManageSponsors() {
 
               <div className="overflow-hidden rounded border border-white/[0.12] bg-white/[0.035]">
                 {form.logoPreviewUrl ? (
-                  <div className="relative">
-                    <div className="flex h-52 items-center justify-center bg-[#0b0b0b] p-8">
+                  <div>
+                    <div className="flex h-40 items-center justify-center bg-white p-6">
                       <img
                         src={form.logoPreviewUrl}
                         alt="Sponsor logo preview"
@@ -600,30 +623,23 @@ function ManageSponsors() {
                       />
                     </div>
 
-                    <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-3 bg-black/70 px-4 py-3 backdrop-blur-sm">
-                      <div className="min-w-0">
-                        <p className="truncate font-heading text-xs font-bold text-white">
-                          {form.logoFile?.name ?? 'Current sponsor logo'}
-                        </p>
-
-                        <p className="mt-0.5 font-body text-[11px] text-muted">
-                          Preview only — backend upload will come later
-                        </p>
-                      </div>
+                    <div className="flex items-center justify-between gap-3 px-4 py-3">
+                      <span className="truncate font-body text-xs text-muted">
+                        {form.logoFile?.name ?? 'Current sponsor logo'}
+                      </span>
 
                       <div className="flex shrink-0 gap-2">
                         <button
                           type="button"
                           onClick={() => logoInputRef.current?.click()}
-                          className="rounded border border-white/[0.12] px-3 py-2 font-heading text-[9px] font-bold uppercase tracking-[2px] text-white transition-colors hover:border-gold/30 hover:text-gold"
+                          className="font-heading text-[9px] font-bold uppercase tracking-[2px] text-gold"
                         >
                           Change
                         </button>
-
                         <button
                           type="button"
                           onClick={removeLogo}
-                          className="rounded border border-[#d86b5f]/30 px-3 py-2 font-heading text-[9px] font-bold uppercase tracking-[2px] text-[#ff9b8f] transition-colors hover:bg-[#d86b5f]/10"
+                          className="font-heading text-[9px] font-bold uppercase tracking-[2px] text-[#ff9b8f]"
                         >
                           Remove
                         </button>
@@ -634,19 +650,13 @@ function ManageSponsors() {
                   <button
                     type="button"
                     onClick={() => logoInputRef.current?.click()}
-                    className="group flex min-h-[180px] w-full flex-col items-center justify-center px-5 py-8 text-center transition-colors hover:bg-white/[0.055]"
+                    className="flex min-h-32 w-full flex-col items-center justify-center gap-2 p-6 text-center hover:bg-white/[0.04]"
                   >
-                    <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-gold/25 bg-gold/[0.08] text-2xl text-gold">
-                      ↑
-                    </span>
-
                     <span className="font-heading text-sm font-bold uppercase tracking-[2px] text-white">
                       Upload Sponsor Logo
                     </span>
-
-                    <span className="mt-2 max-w-[260px] font-body text-xs font-light leading-[1.6] text-muted">
-                      Choose PNG, SVG, JPG or WebP. Later this will upload to
-                      Cloudinary through backend.
+                    <span className="font-body text-xs text-muted">
+                      PNG, JPG, WebP or SVG · maximum 5 MB
                     </span>
                   </button>
                 )}
@@ -654,7 +664,7 @@ function ManageSponsors() {
                 <input
                   ref={logoInputRef}
                   type="file"
-                  accept="image/*"
+                  accept="image/png,image/jpeg,image/webp,image/svg+xml"
                   onChange={handleLogoSelect}
                   className="hidden"
                 />
@@ -695,9 +705,14 @@ function ManageSponsors() {
             <div className="flex flex-col gap-3 min-[420px]:flex-row">
               <button
                 type="submit"
-                className="flex-1 rounded bg-gold px-5 py-3.5 font-heading text-[11px] font-bold uppercase tracking-[2.5px] text-black transition-colors hover:bg-gold/90"
+                disabled={saveMutation.isPending}
+                className="flex-1 rounded bg-gold px-5 py-3.5 font-heading text-[11px] font-bold uppercase tracking-[2.5px] text-black transition-colors hover:bg-gold/90 disabled:cursor-wait disabled:opacity-60"
               >
-                {editingId ? 'Save Changes' : 'Add Sponsor'}
+                {saveMutation.isPending
+                  ? 'Saving...'
+                  : editingId
+                    ? 'Save Changes'
+                    : 'Add Sponsor'}
               </button>
 
               {editingId && (

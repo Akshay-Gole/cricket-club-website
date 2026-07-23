@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import type { FormEvent } from 'react'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import homeContentApi from '../home/api/homeContent.api'
 import { EMPTY_HOME_CONTENT } from '../home/api/homeContent.api'
 import type { HomeContent } from '../home/api/homeContent.api'
+import { adminHomeContentQuery, queryKeys } from '../../lib/queryOptions'
 
 const STAT_FIELDS: {
   key: keyof Pick<
@@ -34,33 +36,27 @@ const STAT_FIELDS: {
 ]
 
 function ManageHomeContent() {
-  const [form, setForm] = useState<HomeContent>(EMPTY_HOME_CONTENT)
-  const [isLoading, setIsLoading] = useState(true)
-  const [isSaving, setIsSaving] = useState(false)
+  const [form, setForm] = useState<HomeContent | null>(null)
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+  const queryClient = useQueryClient()
+  const { data, isLoading, isError } = useQuery(adminHomeContentQuery)
+  const saveMutation = useMutation({
+    mutationFn: homeContentApi.update,
+    onSuccess: savedContent => {
+      setForm(savedContent)
+      setMessage('Home content saved.')
+      queryClient.setQueryData(queryKeys.adminHomeContent, savedContent)
+      void queryClient.invalidateQueries({ queryKey: queryKeys.homeContent })
+    },
+    onError: () => setError('Could not save home content.'),
+  })
 
-  useEffect(() => {
-    async function loadContent() {
-      try {
-        setIsLoading(true)
-        setError('')
-
-        const content = await homeContentApi.getAdmin()
-        setForm(content)
-      } catch {
-        setError('Could not load home content.')
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    loadContent()
-  }, [])
+  const content = form ?? data ?? EMPTY_HOME_CONTENT
 
   const updateField = (field: keyof HomeContent, value: string) => {
     setForm(current => ({
-      ...current,
+      ...(current ?? data ?? EMPTY_HOME_CONTENT),
       [field]: value,
     }))
     setMessage('')
@@ -70,21 +66,9 @@ function ManageHomeContent() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
-    try {
-      setIsSaving(true)
-      setError('')
-      setMessage('')
-
-      const savedContent = await homeContentApi.update({
-        tickerText: form.tickerText,
-      })
-      setForm(savedContent)
-      setMessage('Home content saved.')
-    } catch {
-      setError('Could not save home content.')
-    } finally {
-      setIsSaving(false)
-    }
+    setError('')
+    setMessage('')
+    saveMutation.mutate({ tickerText: content.tickerText })
   }
 
   return (
@@ -121,7 +105,7 @@ function ManageHomeContent() {
                 {field.label}
               </span>
               <strong className="mt-3 block font-display text-4xl leading-none text-white">
-                {form[field.key] || '0'}
+                {content[field.key] || '0'}
               </strong>
               <span className="mt-2 block font-body text-xs leading-[1.6] text-muted">
                 Calculated automatically
@@ -135,7 +119,7 @@ function ManageHomeContent() {
             Latest Ticker Text
           </span>
           <textarea
-            value={form.tickerText}
+            value={content.tickerText}
             rows={5}
             placeholder="Write ticker text here..."
             onChange={event => updateField('tickerText', event.target.value)}
@@ -148,13 +132,13 @@ function ManageHomeContent() {
             Preview
           </p>
           <p className="mt-2 font-body text-sm leading-[1.7] text-muted">
-            Latest · {form.tickerText}
+            Latest · {content.tickerText}
           </p>
         </div>
 
-        {error && (
+        {(error || isError) && (
           <p className="mt-5 rounded border border-[#d86b5f]/30 bg-[#d86b5f]/10 px-4 py-3 font-heading text-[11px] font-bold uppercase tracking-[2px] text-[#ff9b8f]">
-            {error}
+            {error || 'Could not load home content.'}
           </p>
         )}
 
@@ -166,10 +150,10 @@ function ManageHomeContent() {
 
         <button
           type="submit"
-          disabled={isLoading || isSaving || Boolean(error)}
+          disabled={isLoading || saveMutation.isPending || Boolean(error)}
           className="mt-6 min-h-12 w-full rounded-sm bg-gold px-5 font-heading text-[11px] font-bold uppercase tracking-[3px] text-black transition-colors hover:bg-[#d8b95c] disabled:cursor-not-allowed disabled:opacity-60 min-[641px]:w-auto"
         >
-          {isSaving ? 'Saving...' : 'Save Home Content'}
+          {saveMutation.isPending ? 'Saving...' : 'Save Home Content'}
         </button>
       </form>
     </div>

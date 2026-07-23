@@ -5,6 +5,7 @@ export interface FeaturedPlayer {
   id: string
   num: string
   initials: string
+  imageUrl?: string
   avatarBg: string
   name: string
   role: string
@@ -27,10 +28,18 @@ function FeaturedPlayerCard({ player }: { player: FeaturedPlayer }) {
       </div>
 
       <div
-        className="mx-auto mb-3.5 flex h-[72px] w-[72px] items-center justify-center rounded-full border-[1.5px] border-gold/30 font-display text-[22px] tracking-[1px] text-gold"
+        className="mx-auto mb-3.5 flex h-[72px] w-[72px] items-center justify-center overflow-hidden rounded-full border-[1.5px] border-gold/30 font-display text-[22px] tracking-[1px] text-gold"
         style={{ background: player.avatarBg }}
       >
-        {player.initials}
+        {player.imageUrl ? (
+          <img
+            src={player.imageUrl}
+            alt={player.name}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          player.initials
+        )}
       </div>
 
       <div className="mb-1 font-heading text-base font-bold tracking-[0.5px] text-[#e7e0d1]">

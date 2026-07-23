@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { ROUTES } from '../../../constants/routes'
-import playersApi from '../../players/api/players.api'
 import type { Player } from '../../players/types/player.types'
 import FeaturedPlayerCard, { type FeaturedPlayer } from './FeaturedPlayerCard'
+import { playersQuery } from '../../../lib/queryOptions'
 
 function getRoleLabel(role: Player['role']) {
   const labels: Record<Player['role'], string> = {
@@ -65,6 +65,7 @@ function toFeaturedPlayer(player: Player): FeaturedPlayer {
     id: player.id,
     num: String(player.jerseyNumber).padStart(2, '0'),
     initials: player.name.slice(0, 3).toUpperCase(),
+    imageUrl: player.imageUrl,
     avatarBg: getAvatarBg(player.role),
     name: player.name,
     role: getRoleLabel(player.role),
@@ -73,21 +74,14 @@ function toFeaturedPlayer(player: Player): FeaturedPlayer {
 }
 
 function FeaturedPlayers() {
-  const [players, setPlayers] = useState<FeaturedPlayer[]>([])
-
-  useEffect(() => {
-    async function loadFeaturedPlayers() {
-      const allPlayers = await playersApi.getAll()
-      setPlayers(
-        allPlayers
-          .filter(player => player.isFeatured)
-          .slice(0, 5)
-          .map(toFeaturedPlayer)
-      )
-    }
-
-    loadFeaturedPlayers().catch(() => setPlayers([]))
-  }, [])
+  const { data: players = [] } = useQuery({
+    ...playersQuery,
+    select: allPlayers =>
+      allPlayers
+        .filter(player => player.isFeatured)
+        .slice(0, 5)
+        .map(toFeaturedPlayer),
+  })
 
   if (players.length === 0) return null
 

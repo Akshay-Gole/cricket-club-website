@@ -1,12 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import newsApi from '../api/news.api'
 import {
   NEWS_ARTICLES,
   categoryLabel,
   formatArticleDate,
 } from '../data/newsData'
-import type { NewsArticle } from '../types/news.types'
+import { newsQuery } from '../../../lib/queryOptions'
 
 interface ArticleMoreGridProps {
   currentSlug: string
@@ -21,22 +20,10 @@ const thumbClass = {
 }
 
 function ArticleMoreGrid({ currentSlug }: ArticleMoreGridProps) {
-  const [articles, setArticles] = useState<NewsArticle[]>(
-    NEWS_ARTICLES.filter(article => article.slug !== currentSlug)
+  const { data } = useQuery(newsQuery)
+  const articles = (data?.length ? data : NEWS_ARTICLES).filter(
+    article => article.slug !== currentSlug
   )
-
-  useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
-      newsApi
-        .getAll()
-        .then(data =>
-          setArticles(data.filter(article => article.slug !== currentSlug))
-        )
-        .catch(() => undefined)
-    }, 0)
-
-    return () => window.clearTimeout(timeoutId)
-  }, [currentSlug])
 
   if (!articles.length) return null
 
