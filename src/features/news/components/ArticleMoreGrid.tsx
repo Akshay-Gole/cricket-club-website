@@ -1,9 +1,12 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import newsApi from '../api/news.api'
 import {
   NEWS_ARTICLES,
   categoryLabel,
   formatArticleDate,
 } from '../data/newsData'
+import type { NewsArticle } from '../types/news.types'
 
 interface ArticleMoreGridProps {
   currentSlug: string
@@ -18,7 +21,24 @@ const thumbClass = {
 }
 
 function ArticleMoreGrid({ currentSlug }: ArticleMoreGridProps) {
-  const articles = NEWS_ARTICLES.filter(article => article.slug !== currentSlug)
+  const [articles, setArticles] = useState<NewsArticle[]>(
+    NEWS_ARTICLES.filter(article => article.slug !== currentSlug)
+  )
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      newsApi
+        .getAll()
+        .then(data =>
+          setArticles(data.filter(article => article.slug !== currentSlug))
+        )
+        .catch(() => undefined)
+    }, 0)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [currentSlug])
+
+  if (!articles.length) return null
 
   return (
     <section className="relative overflow-hidden border-t-[0.5px] border-white/[0.06] px-5 py-12 sm:px-7 lg:px-12">
@@ -30,7 +50,7 @@ function ArticleMoreGrid({ currentSlug }: ArticleMoreGridProps) {
         </div>
 
         <div className="grid gap-4 min-[641px]:grid-cols-2 min-[901px]:grid-cols-3">
-          {articles.map(article => (
+          {articles.slice(0, 3).map(article => (
             <Link
               data-animate="card"
               key={article.id}
@@ -39,8 +59,15 @@ function ArticleMoreGrid({ currentSlug }: ArticleMoreGridProps) {
             >
               <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_0%,rgba(201,168,76,0.12),transparent_34%)] opacity-70" />
               <div
-                className={`relative mb-5 flex h-[132px] items-center justify-center rounded-sm bg-gradient-to-br ${thumbClass[article.category]}`}
+                className={`relative mb-5 flex h-[132px] items-center justify-center overflow-hidden rounded-sm bg-gradient-to-br ${thumbClass[article.category]}`}
               >
+                {article.featuredImage ? (
+                  <img
+                    src={article.featuredImage}
+                    alt=""
+                    className="absolute inset-0 h-full w-full object-cover opacity-55 transition-transform duration-500 group-hover:scale-105"
+                  />
+                ) : null}
                 <div className="absolute inset-0 opacity-[0.12] [background-image:repeating-linear-gradient(165deg,transparent,transparent_34px,rgba(255,255,255,0.55)_34px,rgba(255,255,255,0.55)_68px)]" />
                 <div className="relative font-display text-[54px] leading-none">
                   {categoryLabel[article.category][0]}

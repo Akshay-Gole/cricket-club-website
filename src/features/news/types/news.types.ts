@@ -1,5 +1,17 @@
 export type NewsCategory = 'news' | 'match-report' | 'event' | 'announcement'
 export type ArticleLayout = 'match-report' | 'standard'
+export type NewsStatus = 'published' | 'draft'
+export type NewsBlockType =
+  | 'paragraph'
+  | 'heading'
+  | 'image'
+  | 'quote'
+  | 'callout'
+
+export interface NewsBlock {
+  type: NewsBlockType
+  data: Record<string, unknown>
+}
 
 export interface NewsArticle {
   id: string
@@ -9,10 +21,13 @@ export interface NewsArticle {
   excerpt: string
   featuredImage?: string
   category: NewsCategory
-  layout?: ArticleLayout
+  layout: ArticleLayout
   author: string
   publishedAt: string
   updatedAt: string
+  status?: NewsStatus
+  readTime: string
+  blocks: NewsBlock[]
 }
 
 export interface CreateNewsDto {
@@ -21,5 +36,8 @@ export interface CreateNewsDto {
   excerpt: string
   featuredImage?: string
   category: NewsCategory
-  layout?: ArticleLayout
+  layout: ArticleLayout
+  author?: string
+  status?: NewsStatus
+  blocks?: NewsBlock[]
 }

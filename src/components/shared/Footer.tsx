@@ -16,7 +16,8 @@ const NAV_COLUMNS = [
       { label: 'Squad', to: ROUTES.SQUAD },
       { label: 'Fixtures', to: ROUTES.FIXTURES },
       { label: 'Honours', to: ROUTES.HONOURS },
-      { label: 'News', to: ROUTES.NEWS },
+      // News is paused for now.
+      // { label: 'News', to: ROUTES.NEWS },
       { label: 'Gallery', to: ROUTES.GALLERY },
     ],
   },
@@ -27,7 +28,8 @@ const NAV_COLUMNS = [
       { label: 'Coaching Staff', to: ROUTES.SQUAD },
       { label: 'Sponsors', to: ROUTES.SPONSORS },
       { label: 'Contact', to: ROUTES.CONTACT },
-      { label: 'Media', to: ROUTES.NEWS },
+      // News is paused for now.
+      // { label: 'Media', to: ROUTES.NEWS },
     ],
   },
 ]

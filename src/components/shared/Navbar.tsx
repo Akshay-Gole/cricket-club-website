@@ -8,7 +8,8 @@ const NAV_LINKS = [
   { label: 'Squad', to: ROUTES.SQUAD },
   { label: 'Fixtures', to: ROUTES.FIXTURES },
   { label: 'Honours', to: ROUTES.HONOURS },
-  { label: 'News', to: ROUTES.NEWS },
+  // News is paused for now.
+  // { label: 'News', to: ROUTES.NEWS },
   { label: 'Gallery', to: ROUTES.GALLERY },
   { label: 'Contact', to: ROUTES.CONTACT },
 ]
@@ -79,13 +80,7 @@ function Navbar() {
           ))}
         </ul>
 
-        {/* Join the Club CTA button - hidden below 900px */}
-        <NavLink
-          to={ROUTES.JOIN}
-          className="hidden min-[900px]:inline-flex items-center font-['Barlow_Condensed'] text-[12px] font-bold tracking-[2.5px] uppercase no-underline text-black bg-gold px-[22px] py-[10px] rounded-[2px] transition-colors duration-200 hover:bg-gold-light"
-        >
-          Join the Club
-        </NavLink>
+        {/* Join CTA removed. Contact page handles enquiries now. */}
 
         {/* Hamburger button - shown below 900px */}
         <button
@@ -141,14 +136,7 @@ function Navbar() {
           ))}
         </ul>
 
-        {/* CTA inside menu */}
-        <NavLink
-          to={ROUTES.JOIN}
-          onClick={() => setIsOpen(false)}
-          className="mt-6 inline-flex items-center font-['Barlow_Condensed'] text-[12px] font-bold tracking-[2.5px] uppercase no-underline text-black bg-gold px-[22px] py-[10px] rounded-[2px] transition-colors duration-200 hover:bg-gold-light"
-        >
-          Join the Club
-        </NavLink>
+        {/* Join CTA removed. Contact page handles enquiries now. */}
       </div>
     </header>
   )
