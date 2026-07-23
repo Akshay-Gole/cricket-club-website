@@ -5,6 +5,32 @@ import RecentActivity from './components/dashboard/RecentActivity'
 import RecentMessages from './components/dashboard/RecentMessages'
 
 function Dashboard() {
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: ADMIN_DASHBOARD_QUERY_KEY,
+    queryFn: getAdminDashboard,
+  })
+
+  if (isLoading) {
+    return <PageLoader variant="section" label="Loading Dashboard" />
+  }
+
+  if (isError || !data) {
+    return (
+      <div className="rounded border border-[#d86b5f]/25 bg-[#d86b5f]/[0.08] p-6">
+        <p className="font-body text-sm text-[#ff9b8f]">
+          Could not load dashboard data.
+        </p>
+        <button
+          type="button"
+          onClick={() => refetch()}
+          className="mt-3 font-heading text-[10px] font-bold uppercase tracking-[2px] text-gold"
+        >
+          Try again
+        </button>
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-5 sm:space-y-6">
       <section className="relative overflow-hidden rounded border border-white/[0.1] bg-[#181818] px-5 py-8 shadow-[0_20px_70px_rgba(0,0,0,0.28)] sm:px-8 sm:py-10 lg:px-10">
@@ -34,15 +60,15 @@ function Dashboard() {
 
             <p className="mt-4 max-w-[620px] font-body text-sm font-light leading-[1.8] text-muted">
               Manage players, fixtures, messages, sponsors and club content from
-              one place. This is using mock data for now until your backend is
-              ready.
+              one place. All dashboard figures are calculated from the live
+              database.
             </p>
           </div>
 
           <div className="grid grid-cols-2 gap-3 min-[420px]:grid-cols-3 min-[901px]:w-[330px]">
             <div className="rounded border border-white/[0.1] bg-[#202020]/80 p-4">
               <div className="font-display text-3xl leading-none text-gold">
-                2026
+                {data.season}
               </div>
               <div className="mt-1 font-heading text-[9px] font-bold uppercase tracking-[2px] text-muted">
                 Season
@@ -51,7 +77,7 @@ function Dashboard() {
 
             <div className="rounded border border-white/[0.1] bg-[#202020]/80 p-4">
               <div className="font-display text-3xl leading-none text-white">
-                4
+                {data.unread}
               </div>
               <div className="mt-1 font-heading text-[9px] font-bold uppercase tracking-[2px] text-muted">
                 Unread
@@ -60,7 +86,7 @@ function Dashboard() {
 
             <div className="rounded border border-white/[0.1] bg-[#202020]/80 p-4">
               <div className="font-display text-3xl leading-none text-gold-light">
-                6
+                {data.upcoming}
               </div>
               <div className="mt-1 font-heading text-[9px] font-bold uppercase tracking-[2px] text-muted">
                 Upcoming
@@ -70,17 +96,17 @@ function Dashboard() {
         </div>
       </section>
 
-      <DashboardStats />
+      <DashboardStats stats={data.stats} />
 
       <div className="grid grid-cols-1 gap-5 sm:gap-6 min-[1025px]:grid-cols-[minmax(0,1.6fr)_minmax(320px,0.8fr)]">
         <div className="space-y-5 sm:space-y-6">
-          <NextFixture />
-          <RecentMessages />
+          <NextFixture fixture={data.nextFixture} />
+          <RecentMessages messages={data.recentMessages} />
         </div>
 
         <div className="space-y-5 sm:space-y-6">
           <QuickActions />
-          <RecentActivity />
+          <RecentActivity activity={data.recentActivity} />
         </div>
       </div>
     </div>
@@ -88,3 +114,9 @@ function Dashboard() {
 }
 
 export default Dashboard
+import { useQuery } from '@tanstack/react-query'
+import PageLoader from '../../components/shared/PageLoader'
+import {
+  ADMIN_DASHBOARD_QUERY_KEY,
+  getAdminDashboard,
+} from './api/dashboard.api'

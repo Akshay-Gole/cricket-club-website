@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { Router } from 'express'
+import { Router, raw } from 'express'
 import prisma from '../lib/prisma.js'
 import { dbRoleMap, toApiPlayer } from '../features/players/player.mapper.js'
 import {
@@ -11,8 +11,16 @@ import {
   verifyPlayCricketPlayer,
 } from '../features/players/play-cricket.service.js'
 import { requireAuth } from '../middleware/requireAuth.js'
+import { deleteCloudinaryImage, uploadImage } from '../lib/cloudinary.js'
 
 const router = Router()
+
+function toAdminApiPlayer(player: Parameters<typeof toApiPlayer>[0]) {
+  return {
+    ...toApiPlayer(player),
+    imagePublicId: player.imagePublicId,
+  }
+}
 
 async function findPlayerWithStats(playerId: string) {
   return prisma.player.findUniqueOrThrow({
@@ -60,7 +68,7 @@ router.get('/admin/players', requireAuth, async (_req, res, next) => {
     })
 
     res.status(200).json({
-      data: players.map(toApiPlayer),
+      data: players.map(toAdminApiPlayer),
     })
   } catch (error) {
     next(error)
@@ -70,7 +78,7 @@ router.get('/admin/players', requireAuth, async (_req, res, next) => {
 router.get(
   '/admin/players/verify-play-cricket/:playerId',
   requireAuth,
-  async (_req, res, next) => {
+  async (_req, res, _next) => {
     try {
       const playerId = String(_req.params.playerId)
       const playerIdResult = z.string().uuid().safeParse(playerId)
@@ -93,7 +101,7 @@ router.get(
           summary,
         },
       })
-    } catch (error) {
+    } catch {
       res.status(200).json({
         data: {
           valid: false,
@@ -112,7 +120,31 @@ router.post(
       const player = await syncPlayCricketPlayerStats(playerId)
 
       res.status(200).json({
-        data: toApiPlayer(player),
+        data: toAdminApiPlayer(player),
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+)
+
+router.post(
+  '/admin/players/image',
+  requireAuth,
+  raw({ type: 'image/*', limit: '5mb' }),
+  async (_req, res, next) => {
+    try {
+      if (!Buffer.isBuffer(_req.body) || _req.body.length === 0) {
+        res.status(400).json({ message: 'Player image is required' })
+        return
+      }
+
+      const image = await uploadImage(_req.body, 'top-gs-cc/players')
+      res.status(201).json({
+        data: {
+          imageUrl: image.logoUrl,
+          imagePublicId: image.logoPublicId,
+        },
       })
     } catch (error) {
       next(error)
@@ -147,6 +179,7 @@ router.post('/admin/players', requireAuth, async (_req, res, next) => {
         role: dbRoleMap[playerInput.role],
         jerseyNumber: playerInput.jerseyNumber,
         imageUrl: playerInput.imageUrl || null,
+        imagePublicId: playerInput.imagePublicId || null,
         playCricketPlayerId: playerInput.playCricketPlayerId || null,
         battingAvg: 0,
         bestBowl: '0/0',
@@ -160,7 +193,7 @@ router.post('/admin/players', requireAuth, async (_req, res, next) => {
     const playerWithStats = await syncPlayerStatsAfterSave(player.id)
 
     res.status(201).json({
-      data: toApiPlayer(playerWithStats),
+      data: toAdminApiPlayer(playerWithStats),
     })
   } catch (error) {
     if (error instanceof Error && error.message.includes('Play Cricket')) {
@@ -221,6 +254,10 @@ router.patch('/admin/players/:id', requireAuth, async (_req, res, next) => {
           playerInput.imageUrl === undefined
             ? undefined
             : playerInput.imageUrl || null,
+        imagePublicId:
+          playerInput.imagePublicId === undefined
+            ? undefined
+            : playerInput.imagePublicId || null,
         playCricketPlayerId:
           playerInput.playCricketPlayerId === undefined
             ? undefined
@@ -240,8 +277,17 @@ router.patch('/admin/players/:id', requireAuth, async (_req, res, next) => {
     })
     const playerWithStats = await syncPlayerStatsAfterSave(player.id)
 
+    if (
+      existingPlayer.imagePublicId &&
+      existingPlayer.imagePublicId !== player.imagePublicId
+    ) {
+      await deleteCloudinaryImage(existingPlayer.imagePublicId).catch(
+        () => undefined
+      )
+    }
+
     res.status(200).json({
-      data: toApiPlayer(playerWithStats),
+      data: toAdminApiPlayer(playerWithStats),
     })
   } catch (error) {
     if (error instanceof Error && error.message.includes('Play Cricket')) {
@@ -277,11 +323,16 @@ router.delete('/admin/players/:id', requireAuth, async (_req, res, next) => {
       },
       data: {
         active: false,
+        imageUrl: null,
+        imagePublicId: null,
       },
     })
+    await deleteCloudinaryImage(existingPlayer.imagePublicId).catch(
+      () => undefined
+    )
 
     res.status(200).json({
-      data: toApiPlayer(player),
+      data: toAdminApiPlayer(player),
     })
   } catch (error) {
     next(error)

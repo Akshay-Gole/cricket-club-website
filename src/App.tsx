@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import Layout from './components/shared/Layout'
 import PageLoader from './components/shared/PageLoader'
+import DocumentTitle from './components/shared/DocumentTitle'
 import { ROUTES } from './constants/routes'
 
 const Home = lazy(() => import('./pages/Home'))
@@ -16,7 +17,8 @@ const Contact = lazy(() => import('./pages/Contact'))
 // Join page is paused. Contact page handles enquiries now.
 // const JoinClub = lazy(() => import('./pages/JoinClub'))
 const About = lazy(() => import('./pages/About'))
-const Sponsors = lazy(() => import('./pages/Sponsors'))
+// Sponsors page is paused. Sponsors still appear on the homepage.
+// const Sponsors = lazy(() => import('./pages/Sponsors'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 const PlayerProfile = lazy(() => import('./pages/PlayerProfile'))
 
@@ -30,7 +32,6 @@ const ManageFixtures = lazy(() => import('./features/admin/ManageFixtures'))
 // News admin is paused for now. Keep the file for future work.
 // const ManageNews = lazy(() => import('./features/admin/ManageNews'))
 const ManageHonours = lazy(() => import('./features/admin/ManageHonours'))
-const ManageGallery = lazy(() => import('./features/admin/ManageGallery'))
 const ManageSponsors = lazy(() => import('./features/admin/ManageSponsors'))
 const ContactSubmissions = lazy(
   () => import('./features/admin/ContactSubmissions')
@@ -47,6 +48,7 @@ const ProtectedRoute = lazy(
 function App() {
   return (
     <BrowserRouter>
+      <DocumentTitle />
       <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* Public website */}
@@ -64,7 +66,8 @@ function App() {
             {/* Join page is paused. */}
             {/* <Route path={ROUTES.JOIN} element={<JoinClub />} /> */}
             <Route path={ROUTES.ABOUT} element={<About />} />
-            <Route path={ROUTES.SPONSORS} element={<Sponsors />} />
+            {/* Sponsors page is paused for now. */}
+            {/* <Route path={ROUTES.SPONSORS} element={<Sponsors />} /> */}
           </Route>
 
           {/* Admin login has no public navbar or footer */}
@@ -85,7 +88,6 @@ function App() {
               {/* News admin is paused for now. */}
               {/* <Route path="news" element={<ManageNews />} /> */}
               <Route path="honours" element={<ManageHonours />} />
-              <Route path="gallery" element={<ManageGallery />} />
               <Route path="sponsors" element={<ManageSponsors />} />
               <Route path="messages" element={<ContactSubmissions />} />
             </Route>

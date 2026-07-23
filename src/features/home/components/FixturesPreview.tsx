@@ -1,24 +1,14 @@
-import { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { ROUTES } from '../../../constants/routes'
-import fixturesApi from '../../fixtures/api/fixture.api'
 import type { Fixture } from '../../fixtures/types/fixture.types'
+import { fixturesQuery } from '../../../lib/queryOptions'
 
 function FixturesPreview() {
-  const [fixtures, setFixtures] = useState<Fixture[]>([])
-
-  useEffect(() => {
-    const loadFixtures = async () => {
-      try {
-        const nextFixtures = await fixturesApi.getAll()
-        setFixtures(nextFixtures.slice(0, 4))
-      } catch {
-        setFixtures([])
-      }
-    }
-
-    void loadFixtures()
-  }, [])
+  const { data: fixtures = [] } = useQuery({
+    ...fixturesQuery,
+    select: data => data.slice(0, 4),
+  })
 
   const badgeStyles: Record<string, string> = {
     upcoming: 'bg-green/30 text-green-light border-green-light/40',

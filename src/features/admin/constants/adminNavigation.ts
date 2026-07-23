@@ -51,11 +51,6 @@ export const ADMIN_NAVIGATION: AdminNavigationItem[] = [
     icon: 'honours',
   },
   {
-    label: 'Gallery',
-    to: ROUTES.ADMIN_GALLERY,
-    icon: 'gallery',
-  },
-  {
     label: 'Sponsors',
     to: ROUTES.ADMIN_SPONSORS,
     icon: 'sponsors',
@@ -64,7 +59,6 @@ export const ADMIN_NAVIGATION: AdminNavigationItem[] = [
     label: 'Messages',
     to: ROUTES.ADMIN_MESSAGES,
     icon: 'messages',
-    badge: '4',
   },
 ]
 
@@ -109,13 +103,6 @@ export const ADMIN_PAGE_META = [
     title: 'Honours',
     actionLabel: '+ Add Honour',
     actionTo: `${ROUTES.ADMIN_HONOURS}?action=create`,
-  },
-  {
-    path: ROUTES.ADMIN_GALLERY,
-    eyebrow: 'Club Media',
-    title: 'Gallery',
-    actionLabel: '+ Add Media',
-    actionTo: `${ROUTES.ADMIN_GALLERY}?action=create`,
   },
   {
     path: ROUTES.ADMIN_SPONSORS,

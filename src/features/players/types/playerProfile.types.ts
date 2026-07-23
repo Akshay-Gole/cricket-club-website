@@ -25,6 +25,7 @@ export interface PlayerProfile {
   jerseyNumber: number
   role: PlayerRole
   isCaptain?: boolean
+  imageUrl?: string
 
   // Hero quick stats
   runs: number

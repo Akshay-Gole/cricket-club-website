@@ -1,13 +1,13 @@
-import { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
 import { useParams } from 'react-router-dom'
 import PageLoader from '../components/shared/PageLoader'
 import { ROUTES } from '../constants/routes'
 import ProfileHero from '../features/players/components/profile/ProfileHero'
 import ProfileTabs from '../features/players/components/profile/ProfileTabs'
-import playersApi from '../features/players/api/players.api'
 import type { Player } from '../features/players/types/player.types'
 import type { PlayerProfile as PlayerProfileData } from '../features/players/types/playerProfile.types'
+import { playerQuery } from '../lib/queryOptions'
 
 function toProfilePlayer(player: Player): PlayerProfileData {
   const nameParts = player.name.trim().split(/\s+/)
@@ -45,6 +45,7 @@ function toProfilePlayer(player: Player): PlayerProfileData {
     jerseyNumber: player.jerseyNumber,
     role: player.role,
     isCaptain: player.isCaptain,
+    imageUrl: player.imageUrl,
 
     runs: stats?.battingAggregate ?? 0,
     wickets: stats?.bowlingWickets ?? 0,
@@ -86,33 +87,14 @@ function toProfilePlayer(player: Player): PlayerProfileData {
 
 function PlayerProfile() {
   const { id } = useParams()
-  const [player, setPlayer] = useState<PlayerProfileData | null>(null)
-  const [isLoadingPlayer, setIsLoadingPlayer] = useState(true)
-  const [playerError, setPlayerError] = useState('')
-
-  useEffect(() => {
-    async function loadPlayer() {
-      if (!id) {
-        setPlayerError('Player not found')
-        setIsLoadingPlayer(false)
-        return
-      }
-
-      try {
-        setIsLoadingPlayer(true)
-        setPlayerError('')
-
-        const fetchedPlayer = await playersApi.getById(id)
-        setPlayer(toProfilePlayer(fetchedPlayer))
-      } catch {
-        setPlayerError('Player not found')
-      } finally {
-        setIsLoadingPlayer(false)
-      }
-    }
-
-    loadPlayer()
-  }, [id])
+  const {
+    data: player,
+    isLoading: isLoadingPlayer,
+    isError,
+  } = useQuery({
+    ...playerQuery(id ?? ''),
+    select: toProfilePlayer,
+  })
 
   if (isLoadingPlayer) {
     return (
@@ -124,7 +106,7 @@ function PlayerProfile() {
     )
   }
 
-  if (playerError || !player) {
+  if (isError || !player) {
     return (
       <div className="px-5 py-24 text-center sm:px-7 lg:px-12">
         <p className="font-display text-5xl tracking-[3px] text-white/65">

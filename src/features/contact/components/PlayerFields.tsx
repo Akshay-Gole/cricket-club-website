@@ -56,24 +56,6 @@ function PlayerFields({ form, update }: PlayerFieldsProps) {
           </select>
         </Field>
       </div>
-
-      <div className="mb-4">
-        <Field id="trialDate" label="Preferred Trial Date">
-          <select
-            id="trialDate"
-            name="trialDate"
-            value={form.trialDate}
-            onChange={event => update('trialDate', event.target.value)}
-            className={inputClass(false)}
-          >
-            <option value="" disabled>
-              Pick a session...
-            </option>
-            <option>Thursday · 5:30 PM — Norwood Oval</option>
-            <option>Saturday · 9:00 AM — Norwood Oval</option>
-          </select>
-        </Field>
-      </div>
     </>
   )
 }

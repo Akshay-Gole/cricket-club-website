@@ -1,6 +1,11 @@
 import { NavLink, useNavigate } from 'react-router-dom'
+import { useQuery } from '@tanstack/react-query'
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks'
 import { logoutUser } from '../../../auth/store/authSlice'
+import {
+  CONTACT_SUBMISSIONS_QUERY_KEY,
+  getContactSubmissions,
+} from '../../../contact/api/contact.api'
 import { ADMIN_NAVIGATION } from '../../constants/adminNavigation'
 import type { AdminIconName } from '../../constants/adminNavigation'
 import { ROUTES } from '../../../../constants/routes'
@@ -15,6 +20,14 @@ function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const user = useAppSelector(state => state.auth.user)
+  const { data: messages = [] } = useQuery({
+    queryKey: CONTACT_SUBMISSIONS_QUERY_KEY,
+    queryFn: getContactSubmissions,
+    refetchInterval: 60_000,
+  })
+  const unreadCount = messages.filter(
+    message => message.status === 'unread'
+  ).length
 
   const handleLogout = async () => {
     await dispatch(logoutUser()).unwrap()
@@ -101,9 +114,9 @@ function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
 
                   <span className="flex-1">{item.label}</span>
 
-                  {item.badge && (
+                  {item.icon === 'messages' && unreadCount > 0 && (
                     <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-[#c94c4c] px-1.5 text-[9px] font-bold text-white">
-                      {item.badge}
+                      {unreadCount > 99 ? '99+' : unreadCount}
                     </span>
                   )}
                 </>

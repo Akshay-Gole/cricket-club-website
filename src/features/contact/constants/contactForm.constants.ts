@@ -8,10 +8,10 @@ export const EMPTY_FORM: ContactFormData = {
   message: '',
   role: '',
   experience: '',
-  trialDate: '',
   company: '',
   interest: '',
   website: '',
+  nickname: '',
 }
 
 export type ErrorField = 'name' | 'email' | 'subject' | 'message' | 'website'

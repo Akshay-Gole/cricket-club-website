@@ -63,13 +63,23 @@ function PlayerCard({ player }: { player: Player }) {
           {config.label}
         </div>
 
-        {/* Avatar (initials now; photo later) + captain marker */}
-        <div
-          className={`relative w-20 h-20 rounded-full border-[1.5px] border-gold/20 flex items-center justify-center font-display text-2xl tracking-[1px] mb-[18px] ${config.avatar}`}
-        >
-          {initials}
+        {/* Player photo with initials fallback + captain marker */}
+        <div className="relative mb-[18px] h-20 w-20">
+          <div
+            className={`flex h-full w-full items-center justify-center overflow-hidden rounded-full border-[1.5px] border-gold/20 font-display text-2xl tracking-[1px] ${config.avatar}`}
+          >
+            {player.imageUrl ? (
+              <img
+                src={player.imageUrl}
+                alt={player.name}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              initials
+            )}
+          </div>
           {player.isCaptain && (
-            <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-gold border-2 border-dark flex items-center justify-center font-heading text-[9px] font-bold text-black">
+            <div className="absolute right-0 top-0 flex h-5 w-5 items-center justify-center rounded-full border-2 border-dark bg-gold font-heading text-[9px] font-bold text-black">
               C
             </div>
           )}

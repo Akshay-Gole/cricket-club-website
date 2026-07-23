@@ -7,6 +7,8 @@ export interface PlayerFormState {
   playCricketPlayerId: string
   imageFile: File | null
   imagePreviewUrl: string
+  imageUrl: string
+  imagePublicId: string
   isCaptain: boolean
   isFeatured: boolean
   featuredStatValue: string
@@ -35,6 +37,8 @@ export const EMPTY_PLAYER_FORM: PlayerFormState = {
   playCricketPlayerId: '',
   imageFile: null,
   imagePreviewUrl: '',
+  imageUrl: '',
+  imagePublicId: '',
   isCaptain: false,
   isFeatured: false,
   featuredStatValue: '',

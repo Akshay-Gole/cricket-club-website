@@ -1,19 +1,20 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { Link, useParams } from 'react-router-dom'
-import newsApi from '../features/news/api/news.api'
 import MatchReportArticle from '../features/news/components/MatchReportArticle'
 import StandardArticle from '../features/news/components/StandardArticle'
 import { getArticleBySlug } from '../features/news/data/newsData'
-import type { NewsArticle as NewsArticleType } from '../features/news/types/news.types'
+import { newsArticleQuery } from '../lib/queryOptions'
 
 function NewsArticle() {
   const { slug } = useParams()
   const progressRef = useRef<HTMLDivElement | null>(null)
-  const [article, setArticle] = useState<NewsArticleType | null>(
-    getArticleBySlug(slug)
-  )
-  const [isLoading, setIsLoading] = useState(true)
-  const [hasError, setHasError] = useState(false)
+  const {
+    data,
+    isLoading,
+    isError: hasError,
+  } = useQuery(newsArticleQuery(slug ?? ''))
+  const article = data ?? getArticleBySlug(slug) ?? null
 
   useEffect(() => {
     const updateProgress = () => {
@@ -31,32 +32,6 @@ function NewsArticle() {
 
     return () => window.removeEventListener('scroll', updateProgress)
   }, [])
-
-  useEffect(() => {
-    const timeoutId = window.setTimeout(() => {
-      if (!slug) {
-        setArticle(null)
-        setIsLoading(false)
-        return
-      }
-
-      newsApi
-        .getBySlug(slug)
-        .then(data => {
-          setArticle(data)
-          setHasError(false)
-        })
-        .catch(() => {
-          setArticle(getArticleBySlug(slug) ?? null)
-          setHasError(true)
-        })
-        .finally(() => {
-          setIsLoading(false)
-        })
-    }, 0)
-
-    return () => window.clearTimeout(timeoutId)
-  }, [slug])
 
   if (!article) {
     return (

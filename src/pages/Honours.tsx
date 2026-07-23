@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
-import honoursApi from '../features/honours/api/honours.api'
+import { useQuery } from '@tanstack/react-query'
 import type {
   HonoursData,
   HonourPanel,
 } from '../features/honours/types/honour.types'
+import { honoursQuery } from '../lib/queryOptions'
 
 const EMPTY_HONOURS: HonoursData = {
   snapshot: {
@@ -23,9 +24,11 @@ function statValue(value: number) {
 
 function Honours() {
   const [activePanel, setActivePanel] = useState<HonourPanel | null>(null)
-  const [honours, setHonours] = useState<HonoursData>(EMPTY_HONOURS)
-  const [isLoading, setIsLoading] = useState(true)
-  const [hasError, setHasError] = useState(false)
+  const {
+    data: honours = EMPTY_HONOURS,
+    isLoading,
+    isError: hasError,
+  } = useQuery(honoursQuery)
 
   useEffect(() => {
     if (!activePanel) return
@@ -41,30 +44,6 @@ function Honours() {
       document.documentElement.style.overflow = previousHtmlOverflow
     }
   }, [activePanel])
-
-  useEffect(() => {
-    let ignore = false
-
-    honoursApi
-      .getPublic()
-      .then(data => {
-        if (ignore) return
-        setHonours(data)
-        setHasError(false)
-      })
-      .catch(() => {
-        if (ignore) return
-        setHasError(true)
-      })
-      .finally(() => {
-        if (ignore) return
-        setIsLoading(false)
-      })
-
-    return () => {
-      ignore = true
-    }
-  }, [])
 
   const honourStats = [
     { label: 'Club trophies', value: statValue(honours.snapshot.clubTrophies) },

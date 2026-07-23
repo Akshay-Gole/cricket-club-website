@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import gsap from 'gsap'
-import homeContentApi from '../api/homeContent.api'
+import { useQuery } from '@tanstack/react-query'
+import { homeContentQuery } from '../../../lib/queryOptions'
 
 function clampSkew(value: number) {
   return Math.max(-8, Math.min(8, value))
@@ -8,24 +9,10 @@ function clampSkew(value: number) {
 
 function Ticker() {
   const tickerRef = useRef<HTMLDivElement | null>(null)
-  const [messages, setMessages] = useState('Loading latest club updates...')
-
-  useEffect(() => {
-    let isMounted = true
-
-    homeContentApi
-      .getPublic()
-      .then(content => {
-        if (isMounted) setMessages(content.tickerText.trim())
-      })
-      .catch(() => {
-        if (isMounted) setMessages('Latest club updates coming soon.')
-      })
-
-    return () => {
-      isMounted = false
-    }
-  }, [])
+  const { data: content, isError } = useQuery(homeContentQuery)
+  const messages = isError
+    ? 'Latest club updates coming soon.'
+    : content?.tickerText.trim() || 'Loading latest club updates...'
 
   useEffect(() => {
     const ticker = tickerRef.current

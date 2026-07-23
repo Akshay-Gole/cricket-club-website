@@ -13,7 +13,6 @@ export const contactSchema = z.object({
 
   role: z.string().optional(),
   experience: z.string().optional(),
-  trialDate: z.string().optional(),
 
   company: z.string().optional(),
   interest: z.string().optional(),
@@ -26,6 +25,8 @@ export const contactSchema = z.object({
       'Enter a valid website URL'
     )
     .optional(),
+
+  nickname: z.string().max(0).optional(),
 })
 
 export type ContactFormData = z.infer<typeof contactSchema>

@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { useCountUp } from '../../../hooks/useCountUp'
-import homeContentApi from '../api/homeContent.api'
-import type { HomeContent } from '../api/homeContent.api'
+import { homeContentQuery } from '../../../lib/queryOptions'
 
 interface StatItemProps {
   num: string
@@ -36,24 +35,7 @@ function StatItem({ num, label, isLoading, index }: StatItemProps) {
 }
 
 function StatsBar() {
-  const [content, setContent] = useState<HomeContent | null>(null)
-
-  useEffect(() => {
-    let isMounted = true
-
-    homeContentApi
-      .getPublic()
-      .then(content => {
-        if (isMounted) setContent(content)
-      })
-      .catch(() => {
-        if (isMounted) setContent(null)
-      })
-
-    return () => {
-      isMounted = false
-    }
-  }, [])
+  const { data: content } = useQuery(homeContentQuery)
 
   const stats = content
     ? [

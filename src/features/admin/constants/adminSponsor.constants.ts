@@ -9,6 +9,7 @@ export interface AdminSponsor {
   contactEmail: string
   phone: string
   logoUrl: string
+  logoPublicId: string
   active: boolean
   featured: boolean
   joinedAt: string
@@ -24,6 +25,8 @@ export interface SponsorFormState {
   phone: string
   logoFile: File | null
   logoPreviewUrl: string
+  logoUrl: string
+  logoPublicId: string
   active: boolean
   featured: boolean
   notes: string
@@ -38,6 +41,8 @@ export const EMPTY_SPONSOR_FORM: SponsorFormState = {
   phone: '',
   logoFile: null,
   logoPreviewUrl: '',
+  logoUrl: '',
+  logoPublicId: '',
   active: true,
   featured: false,
   notes: '',
@@ -61,62 +66,3 @@ export const adminSponsorInputClass =
 
 export const adminSponsorTextareaClass =
   'min-h-[110px] w-full resize-y rounded border border-white/[0.12] bg-white/[0.045] px-4 py-3 font-body text-sm font-light leading-[1.7] text-white outline-none placeholder:text-muted focus:border-gold/40'
-
-export const MOCK_SPONSORS: AdminSponsor[] = [
-  {
-    id: 'sponsor-1',
-    name: 'Spicy Chick',
-    industry: 'Restaurant',
-    website: 'https://example.com',
-    contactName: 'Sam Patel',
-    contactEmail: 'sam@spicychick.com',
-    phone: '+61 400 111 222',
-    logoUrl: '',
-    active: true,
-    featured: true,
-    joinedAt: '2026-01-12',
-    notes: 'Sponsor for season 2026.',
-  },
-  {
-    id: 'sponsor-2',
-    name: 'SA Cricket',
-    industry: 'Sport',
-    website: 'https://example.com',
-    contactName: 'Emily Brown',
-    contactEmail: 'emily@sacricket.com',
-    phone: '+61 400 222 333',
-    logoUrl: '',
-    active: true,
-    featured: true,
-    joinedAt: '2026-02-04',
-    notes: 'Supports club equipment and community events.',
-  },
-  {
-    id: 'sponsor-3',
-    name: 'SG Cricket',
-    industry: 'Equipment',
-    website: 'https://example.com',
-    contactName: 'Rahul Mehta',
-    contactEmail: 'rahul@sgcricket.com',
-    phone: '+61 400 333 444',
-    logoUrl: '',
-    active: true,
-    featured: false,
-    joinedAt: '2026-03-18',
-    notes: 'Provides match balls and training equipment.',
-  },
-  {
-    id: 'sponsor-4',
-    name: 'SS Cricket',
-    industry: 'Equipment',
-    website: 'https://example.com',
-    contactName: 'Jordan Lee',
-    contactEmail: 'jordan@sscricket.com',
-    phone: '+61 400 444 555',
-    logoUrl: '',
-    active: false,
-    featured: false,
-    joinedAt: '2025-10-10',
-    notes: 'Previous community partner.',
-  },
-]
