@@ -1,4 +1,4 @@
-import logo from '../assets/images/logo.png'
+import logo from '../assets/images/logo.webp'
 import styles from './NotFound.module.css'
 import { NavLink } from 'react-router-dom'
 import { ROUTES } from '../constants/routes'
