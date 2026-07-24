@@ -2,7 +2,6 @@ import { queryOptions } from '@tanstack/react-query'
 import fixturesApi from '../features/fixtures/api/fixture.api'
 import homeContentApi from '../features/home/api/homeContent.api'
 import honoursApi from '../features/honours/api/honours.api'
-import newsApi from '../features/news/api/news.api'
 import playersApi from '../features/players/api/players.api'
 
 export const queryKeys = {
@@ -15,9 +14,6 @@ export const queryKeys = {
   adminHonours: ['admin', 'honours'] as const,
   homeContent: ['home-content'] as const,
   adminHomeContent: ['admin', 'home-content'] as const,
-  news: ['news'] as const,
-  newsArticle: (slug: string) => ['news', slug] as const,
-  adminNews: ['admin', 'news'] as const,
 }
 
 export const fixturesQuery = queryOptions({
@@ -47,18 +43,6 @@ export const homeContentQuery = queryOptions({
   queryFn: homeContentApi.getPublic,
 })
 
-export const newsQuery = queryOptions({
-  queryKey: queryKeys.news,
-  queryFn: () => newsApi.getAll(),
-})
-
-export const newsArticleQuery = (slug: string) =>
-  queryOptions({
-    queryKey: queryKeys.newsArticle(slug),
-    queryFn: () => newsApi.getBySlug(slug),
-    enabled: Boolean(slug),
-  })
-
 export const adminFixturesQuery = queryOptions({
   queryKey: queryKeys.adminFixtures,
   queryFn: fixturesApi.getAdmin,
@@ -72,9 +56,4 @@ export const adminHonoursQuery = queryOptions({
 export const adminHomeContentQuery = queryOptions({
   queryKey: queryKeys.adminHomeContent,
   queryFn: homeContentApi.getAdmin,
-})
-
-export const adminNewsQuery = queryOptions({
-  queryKey: queryKeys.adminNews,
-  queryFn: newsApi.getAdminAll,
 })

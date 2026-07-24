@@ -14,13 +14,6 @@ export const quickActions: QuickAction[] = [
     to: ROUTES.ADMIN_FIXTURES,
     tone: 'green',
   },
-  // News is paused for now.
-  // {
-  //   label: 'Write News',
-  //   description: 'Publish a club update',
-  //   to: ROUTES.ADMIN_NEWS,
-  //   tone: 'blue',
-  // },
   {
     label: 'Review Messages',
     description: 'Check unread enquiries',

@@ -3,12 +3,10 @@ import { persistStore, persistReducer } from 'redux-persist'
 import storage from './storage'
 
 import authReducer from '../features/auth/store/authSlice'
-import playersReducer from '../features/players/store/playersSlice'
 import reduxLogger from './middleware/reduxLogger'
 
 const rootReducer = combineReducers({
   auth: authReducer,
-  players: playersReducer,
 })
 
 const persistConfig = {
