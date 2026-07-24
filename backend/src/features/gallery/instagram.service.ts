@@ -1,4 +1,5 @@
 import prisma from '../../lib/prisma'
+import { uploadRemoteImage } from '../../lib/cloudinary.js'
 
 const INSTAGRAM_GRAPH_URL = 'https://graph.instagram.com'
 const DEFAULT_LIMIT = 12
@@ -129,8 +130,38 @@ export async function fetchInstagramPostsFromMeta() {
 export async function syncInstagramPosts() {
   const posts = await fetchInstagramPostsFromMeta()
   const mediaIds = posts.map(post => post.id)
+  const existingPosts = await prisma.instagramPost.findMany({
+    where: {
+      instagramMediaId: {
+        in: mediaIds,
+      },
+    },
+    select: {
+      instagramMediaId: true,
+      thumbnailUrl: true,
+    },
+  })
+  const existingThumbnails = new Map(
+    existingPosts.map(post => [post.instagramMediaId, post.thumbnailUrl])
+  )
 
   for (const post of posts) {
+    const sourceImage = post.thumbnail_url ?? post.media_url
+    const existingThumbnail = existingThumbnails.get(post.id)
+    let thumbnailUrl = existingThumbnail
+
+    if (sourceImage && !existingThumbnail?.includes('res.cloudinary.com')) {
+      try {
+        thumbnailUrl = await uploadRemoteImage(
+          sourceImage,
+          'top-gs-cc/gallery',
+          post.id
+        )
+      } catch {
+        thumbnailUrl = sourceImage
+      }
+    }
+
     await prisma.instagramPost.upsert({
       where: {
         instagramMediaId: post.id,
@@ -139,7 +170,7 @@ export async function syncInstagramPosts() {
         caption: post.caption,
         mediaType: post.media_type,
         mediaUrl: post.media_url,
-        thumbnailUrl: post.thumbnail_url,
+        thumbnailUrl,
         permalink: post.permalink,
         timestamp: new Date(normaliseInstagramTimestamp(post.timestamp)),
         active: true,
@@ -149,7 +180,7 @@ export async function syncInstagramPosts() {
         caption: post.caption,
         mediaType: post.media_type,
         mediaUrl: post.media_url,
-        thumbnailUrl: post.thumbnail_url,
+        thumbnailUrl,
         permalink: post.permalink,
         timestamp: new Date(normaliseInstagramTimestamp(post.timestamp)),
         active: true,

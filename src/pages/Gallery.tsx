@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import PageLoader from '../components/shared/PageLoader'
 import { getGalleryPosts, type GalleryPost } from '../services/gallery.api'
+import { cloudinaryImage } from '../utils/cloudinaryImage'
 
 const PAGE_SIZE = 12
 
@@ -14,8 +15,13 @@ function titleFromCaption(caption: string | null) {
   )
 }
 
-function previewImage(post: GalleryPost) {
-  return post.thumbnailUrl || post.mediaUrl || ''
+function previewImage(post: GalleryPost, width: number) {
+  const image = post.thumbnailUrl || post.mediaUrl || ''
+
+  return cloudinaryImage(
+    image,
+    `f_auto,q_auto,w_${width},h_${width},c_fill,g_auto`
+  )
 }
 
 function mediaLabel(post: GalleryPost) {
@@ -135,8 +141,9 @@ function Gallery() {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-6 min-[520px]:grid-cols-2 min-[900px]:grid-cols-3 min-[1280px]:grid-cols-4">
-            {posts.map(post => {
-              const image = previewImage(post)
+            {posts.map((post, index) => {
+              const image = previewImage(post, 640)
+              const smallImage = previewImage(post, 360)
 
               return (
                 <a
@@ -150,8 +157,14 @@ function Gallery() {
                     {image ? (
                       <img
                         src={image}
+                        srcSet={`${smallImage} 360w, ${image} 640w`}
+                        sizes="(min-width: 1280px) 25vw, (min-width: 900px) 33vw, (min-width: 520px) 50vw, 100vw"
                         alt={titleFromCaption(post.caption)}
-                        loading="lazy"
+                        width="640"
+                        height="640"
+                        loading={index === 0 ? 'eager' : 'lazy'}
+                        fetchPriority={index === 0 ? 'high' : 'auto'}
+                        decoding="async"
                         className="h-full w-full object-cover opacity-90 transition duration-500 group-hover:scale-105 group-hover:opacity-100"
                       />
                     ) : (
