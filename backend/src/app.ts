@@ -16,8 +16,6 @@ import galleryRoutes from './routes/gallery.routes.js'
 import contactRoutes from './routes/contact.routes.js'
 import sponsorRoutes from './routes/sponsor.routes.js'
 import dashboardRoutes from './routes/dashboard.routes.js'
-// News is paused for now. Keep the route file for future work.
-// import newsRoutes from './routes/news.routes.js'
 
 const app = express()
 
@@ -42,11 +40,8 @@ app.use('/api', galleryRoutes)
 app.use('/api', contactRoutes)
 app.use('/api', sponsorRoutes)
 app.use('/api', dashboardRoutes)
-// News is paused for now.
-// app.use('/api', newsRoutes)
 
 app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
-  // eslint-disable-next-line no-console
   console.error(error)
 
   res.status(500).json({
