@@ -4,7 +4,7 @@
   font-family: 'Bebas Neue';
   font-style: normal;
   font-weight: 400;
-  font-display: optional;
+  font-display: swap;
   src: url('../assets/fonts/bebas-neue-400.woff2') format('woff2');
 }
 
@@ -12,7 +12,7 @@
   font-family: 'Barlow';
   font-style: normal;
   font-weight: 300;
-  font-display: optional;
+  font-display: swap;
   src: url('../assets/fonts/barlow-300.woff2') format('woff2');
 }
 
@@ -20,7 +20,7 @@
   font-family: 'Barlow';
   font-style: normal;
   font-weight: 400;
-  font-display: optional;
+  font-display: swap;
   src: url('../assets/fonts/barlow-400.woff2') format('woff2');
 }
 
@@ -28,7 +28,7 @@
   font-family: 'Barlow';
   font-style: normal;
   font-weight: 500;
-  font-display: optional;
+  font-display: swap;
   src: url('../assets/fonts/barlow-500.woff2') format('woff2');
 }
 
@@ -36,7 +36,7 @@
   font-family: 'Barlow Condensed';
   font-style: normal;
   font-weight: 400;
-  font-display: optional;
+  font-display: swap;
   src: url('../assets/fonts/barlow-condensed-400.woff2') format('woff2');
 }
 
@@ -44,7 +44,7 @@
   font-family: 'Barlow Condensed';
   font-style: normal;
   font-weight: 600;
-  font-display: optional;
+  font-display: swap;
   src: url('../assets/fonts/barlow-condensed-600.woff2') format('woff2');
 }
 
@@ -52,7 +52,7 @@
   font-family: 'Barlow Condensed';
   font-style: normal;
   font-weight: 700;
-  font-display: optional;
+  font-display: swap;
   src: url('../assets/fonts/barlow-condensed-700.woff2') format('woff2');
 }
 
