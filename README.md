@@ -1,606 +1,327 @@
-# Top G's Cricket Club Website
+<div align="center">
+  <img src="./public/club-logo.png" alt="Top G's CC crest" width="112" />
 
-A modern full-stack cricket club platform for Top G's CC, built to manage public club content, squad profiles, fixtures, results, honours, gallery items, contact messages, and admin operations from one focused dashboard.
+# Top G's CC
 
-The project includes a public marketing website, an authenticated admin portal, a PostgreSQL-backed API, automated player-stat syncing, and fixture/result syncing from external cricket platforms.
+**Play hard. Win harder.**
 
----
+A full-stack cricket club platform for the squad, fixtures, honours, gallery,
+sponsors and club enquiries.
 
-## Overview
+[Live website](https://www.topgscc.com) ·
+[API health](https://api.topgscc.com/api/health) ·
+[Instagram](https://www.instagram.com/topgs_cc/)
 
-Top G's CC is a responsive cricket club website designed for both supporters and club administrators.
+</div>
 
-The public website presents:
+![Top G's CC website preview](./public/social-preview.png)
 
-- Club homepage and hero sections
-- Squad and player profile pages
-- Fixtures and results
-- News and articles
-- Honours
-- Gallery
-- Sponsors
-- Contact and membership-related forms
+## About
 
-The admin portal allows club staff to manage:
+Top G's CC is an Adelaide cricket club website with two connected experiences:
 
-- Players
-- Fixtures and results
-- Homepage content
-- Sponsors
-- News
-- Honours
-- Gallery content
-- Contact messages
+- A responsive public website for supporters, players and prospective sponsors.
+- A protected admin portal for managing club content and operations.
 
----
+The platform combines manually managed club information with scheduled data
+syncs from Instagram, Play Cricket and PlayHQ.
 
-## Tech Stack
+## Highlights
 
-### Frontend
+### Public website
 
-- React
-- TypeScript
-- Vite
-- Tailwind CSS
-- React Router
-- React Hook Form
-- Zod
-- Redux Toolkit
-- TanStack React Query
-- GSAP
-- Lenis
-- Axios
-- Sentry-ready configuration
+- Dynamic homepage content and featured players
+- Searchable squad and detailed player profiles
+- Fixtures, results and season filters
+- Club honours and awards
+- Instagram gallery with pagination and year filters
+- Active sponsor showcase
+- Player, sponsor, social and general enquiry forms
+- Responsive layouts, page-level metadata and structured SEO
 
-### Backend
+### Admin portal
 
-- Node.js
-- Express
-- TypeScript
-- Prisma ORM
-- PostgreSQL
-- JWT authentication
-- bcrypt password hashing
-- Zod validation
+- JWT-protected administration
+- Dashboard backed by live database totals
+- Player profiles, images, roles and external statistics
+- Fixture creation, editing and PlayHQ result syncing
+- Homepage, honours and sponsor management
+- Cloudinary image uploads
+- Contact enquiry inbox and status workflow
 
-### Infrastructure
+### Automation
 
-- Frontend hosted on Vercel
-- Backend hosted on Railway
-- PostgreSQL hosted on Railway
-- Cron service on Railway for scheduled sync jobs
+- Scheduled Play Cricket player-stat syncing
+- Scheduled PlayHQ fixture-result syncing
+- Scheduled Instagram gallery syncing
 
----
+## Technology
 
-## Project Structure
+| Layer          | Stack                                     |
+| -------------- | ----------------------------------------- |
+| Frontend       | React 19, TypeScript, Vite, Tailwind CSS  |
+| Data           | TanStack Query, Redux Toolkit, Axios, Zod |
+| Motion         | GSAP, Lenis                               |
+| Backend        | Node.js, Express 5, TypeScript            |
+| Database       | PostgreSQL, Prisma                        |
+| Authentication | JWT, bcrypt                               |
+| Media          | Cloudinary                                |
+| Hosting        | Vercel, Railway                           |
 
-```txt
-cricket-club-website/
-├── src/                         # Frontend React app
-│   ├── components/              # Shared UI components
-│   ├── constants/               # Shared frontend constants
-│   ├── features/                # Feature-based frontend modules
-│   ├── hooks/                   # Reusable React hooks
-│   ├── pages/                   # Route-level pages
-│   ├── services/                # API and logger services
-│   ├── store/                   # Redux store setup
-│   └── styles/                  # Global styles
-│
-├── backend/                     # Backend API
-│   ├── prisma/                  # Prisma schema, migrations, seed
-│   └── src/
-│       ├── features/            # Backend feature services
-│       ├── lib/                 # Shared backend utilities
-│       ├── routes/              # Express routes
-│       └── server.ts            # Backend entry point
-│
-├── public/                      # Static assets
-├── package.json                 # Frontend scripts and dependencies
-└── README.md
+## Architecture
+
+```text
+www.topgscc.com
+      │
+      │ HTTPS / JSON
+      ▼
+api.topgscc.com
+      │
+      ├── PostgreSQL
+      ├── Cloudinary
+      ├── Play Cricket / PlayHQ
+      └── Instagram Graph API
 ```
 
----
+The frontend is deployed on Vercel. The API, PostgreSQL database and scheduled
+jobs run on Railway.
 
-## Features
+## Project structure
 
-### Public Website
+```text
+.
+├── public/                  Static assets, favicons, sitemap and robots.txt
+├── src/
+│   ├── components/          Shared frontend components
+│   ├── features/            Feature-based UI, state and admin modules
+│   ├── pages/               Public route-level pages
+│   ├── services/            API clients and logging
+│   └── styles/              Global styling
+├── backend/
+│   ├── prisma/              Schema, migrations and seed
+│   └── src/
+│       ├── features/        External sync and domain services
+│       ├── middleware/      Authentication middleware
+│       ├── routes/          Public, admin and internal API routes
+│       └── scripts/         Railway cron entry points
+└── vercel.json              SPA routing and response-header configuration
+```
 
-- Responsive dark sports-themed UI
-- Animated homepage sections
-- Real squad data from backend API
-- Real fixture data from backend API
-- Player profile pages with career and match statistics
-- Fixtures grouped by season and month
-- Result badges for won, lost, draw, abandoned, forfeited, and pending matches
-- Gallery with year filtering and pagination
-- Contact and enquiry forms
+## Local development
 
-### Admin Portal
+### Requirements
 
-- Protected admin login
-- JWT-based authentication
-- Player creation, editing, deletion, and stat syncing
-- Optional Play Cricket player ID support
-- Fixture creation and editing
-- PlayHQ scoreboard URL support
-- Homepage content management
-- Message inbox
-- Gallery and honours management UI
-- Dashboard overview
-
-### External Syncing
-
-- Player statistics can sync from Cricket Australia / Play Cricket data
-- Fixture results can sync from PlayHQ scoreboard links
-- Railway cron can run scheduled sync jobs automatically
-
----
-
-## Getting Started
-
-### Prerequisites
-
-Install the following before running the project:
-
-- Node.js 22+
+- Node.js 22 LTS
 - npm
-- PostgreSQL database
-- Railway account for backend deployment
-- Vercel account for frontend deployment
+- PostgreSQL
+- Cloudinary account for image uploads
+- Instagram credentials only when testing the gallery sync
 
----
+### 1. Install dependencies
 
-## Environment Variables
+```bash
+npm install
+npm --prefix backend install
+```
 
-### Frontend
+### 2. Configure the frontend
 
-Create a `.env.development` file in the root project folder:
+Copy the root example file:
+
+```bash
+cp .env.example .env.development
+```
+
+Minimum local configuration:
 
 ```env
 VITE_API_URL=http://localhost:4000/api
 VITE_SENTRY_DSN=
-VITE_INSTAGRAM_TOKEN=
-VITE_GOOGLE_MAPS_KEY=
-VITE_CLOUDINARY_CLOUD_NAME=
-VITE_CLOUDINARY_UPLOAD_PRESET=
 ```
 
-For production on Vercel, set:
+Variables prefixed with `VITE_` are included in the browser bundle. Never place
+private credentials in them.
 
-```env
-VITE_API_URL=https://your-backend-domain.railway.app/api
-VITE_SENTRY_DSN=
-VITE_INSTAGRAM_TOKEN=
-VITE_GOOGLE_MAPS_KEY=
-VITE_CLOUDINARY_CLOUD_NAME=
-VITE_CLOUDINARY_UPLOAD_PRESET=
+### 3. Configure the backend
+
+Copy the backend example:
+
+```bash
+cp backend/.env.example backend/.env
 ```
 
-### Backend
-
-Create a `.env` file inside `backend/`:
-
 ```env
-DATABASE_URL=postgresql://USER:PASSWORD@HOST:PORT/DATABASE
+PORT=4000
 FRONTEND_URL=http://localhost:5173
+DATABASE_URL=postgresql://USER:PASSWORD@HOST:PORT/DATABASE
 
-JWT_SECRET=replace-with-a-secure-random-secret
+JWT_SECRET=generate-a-long-random-value
 JWT_EXPIRES_IN=7d
-
 ADMIN_EMAIL=admin@example.com
-ADMIN_PASSWORD=replace-with-a-secure-password
+ADMIN_PASSWORD=choose-a-strong-password
 
-CRON_SECRET=replace-with-a-secure-random-secret
+CRON_SECRET=generate-another-long-random-value
+
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+
+INSTAGRAM_ACCOUNT_ID=
+INSTAGRAM_ACCESS_TOKEN=
 ```
 
-For Railway production, set the same backend variables inside the Railway backend service.
+Keep `.env` files local. They are ignored by Git and must never be committed.
 
----
-
-## Installation
-
-Install frontend dependencies:
-
-```bash
-npm install
-```
-
-Install backend dependencies:
-
-```bash
-cd backend
-npm install
-```
-
----
-
-## Running Locally
-
-### Start the backend
-
-```bash
-cd backend
-npm run dev
-```
-
-Backend runs on:
-
-```txt
-http://localhost:4000
-```
-
-Health check:
-
-```txt
-http://localhost:4000/api/health
-```
-
-### Start the frontend
-
-From the project root:
-
-```bash
-npm run dev
-```
-
-Frontend runs on:
-
-```txt
-http://localhost:5173
-```
-
----
-
-## Database
-
-The backend uses Prisma with PostgreSQL.
-
-### Generate Prisma Client
+### 4. Prepare the database
 
 ```bash
 cd backend
 npx prisma generate
-```
-
-### Run migrations locally
-
-```bash
-cd backend
 npx prisma migrate dev
-```
-
-### Run migrations in production
-
-Railway runs this automatically through the backend start command:
-
-```bash
-prisma migrate deploy && node dist/src/server.js
-```
-
----
-
-## Seeding Admin User
-
-The seed script creates the first admin user from environment variables.
-
-```bash
-cd backend
 npx prisma db seed
 ```
 
-Required environment variables:
+The seed command creates or updates the administrator using `ADMIN_EMAIL` and
+`ADMIN_PASSWORD`.
 
-```env
-ADMIN_EMAIL=
-ADMIN_PASSWORD=
+### 5. Start both applications
+
+In one terminal:
+
+```bash
+cd backend
+npm run dev
 ```
 
-Players are managed from the admin portal, not through seed data.
-
----
-
-## Available Scripts
-
-### Frontend
+In another terminal:
 
 ```bash
 npm run dev
 ```
 
-Starts the Vite development server.
+| Service      | Local URL                           |
+| ------------ | ----------------------------------- |
+| Website      | `http://localhost:5173`             |
+| API          | `http://localhost:4000/api`         |
+| Health check | `http://localhost:4000/api/health`  |
+| Admin portal | `http://localhost:5173/admin/login` |
+
+## Useful commands
+
+### Frontend
 
 ```bash
-npm run build
+npm run dev          # Start Vite
+npm run build        # Type-check and build production assets
+npm run preview      # Preview the production build
+npm run lint         # Run ESLint
+npm run lint:fix     # Apply supported lint fixes
+npm run format:check # Check formatting
+npm run type-check   # Run TypeScript checks
 ```
-
-Builds the production frontend.
-
-```bash
-npm run preview
-```
-
-Previews the production frontend build.
-
-```bash
-npm run lint
-```
-
-Runs ESLint.
-
-```bash
-npm run lint:fix
-```
-
-Runs ESLint and fixes supported issues.
-
-```bash
-npm run format
-```
-
-Formats frontend and backend code with Prettier.
-
-```bash
-npm run format:check
-```
-
-Checks formatting without changing files.
-
-```bash
-npm run type-check
-```
-
-Runs TypeScript type checking.
 
 ### Backend
 
 ```bash
 cd backend
-npm run dev
+npm run dev               # Start the API with watch mode
+npm run build             # Generate Prisma Client and compile TypeScript
+npm run start             # Apply migrations and start the compiled API
+npm run sync:player-stats # Sync player stats and finished fixtures
 ```
 
-Starts the backend in development mode.
+Run the Instagram sync against a compiled backend:
 
 ```bash
 cd backend
-npm run build
+node dist/src/scripts/sync-instagram-posts.js
 ```
-
-Generates Prisma Client and compiles TypeScript.
-
-```bash
-cd backend
-npm run start
-```
-
-Runs production migrations and starts the compiled backend.
-
-```bash
-cd backend
-npm run sync:player-stats
-```
-
-Runs the scheduled sync script in production.
-
-```bash
-cd backend
-npm run sync:player-stats:dev
-```
-
-Runs the scheduled sync script locally with TypeScript.
-
----
 
 ## Deployment
 
-### Frontend: Vercel
+### Vercel
 
-The frontend is deployed to Vercel.
-
-Production environment variable:
+The production frontend requires:
 
 ```env
-VITE_API_URL=https://your-railway-backend-url/api
+VITE_API_URL=https://api.topgscc.com/api
+VITE_SENTRY_DSN=
 ```
 
-Whenever changes are pushed to the connected production branch, Vercel builds and deploys the frontend.
+Vite embeds these values at build time, so redeploy after changing a frontend
+environment variable.
 
-### Backend: Railway
+### Railway API
 
-The backend is deployed as a Railway service.
+Recommended service settings:
 
-Recommended Railway settings:
-
-```txt
-Root Directory: /backend
-Build Command: npm run build
-Start Command: npm run start
+```text
+Root directory: backend
+Build command:  npm run build
+Start command:  npm run start
+Custom domain:  api.topgscc.com
 ```
 
-Required Railway variables:
+Configure all backend variables from the local example in Railway. In
+production, set:
 
 ```env
-DATABASE_URL=
-FRONTEND_URL=
-JWT_SECRET=
-JWT_EXPIRES_IN=
-ADMIN_EMAIL=
-ADMIN_PASSWORD=
-CRON_SECRET=
+FRONTEND_URL=https://www.topgscc.com
 ```
 
----
+### Railway cron services
 
-## Cron Jobs
-
-A Railway cron service can run scheduled background syncs.
-
-Recommended command:
+The automation is split into two short-lived services:
 
 ```bash
+# Player statistics and completed fixture results
 npm run sync:player-stats
+
+# Instagram gallery
+node dist/src/scripts/sync-instagram-posts.js
 ```
 
-Example schedule:
+Each cron service needs the relevant API credentials and a reference to the
+same production `DATABASE_URL`.
 
-```txt
-30 16 * * *
+## API overview
+
+Public endpoints include:
+
+```text
+GET  /api/health
+GET  /api/home-content
+GET  /api/players
+GET  /api/players/:id
+GET  /api/fixtures
+GET  /api/honours
+GET  /api/gallery
+GET  /api/sponsors
+POST /api/contact
 ```
 
-This runs every day at 16:30 UTC.
+Administration endpoints live below `/api/admin` and require a valid bearer
+token. Scheduled HTTP sync endpoints live below `/api/internal` and require the
+configured cron secret.
 
-The cron service is used to keep external cricket data updated without requiring manual admin action.
+## Security
 
----
+- Passwords are hashed with bcrypt.
+- Admin routes require signed, expiring JWTs.
+- Public and admin payloads are validated with Zod.
+- Prisma provides parameterized database access.
+- Uploads are authenticated and size-limited.
+- Production secrets remain in Railway and are never sent to the frontend.
 
-## API Overview
-
-Base API URL:
-
-```txt
-/api
-```
-
-Common endpoints include:
-
-```txt
-GET    /api/health
-GET    /api/players
-GET    /api/players/:id
-GET    /api/fixtures
-GET    /api/home-content
-POST   /api/admin/auth/login
-GET    /api/admin/auth/me
-POST   /api/admin/players
-PATCH  /api/admin/players/:id
-DELETE /api/admin/players/:id
-POST   /api/admin/players/:id/sync
-POST   /api/admin/fixtures
-PATCH  /api/admin/fixtures/:id
-DELETE /api/admin/fixtures/:id
-```
-
-Admin endpoints require authentication.
-
----
-
-## Authentication
-
-The admin portal uses JWT authentication.
-
-Flow:
-
-```txt
-Admin logs in
-↓
-Backend validates email and password
-↓
-Backend returns JWT token
-↓
-Frontend stores token
-↓
-Protected admin routes use token for API requests
-```
-
-Passwords are hashed using bcrypt before being stored in the database.
-
----
-
-## External Cricket Data
-
-### Player Statistics
-
-Players can optionally store a Play Cricket player ID.
-
-When available, the backend can sync:
-
-- Career summary
-- Batting statistics
-- Bowling statistics
-- Fielding statistics
-- Recent match performances
-
-### Fixture Results
-
-Fixtures can optionally store a PlayHQ scoreboard URL.
-
-The backend extracts the PlayHQ game ID from the URL and uses it to fetch:
-
-- Match status
-- Home team
-- Away team
-- Winner
-- Team scores
-- Wickets
-- Overs
-- Match label, such as Grand Final or Semi Final
-
----
-
-## Code Quality
-
-This project uses:
-
-- TypeScript strict mode
-- ESLint
-- Prettier
-- Husky
-- lint-staged
-- Commitlint
-- Conventional commits
-
-Example commit message:
+Run dependency checks regularly:
 
 ```bash
-git commit -m "feat: add fixture result syncing"
+npm audit
+npm --prefix backend audit
 ```
 
----
+## Content and data ownership
 
-## Production Notes
-
-Before production release, confirm:
-
-- Vercel `VITE_API_URL` points to Railway backend
-- Railway backend has all required environment variables
-- Railway PostgreSQL is connected
-- Prisma migrations have run successfully
-- Admin user has been seeded
-- Cron service is active
-- CORS `FRONTEND_URL` matches the production frontend domain
-- No secrets are committed to GitHub
-
----
-
-## Security Notes
-
-- Never commit `.env` files
-- Use strong values for `JWT_SECRET` and `CRON_SECRET`
-- Keep admin credentials private
-- Rotate secrets if they are ever exposed
-- Restrict production database access where possible
-
----
-
-## Roadmap
-
-Potential future improvements:
-
-- Cloudinary image upload integration
-- Rich text editor for news articles
-- Public search for fixtures and players
-- Email notifications for contact forms
-- Role-based admin permissions
-- Automated PlayHQ fixture import
-- Better analytics and error monitoring
-- Full test coverage for API and UI flows
-
----
-
-## Author
-
-Built and maintained by Akshay Gole.
-
-```txt
-Top G's CC
-Play Hard. Win Harder.
-```
+Club content, branding, player information and uploaded media belong to
+Top G's CC and their respective owners. External cricket and social data remain
+subject to the terms of their source platforms.

@@ -1,4 +1,5 @@
 import type { PlayerProfile } from '../../types/playerProfile.types'
+import { cloudinaryImage } from '../../../../utils/cloudinaryImage'
 
 const roleLabel: Record<PlayerProfile['role'], string> = {
   batsman: 'Batsman',
@@ -19,9 +20,15 @@ function ProfileHero({ player }: { player: PlayerProfile }) {
       <div className="group relative flex min-h-[420px] flex-col justify-end overflow-hidden bg-[#06120b] p-7 sm:min-h-[500px] min-[901px]:min-h-full min-[901px]:p-9">
         {player.imageUrl ? (
           <img
-            src={player.imageUrl}
+            src={cloudinaryImage(
+              player.imageUrl,
+              'f_auto,q_auto,w_800,h_1000,c_fill,g_auto'
+            )}
             alt=""
             aria-hidden="true"
+            width="400"
+            height="500"
+            decoding="async"
             className="absolute inset-0 h-full w-full scale-[1.04] object-cover object-center saturate-[0.85] transition-transform duration-700 ease-out group-hover:scale-[1.08]"
           />
         ) : (

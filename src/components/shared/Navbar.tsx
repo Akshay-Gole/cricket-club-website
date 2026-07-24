@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom'
 import { ROUTES } from '../../constants/routes'
 import { useState, useEffect } from 'react'
-import logo from '../../assets/images/logo.png'
+import logo from '../../assets/images/logo.webp'
 
 const NAV_LINKS = [
   { label: 'Home', to: ROUTES.HOME },
@@ -50,6 +50,8 @@ function Navbar() {
           <img
             src={logo}
             alt="Top G's CC logo"
+            width="48"
+            height="48"
             className="h-12 w-auto shrink-0"
           />
 

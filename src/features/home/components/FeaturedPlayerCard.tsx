@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useMagneticTilt } from '../../../hooks/useMagneticTilt'
+import { cloudinaryImage } from '../../../utils/cloudinaryImage'
 
 export interface FeaturedPlayer {
   id: string
@@ -33,8 +34,15 @@ function FeaturedPlayerCard({ player }: { player: FeaturedPlayer }) {
       >
         {player.imageUrl ? (
           <img
-            src={player.imageUrl}
+            src={cloudinaryImage(
+              player.imageUrl,
+              'f_auto,q_auto,w_144,h_144,c_fill,g_auto'
+            )}
+            srcSet={`${cloudinaryImage(player.imageUrl, 'f_auto,q_auto,w_144,h_144,c_fill,g_auto')} 144w, ${cloudinaryImage(player.imageUrl, 'f_auto,q_auto,w_288,h_288,c_fill,g_auto')} 288w`}
+            sizes="72px"
             alt={player.name}
+            width="72"
+            height="72"
             className="h-full w-full object-cover"
           />
         ) : (

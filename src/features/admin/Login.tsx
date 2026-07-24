@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../../store/hooks'
 import { clearError, loginUser } from '../auth/store/authSlice'
 import { ROUTES } from '../../constants/routes'
-import logo from '../../assets/images/logo.png'
+import logo from '../../assets/images/logo.webp'
 import { useGsapPageAnimations } from '../../hooks/useGsapPageAnimations'
 import { useLenisSmoothScroll } from '../../hooks/useLenisSmoothScroll'
 
