@@ -1,11 +1,6 @@
 import { Router } from 'express'
 import prisma from '../lib/prisma.js'
-import { dbRoleMap, toApiPlayer } from '../features/players/player.mapper.js'
-import {
-  createPlayerSchema,
-  updatePlayerSchema,
-} from '../features/players/player.schema.js'
-import { z } from 'zod'
+import { toApiPlayer } from '../features/players/player.mapper.js'
 
 const router = Router()
 

@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { syncInstagramPosts } from '../features/gallery/instagram.service'
 import prisma from '../lib/prisma'
 

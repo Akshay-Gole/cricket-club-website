@@ -8,8 +8,6 @@ const NAV_LINKS = [
   { label: 'Squad', to: ROUTES.SQUAD },
   { label: 'Fixtures', to: ROUTES.FIXTURES },
   { label: 'Honours', to: ROUTES.HONOURS },
-  // News is paused for now.
-  // { label: 'News', to: ROUTES.NEWS },
   { label: 'Gallery', to: ROUTES.GALLERY },
   { label: 'Contact', to: ROUTES.CONTACT },
 ]
@@ -79,9 +77,6 @@ function Navbar() {
             </li>
           ))}
         </ul>
-
-        {/* Join CTA removed. Contact page handles enquiries now. */}
-
         {/* Hamburger button - shown below 900px */}
         <button
           className="min-[900px]:hidden flex flex-col justify-center gap-[5px] w-10 h-10 bg-transparent border-none cursor-pointer p-0"
@@ -135,8 +130,6 @@ function Navbar() {
             </li>
           ))}
         </ul>
-
-        {/* Join CTA removed. Contact page handles enquiries now. */}
       </div>
     </header>
   )
