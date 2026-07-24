@@ -45,6 +45,22 @@ export async function uploadImage(buffer: Buffer, folder: string) {
   )
 }
 
+export async function uploadRemoteImage(
+  imageUrl: string,
+  folder: string,
+  publicId: string
+) {
+  configureCloudinary()
+
+  const result = await cloudinary.uploader.upload(imageUrl, {
+    folder,
+    public_id: publicId,
+    resource_type: 'image',
+  })
+
+  return result.secure_url
+}
+
 export async function deleteCloudinaryImage(publicId?: string | null) {
   if (!publicId) return
 
