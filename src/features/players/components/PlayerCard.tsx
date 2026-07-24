@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useMagneticTilt } from '../../../hooks/useMagneticTilt'
 import type { Player } from '../types/player.types'
+import { cloudinaryImage } from '../../../utils/cloudinaryImage'
 
 // Map each role to its badge text, badge color classes, and avatar gradient classes
 const roleConfig: Record<
@@ -70,8 +71,17 @@ function PlayerCard({ player }: { player: Player }) {
           >
             {player.imageUrl ? (
               <img
-                src={player.imageUrl}
+                src={cloudinaryImage(
+                  player.imageUrl,
+                  'f_auto,q_auto,w_160,h_160,c_fill,g_auto'
+                )}
+                srcSet={`${cloudinaryImage(player.imageUrl, 'f_auto,q_auto,w_160,h_160,c_fill,g_auto')} 160w, ${cloudinaryImage(player.imageUrl, 'f_auto,q_auto,w_320,h_320,c_fill,g_auto')} 320w`}
+                sizes="80px"
                 alt={player.name}
+                width="80"
+                height="80"
+                loading="lazy"
+                decoding="async"
                 className="h-full w-full object-cover"
               />
             ) : (

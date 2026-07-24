@@ -1,4 +1,4 @@
-import logo from '../../assets/images/logo.png'
+import logo from '../../assets/images/logo.webp'
 import { ROUTES } from '../../constants/routes'
 import { NavLink } from 'react-router-dom'
 
@@ -74,6 +74,8 @@ function Footer() {
             <img
               src={logo}
               alt="Top G's CC logo"
+              width="48"
+              height="48"
               className="h-12 w-auto shrink-0"
             />
             <div className="font-['Bebas_Neue'] text-[20px] tracking-[2px] text-cream">

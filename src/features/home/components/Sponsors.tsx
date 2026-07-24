@@ -5,6 +5,7 @@ import {
   PUBLIC_SPONSORS_QUERY_KEY,
   getPublicSponsors,
 } from '../../sponsors/api/sponsor.api'
+import { cloudinaryImage } from '../../../utils/cloudinaryImage'
 
 function Sponsors() {
   const { data: sponsors = [] } = useQuery({
@@ -45,8 +46,15 @@ function Sponsors() {
           {sponsors.map(sponsor => {
             const content = sponsor.logoUrl ? (
               <img
-                src={sponsor.logoUrl}
+                src={cloudinaryImage(
+                  sponsor.logoUrl,
+                  'f_auto,q_auto,w_240,h_160,c_fit'
+                )}
+                srcSet={`${cloudinaryImage(sponsor.logoUrl, 'f_auto,q_auto,w_240,h_160,c_fit')} 240w, ${cloudinaryImage(sponsor.logoUrl, 'f_auto,q_auto,w_400,h_200,c_fit')} 400w`}
+                sizes="(min-width: 1024px) 200px, (min-width: 640px) 30vw, 45vw"
                 alt={sponsor.name}
+                loading="lazy"
+                decoding="async"
                 className="max-h-24 max-w-full object-contain"
               />
             ) : (

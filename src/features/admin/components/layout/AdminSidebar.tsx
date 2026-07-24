@@ -9,7 +9,7 @@ import {
 import { ADMIN_NAVIGATION } from '../../constants/adminNavigation'
 import type { AdminIconName } from '../../constants/adminNavigation'
 import { ROUTES } from '../../../../constants/routes'
-import logo from '../../../../assets/images/logo.png'
+import logo from '../../../../assets/images/logo.webp'
 
 interface AdminSidebarProps {
   isOpen: boolean
@@ -62,6 +62,8 @@ function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
             <img
               src={logo}
               alt="Top G's CC"
+              width="48"
+              height="48"
               className="h-12 w-12 object-contain"
             />
 
